@@ -37,16 +37,16 @@ export const SparklineChart = ({ data, width = 100, height = 23, isPositive }: S
           <stop offset="100%" stopColor={`${isPositive ? '#037b4b' : '#d60a22'}1a`} />
         </linearGradient>
       </defs>
-      
+
       {/* 기준선 */}
       <path
-        d={`M 0 ${height/2} L ${width} ${height/2}`}
+        d={`M 0 ${height / 2} L ${width} ${height / 2}`}
         stroke="#464e56"
         strokeWidth="1"
         strokeDasharray="1 3"
         fill="none"
       />
-      
+
       {/* 라인 */}
       <path
         d={`M ${points}`}
@@ -54,14 +54,14 @@ export const SparklineChart = ({ data, width = 100, height = 23, isPositive }: S
         strokeWidth="1"
         fill="none"
       />
-      
+
       {/* 그라데이션 영역 */}
       <path
         d={`M ${points} L ${width},${height} L 0,${height} Z`}
         fill={`url(#gradient-${isPositive ? 'up' : 'down'})`}
         fillOpacity="0.3"
       />
-      
+
       {/* 마지막 점 */}
       <circle
         cx={width}

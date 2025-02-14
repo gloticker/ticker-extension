@@ -6,6 +6,9 @@
   "action": {
     "default_popup": "index.html"
   },
+  "side_panel": {
+    "default_path": "index.html"
+  },
   "permissions": ["storage"],
   "host_permissions": [
     "wss://streamer.finance.yahoo.com/",
