@@ -25,8 +25,16 @@ function getMarketState(symbol: string): "PRE" | "REGULAR" | "POST" | "CLOSED" {
   // 한국 주식/지수는 별도 처리
   if (symbol.includes("KS11") || symbol.includes("KRW")) {
     const now = new Date();
-    const krHour = now.getHours();
-    return krHour >= 9 && krHour < 15.5 ? "REGULAR" : "CLOSED";
+    // 한국 시간으로 변환 (UTC+9)
+    const krTime = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    const krHour = krTime.getUTCHours();
+    const krMinute = krTime.getUTCMinutes();
+
+    // 09:00 ~ 15:30 (점심시간 포함)
+    return (krHour > 9 || (krHour === 9 && krMinute >= 0)) &&
+      (krHour < 15 || (krHour === 15 && krMinute <= 30))
+      ? "REGULAR"
+      : "CLOSED";
   }
 
   const now = new Date();
@@ -109,6 +117,29 @@ async function fetchYahooData(symbol: string) {
     };
 
     console.log(`Processed data for ${symbol}:`, marketData); // 디버깅을 위한 로그 추가
+
+    if (symbol === "^KS11") {
+      console.log("KOSPI Raw Data:", {
+        meta,
+        quotes,
+        marketState,
+        currentPrice,
+        regularMarketPrice: meta.regularMarketPrice,
+        previousClose: meta.previousClose,
+        timestamp: new Date().toISOString(),
+      });
+      // 장 시간 외에는 항상 최근 장의 종가(regularMarketPrice)를 현재가로 사용
+      if (marketState === "CLOSED") {
+        marketData.price = marketData.regularMarketPrice;
+      }
+
+      // 변화율은 항상 최근 장 종가와 이전 장 종가의 비교
+      if (marketData.regularMarketPrice && marketData.previousClose) {
+        marketData.change = marketData.regularMarketPrice - marketData.previousClose;
+        marketData.changePercent = (marketData.change / marketData.previousClose) * 100;
+      }
+    }
+
     return marketData;
   } catch (error) {
     console.error(`Failed to fetch Yahoo data for ${symbol}:`, error);
@@ -146,10 +177,27 @@ const connectYahooWebSocket = () => {
     try {
       if (typeof event.data === "string") {
         const data = JSON.parse(event.data);
-        console.log("Yahoo WebSocket received:", data); // 디버깅을 위한 로그 추가
         if (data && data.symbol && ALL_SYMBOLS[data.symbol]) {
           const marketData = await fetchYahooData(data.symbol);
           if (marketData) {
+            // KS11(코스피)의 경우 한국 시간 기준으로 처리
+            if (data.symbol === "^KS11") {
+              const krTime = new Date(Date.now() + 9 * 60 * 60 * 1000);
+              const krHour = krTime.getUTCHours();
+              const krMinute = krTime.getUTCMinutes();
+
+              // 장 시간 외에는 당일 종가 사용
+              if (krHour < 9 || (krHour === 15 && krMinute > 30) || krHour > 15) {
+                marketData.price = marketData.regularMarketPrice || marketData.price;
+              }
+
+              // 전일 종가 대비 변화율 계산
+              if (marketData.previousClose) {
+                // 장 중에는 실시간 가격, 장 외에는 당일 종가로 계산
+                marketData.change = marketData.price - marketData.previousClose;
+                marketData.changePercent = (marketData.change / marketData.previousClose) * 100;
+              }
+            }
             chrome.storage.local.set({ [data.symbol]: marketData });
           }
         }
