@@ -1,30 +1,24 @@
 {
-    "manifest_version": 3,
-    "name": "inviticker",
-    "version": "1.0.0",
-    "description": "실시간 주식 티커 익스텐션",
-    "action": {
-      "default_popup": "index.html"
-    },
-    "permissions": [
-      "storage",
-      "https://*.finance.yahoo.com/"
-    ],
-    "host_permissions": [
-      "wss://streamer.finance.yahoo.com/",
-      "https://*.finance.yahoo.com/*",
-      "https://api.coinmarketcap.com/*",
-      "https://api.binance.com/*",
-      "https://api.coingecko.com/*",
-      "https://logo.clearbit.com/*",
-      "https://cryptoicons.org/*",
-      "https://s2.coinmarketcap.com/*",
-      "https://assets.coingecko.com/*",
-      "https://s3.polygon.io/*"
-    ],
-    "background": {
-      "service_worker": "src/background.ts",
-      "type": "module"
-    }
+  "manifest_version": 3,
+  "name": "inviticker",
+  "version": "1.0.0",
+  "description": "실시간 주식 티커 익스텐션",
+  "action": {
+    "default_popup": "index.html"
+  },
+  "permissions": ["storage"],
+  "host_permissions": [
+    "wss://streamer.finance.yahoo.com/",
+    "https://*.finance.yahoo.com/*",
+    "https://api.coinmarketcap.com/*",
+    "https://api.binance.com/*",
+    "https://logo.clearbit.com/*",
+    "https://cryptoicons.org/*",
+    "https://s2.coinmarketcap.com/*",
+    "https://s3.polygon.io/*"
+  ],
+  "background": {
+    "service_worker": "src/background.ts",
+    "type": "module"
   }
-  
+}

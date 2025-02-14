@@ -1,11 +1,11 @@
 /// <reference types="chrome"/>
-import { ALL_SYMBOLS } from './constants/websocket';
-import type { MarketData, MarketType } from './types/market';
+import { ALL_SYMBOLS } from "./constants/websocket";
+import type { MarketData, MarketType } from "./types/market";
 
-const BINANCE_WS_URL = 'wss://stream.binance.com:9443/ws';
+const BINANCE_WS_URL = "wss://stream.binance.com:9443/ws";
 
 let binanceWs: WebSocket | null = null;
-let reconnectAttempts = { binance: 0 };
+const reconnectAttempts = { binance: 0 };
 
 // 미국 주식 시장 시간 (ET, Eastern Time 기준)
 // Pre-Market: 4:00 AM - 9:30 AM ET
@@ -21,12 +21,12 @@ function isDST() {
 }
 
 // 미국 시장 상태 확인
-function getMarketState(symbol: string): 'PRE' | 'REGULAR' | 'POST' | 'CLOSED' {
+function getMarketState(symbol: string): "PRE" | "REGULAR" | "POST" | "CLOSED" {
   // 한국 주식/지수는 별도 처리
-  if (symbol.includes('KS11') || symbol.includes('KRW')) {
+  if (symbol.includes("KS11") || symbol.includes("KRW")) {
     const now = new Date();
     const krHour = now.getHours();
-    return (krHour >= 9 && krHour < 15.5) ? 'REGULAR' : 'CLOSED';
+    return krHour >= 9 && krHour < 15.5 ? "REGULAR" : "CLOSED";
   }
 
   const now = new Date();
@@ -38,14 +38,14 @@ function getMarketState(symbol: string): 'PRE' | 'REGULAR' | 'POST' | 'CLOSED' {
   const offset = isDSTActive ? -4 : -5;
   const etHour = (utcHour + offset + 24) % 24;
 
-  if (etHour >= 4 && etHour < 9 || (etHour === 9 && utcMinute < 30)) {
-    return 'PRE';  // 프리마켓
+  if ((etHour >= 4 && etHour < 9) || (etHour === 9 && utcMinute < 30)) {
+    return "PRE"; // 프리마켓
   } else if ((etHour === 9 && utcMinute >= 30) || (etHour > 9 && etHour < 16)) {
-    return 'REGULAR';  // 정규장
+    return "REGULAR"; // 정규장
   } else if (etHour >= 16 && etHour < 20) {
-    return 'POST';  // 애프터마켓
+    return "POST"; // 애프터마켓
   } else {
-    return 'CLOSED';  // 장 종료
+    return "CLOSED"; // 장 종료
   }
 }
 
@@ -57,10 +57,10 @@ async function fetchYahooData(symbol: string) {
       `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1m&range=1d&includePrePost=true`,
       {
         headers: {
-          'User-Agent': 'Mozilla/5.0',
-          'Accept': 'application/json',
-          'Origin': chrome.runtime.getURL('')
-        }
+          "User-Agent": "Mozilla/5.0",
+          Accept: "application/json",
+          Origin: chrome.runtime.getURL(""),
+        },
       }
     );
 
@@ -68,13 +68,13 @@ async function fetchYahooData(symbol: string) {
     console.log(`Raw data for ${symbol}:`, data); // 디버깅을 위한 로그 추가
 
     if (!data.chart?.result?.[0]) {
-      throw new Error('Invalid chart data');
+      throw new Error("Invalid chart data");
     }
 
     const result = data.chart.result[0];
     const meta = result.meta;
     const quotes = result.indicators.quote[0] || { close: [] };
-    
+
     // API의 marketState 대신 계산된 시장 상태 사용
     const marketState = getMarketState(symbol);
     let currentPrice = meta.regularMarketPrice;
@@ -82,15 +82,15 @@ async function fetchYahooData(symbol: string) {
     let changePercent = 0;
 
     // 프리마켓/애프터마켓 가격 계산
-    if (marketState === 'PRE' && quotes.close?.length > 0) {
+    if (marketState === "PRE" && quotes.close?.length > 0) {
       currentPrice = quotes.close[quotes.close.length - 1] || currentPrice;
       change = currentPrice - meta.previousClose;
       changePercent = (change / meta.previousClose) * 100;
-    } else if (marketState === 'POST' && quotes.close?.length > 0) {
+    } else if (marketState === "POST" && quotes.close?.length > 0) {
       currentPrice = quotes.close[quotes.close.length - 1] || currentPrice;
       change = currentPrice - meta.regularMarketPrice;
       changePercent = (change / meta.regularMarketPrice) * 100;
-    } else if (marketState === 'REGULAR') {
+    } else if (marketState === "REGULAR") {
       change = currentPrice - meta.previousClose;
       changePercent = (change / meta.previousClose) * 100;
     }
@@ -105,7 +105,7 @@ async function fetchYahooData(symbol: string) {
       change,
       changePercent,
       marketState,
-      lastUpdated: new Date()
+      lastUpdated: new Date(),
     };
 
     console.log(`Processed data for ${symbol}:`, marketData); // 디버깅을 위한 로그 추가
@@ -118,29 +118,35 @@ async function fetchYahooData(symbol: string) {
 
 // Yahoo WebSocket 연결
 const connectYahooWebSocket = () => {
-  const ws = new WebSocket('wss://streamer.finance.yahoo.com/');
+  const ws = new WebSocket("wss://streamer.finance.yahoo.com/");
 
   ws.onopen = () => {
     const yahooSymbols = Object.entries(ALL_SYMBOLS)
-      .filter(([_, info]) => 
-        info.type === 'INDEX' || 
-        info.type === 'STOCK' || 
-        info.type === 'FOREX')
+      .filter(([, info]) => info.type === "INDEX" || info.type === "STOCK" || info.type === "FOREX")
       .map(([symbol]) => symbol);
 
-    ws.send(JSON.stringify({
-      subscribe: yahooSymbols.map(symbol => ({
-        symbol,
-        fields: ['regularMarketPrice', 'preMarketPrice', 'postMarketPrice', 'price', 'change', 'changePercent']
-      }))
-    }));
+    ws.send(
+      JSON.stringify({
+        subscribe: yahooSymbols.map((symbol) => ({
+          symbol,
+          fields: [
+            "regularMarketPrice",
+            "preMarketPrice",
+            "postMarketPrice",
+            "price",
+            "change",
+            "changePercent",
+          ],
+        })),
+      })
+    );
   };
 
   ws.onmessage = async (event) => {
     try {
-      if (typeof event.data === 'string') {
+      if (typeof event.data === "string") {
         const data = JSON.parse(event.data);
-        console.log('Yahoo WebSocket received:', data); // 디버깅을 위한 로그 추가
+        console.log("Yahoo WebSocket received:", data); // 디버깅을 위한 로그 추가
         if (data && data.symbol && ALL_SYMBOLS[data.symbol]) {
           const marketData = await fetchYahooData(data.symbol);
           if (marketData) {
@@ -149,72 +155,101 @@ const connectYahooWebSocket = () => {
         }
       }
     } catch (error) {
-      console.error('Failed to process Yahoo message:', error);
+      console.error("Failed to process Yahoo message:", error);
     }
   };
 
   ws.onclose = () => setTimeout(connectYahooWebSocket, 5000);
-  ws.onerror = (error) => console.error('Yahoo WebSocket Error:', error);
+  ws.onerror = (error) => console.error("Yahoo WebSocket Error:", error);
 };
 
 // 주식/지수/환율 데이터 업데이트
 async function updateYahooMarkets() {
   try {
     const yahooSymbols = Object.entries(ALL_SYMBOLS)
-      .filter(([_, info]) => 
-        info.type === 'INDEX' || 
-        info.type === 'STOCK' || 
-        info.type === 'FOREX')
+      .filter(([, info]) => info.type === "INDEX" || info.type === "STOCK" || info.type === "FOREX")
       .map(([symbol]) => symbol);
 
     const promises = yahooSymbols.map(fetchYahooData);
     const results = await Promise.all(promises);
 
-    results.forEach(data => {
+    results.forEach((data) => {
       if (data) {
         chrome.storage.local.set({ [data.symbol]: data });
       }
     });
   } catch (error) {
-    console.error('Failed to update Yahoo markets:', error);
+    console.error("Failed to update Yahoo markets:", error);
   }
 }
 
-// CoinMarketCap API로 비트코인 도미넌스 가져오기
+// BTC.D 데이터 처리 로직 수정
 async function fetchBTCDominance() {
   try {
-    const response = await fetch('https://api.coinmarketcap.com/data-api/v3/global-metrics/dominance/overview', {
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
+    const response = await fetch(
+      "https://api.coinmarketcap.com/data-api/v3/global-metrics/quotes/latest"
+    );
     const data = await response.json();
-    
-    // 현재 도미넌스 (소수점 1자리까지)
-    const currentDominance = Number(data.data.dominance[0].mcProportion.toFixed(1));
-    // 어제의 도미넌스
-    const yesterdayDominance = Number(data.data.dominanceYesterday[0].mcProportion.toFixed(1));
-    
-    // 일간 변화량 계산
-    const change = Number((currentDominance - yesterdayDominance).toFixed(1));
-    const changePercent = Number(((change / yesterdayDominance) * 100).toFixed(1));
-    
-    const marketData = {
-      symbol: 'BTC.D',
-      name: 'BTC Dominance',
-      type: 'CRYPTO' as MarketType,
-      price: currentDominance,
-      change: change,
-      changePercent: changePercent,
-      lastUpdated: new Date(),
-      marketState: 'REGULAR'
-    };
 
-    console.log('BTC Dominance data:', marketData);
-    chrome.storage.local.set({ 'BTC.D': marketData });
+    // BTC.D 데이터 구조 확인 및 처리
+    if (data && data.data && data.data.btcDominance) {
+      const btcDominance = {
+        symbol: "BTC.D",
+        price: data.data.btcDominance,
+        change: 0, // 변화량은 별도로 계산 필요
+        changePercent: 0,
+        lastUpdated: new Date().toISOString(),
+      };
+
+      chrome.storage.local.set({ "BTC.D": btcDominance });
+    }
   } catch (error) {
-    console.error('Failed to fetch BTC dominance:', error);
+    console.error("Failed to fetch BTC dominance:", error);
   }
+}
+
+export async function fetchHistoricalData(symbol: string, type: MarketType) {
+  try {
+    if (type === "CRYPTO") {
+      if (symbol === "BTC.D") {
+        return [];
+      }
+
+      return (
+        await (
+          await fetch(
+            `https://api.binance.com/api/v3/klines?symbol=${symbol.replace(
+              "-USD",
+              "USDT"
+            )}&interval=5m&limit=288`
+          )
+        ).json()
+      ).map((data: BinanceKline) => ({
+        time: new Date(data[0]).toISOString(),
+        value: parseFloat(data[4]),
+      }));
+    }
+
+    const response = await fetch(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=5m&range=1d&includePrePost=true`
+    );
+    const data = await response.json();
+    const timestamps = data.chart.result[0].timestamp;
+    const prices = data.chart.result[0].indicators.quote[0].close;
+
+    return timestamps.map((time: number, i: number) => ({
+      time: new Date(time * 1000).toISOString(),
+      value: prices[i] || prices[i - 1],
+    }));
+  } catch (error) {
+    console.error(`Failed to fetch historical data for ${symbol}:`, error);
+    return [];
+  }
+}
+
+interface BinanceKline {
+  0: number; // Open time
+  4: string; // Close price
 }
 
 // Binance WebSocket 연결
@@ -225,39 +260,41 @@ const connectBinanceWebSocket = () => {
     reconnectAttempts.binance = 0;
 
     const cryptoSymbols = Object.entries(ALL_SYMBOLS)
-      .filter(([symbol, info]) => 
-        info.type === 'CRYPTO' && !symbol.includes('BTC.D')) // BTC.D 제외
-      .map(([symbol]) => symbol.toLowerCase().replace('-usd', 'usdt'));
+      .filter(([symbol, info]) => info.type === "CRYPTO" && !symbol.includes("BTC.D")) // BTC.D 제외
+      .map(([symbol]) => symbol.toLowerCase().replace("-usd", "usdt"));
 
     if (binanceWs && cryptoSymbols.length > 0) {
-      binanceWs.send(JSON.stringify({
-        method: 'SUBSCRIBE',
-        params: cryptoSymbols.map(symbol => `${symbol}@ticker`),
-        id: 1
-      }));
+      binanceWs.send(
+        JSON.stringify({
+          method: "SUBSCRIBE",
+          params: cryptoSymbols.map((symbol) => `${symbol}@ticker`),
+          id: 1,
+        })
+      );
     }
   };
 
   binanceWs.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
-      if (data.e === '24hrTicker') {
-        const symbol = data.s.replace('USDT', '-USD');
+      if (data.e === "24hrTicker") {
+        const symbol = data.s.replace("USDT", "-USD");
         if (ALL_SYMBOLS[symbol]) {
           const marketData: Partial<MarketData> = {
             symbol,
-            price: parseFloat(data.c),
+            price: parseFloat(data.c), // 현재가
+            dayStartPrice: parseFloat(data.o), // UTC 00:00 기준 시작가
+            change: parseFloat(data.c) - parseFloat(data.o), // UTC 00:00 대비 변화량
+            changePercent: ((parseFloat(data.c) - parseFloat(data.o)) / parseFloat(data.o)) * 100, // UTC 00:00 대비 변화율
             lastUpdated: new Date(),
             name: ALL_SYMBOLS[symbol].name,
             type: ALL_SYMBOLS[symbol].type as MarketType,
-            change: parseFloat(data.p),
-            changePercent: parseFloat(data.P)
           };
           chrome.storage.local.set({ [symbol]: marketData });
         }
       }
     } catch (error) {
-      console.error('Failed to process message:', error);
+      console.error("Failed to process message:", error);
     }
   };
 };
@@ -265,15 +302,15 @@ const connectBinanceWebSocket = () => {
 // 업데이트 주기 설정
 async function initialize() {
   await updateYahooMarkets();
-  await fetchBTCDominance();  // 초기 BTC.D 데이터 가져오기
+  await fetchBTCDominance(); // 초기 BTC.D 데이터 가져오기
   connectYahooWebSocket();
   connectBinanceWebSocket();
-  
+
   // 1분마다 업데이트
   setInterval(async () => {
     await updateYahooMarkets();
-    await fetchBTCDominance();  // BTC.D 업데이트
-  }, 60000);  // 60000ms = 1분
+    await fetchBTCDominance(); // BTC.D 업데이트
+  }, 60000); // 60000ms = 1분
 }
 
 // 시작

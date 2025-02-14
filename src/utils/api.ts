@@ -1,26 +1,33 @@
-import { MarketType } from '../types/market';
+import { MarketType } from "../types/market";
+
+interface BinanceKline {
+  0: number; // Open time
+  1: string; // Open price
+  2: string; // High price
+  3: string; // Low price
+  4: string; // Close price
+  // ... 나머지 필드는 사용하지 않으므로 생략
+}
 
 export async function fetchHistoricalData(symbol: string, type: MarketType) {
   try {
-    if (type === 'CRYPTO' && !symbol.includes('BTC.D')) {
+    // BTC.D는 즉시 빈 배열 반환
+    if (symbol === "BTC.D") {
+      return [];
+    }
+
+    if (type === "CRYPTO") {
       // Binance API for crypto
       const response = await fetch(
-        `https://api.binance.com/api/v3/klines?symbol=${symbol.replace('-USD', 'USDT')}&interval=5m&limit=288`
+        `https://api.binance.com/api/v3/klines?symbol=${symbol.replace(
+          "-USD",
+          "USDT"
+        )}&interval=5m&limit=288`
       );
       const data = await response.json();
-      return data.map((candle: any[]) => ({
+      return data.map((candle: BinanceKline) => ({
         time: new Date(candle[0]).toISOString(),
-        value: parseFloat(candle[4])
-      }));
-    } else if (type === 'CRYPTO' && symbol.includes('BTC.D')) {
-      // CoinGecko API for BTC dominance
-      const response = await fetch(
-        'https://api.coingecko.com/api/v3/global/market_cap_chart?days=1'
-      );
-      const data = await response.json();
-      return data.map((point: any) => ({
-        time: new Date(point[0]).toISOString(),
-        value: point[1]
+        value: parseFloat(candle[4]),
       }));
     } else {
       // Yahoo Finance API for stocks, indices, and forex
@@ -30,14 +37,14 @@ export async function fetchHistoricalData(symbol: string, type: MarketType) {
       const data = await response.json();
       const timestamps = data.chart.result[0].timestamp;
       const prices = data.chart.result[0].indicators.quote[0].close;
-      
+
       return timestamps.map((time: number, i: number) => ({
         time: new Date(time * 1000).toISOString(),
-        value: prices[i] || prices[i - 1]
+        value: prices[i] || prices[i - 1],
       }));
     }
   } catch (error) {
     console.error(`Failed to fetch historical data for ${symbol}:`, error);
     return [];
   }
-} 
+}
