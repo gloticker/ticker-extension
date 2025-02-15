@@ -57,8 +57,32 @@ export const MarketItem = ({ data }: MarketItemProps) => {
     return '';
   };
 
+  const getMarketUrl = (symbol: string, type: string) => {
+    switch (type) {
+      case "CRYPTO":
+        if (symbol === "BTC.D") {
+          return "https://coinmarketcap.com/charts/";  // BTC 도미넌스는 코인마켓캡
+        }
+        return `https://www.binance.com/en/trade/${symbol.replace("-USD", "USDT")}`;  // 바이낸스
+
+      case "STOCK":
+      case "INDEX":
+      case "FOREX":
+        return `https://finance.yahoo.com/quote/${symbol}`;  // 야후 파이낸스
+
+      default:
+        return "";
+    }
+  };
+
   return (
-    <div className="flex justify-between items-center p-2 hover:bg-slate-800 rounded">
+    <div
+      className="flex justify-between items-center p-2 hover:bg-slate-800 rounded cursor-pointer"
+      onClick={() => {
+        const url = getMarketUrl(data.symbol, data.type);
+        if (url) window.open(url, "_blank");
+      }}
+    >
       <div className="flex flex-col">
         <div className="flex items-center gap-2">
           <img
