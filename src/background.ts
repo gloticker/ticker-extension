@@ -63,7 +63,6 @@ function getMarketState(symbol: string): "PRE" | "REGULAR" | "POST" | "CLOSED" {
 // Yahoo Finance REST API로 데이터 가져오기
 async function fetchYahooData(symbol: string) {
   try {
-    console.log(`Fetching data for ${symbol}...`);
     const response = await fetch(
       `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1m&range=1d&includePrePost=true`,
       {
@@ -76,7 +75,6 @@ async function fetchYahooData(symbol: string) {
     );
 
     const data = await response.json();
-    console.log(`Raw data for ${symbol}:`, data); // 디버깅을 위한 로그 추가
 
     if (!data.chart?.result?.[0]) {
       throw new Error("Invalid chart data");
@@ -119,24 +117,11 @@ async function fetchYahooData(symbol: string) {
       lastUpdated: new Date(),
     };
 
-    console.log(`Processed data for ${symbol}:`, marketData); // 디버깅을 위한 로그 추가
-
     if (symbol === "^KS11") {
-      console.log("KOSPI Raw Data:", {
-        meta,
-        quotes,
-        marketState,
-        currentPrice,
-        regularMarketPrice: meta.regularMarketPrice,
-        previousClose: meta.previousClose,
-        timestamp: new Date().toISOString(),
-      });
-      // 장 시간 외에는 항상 최근 장의 종가(regularMarketPrice)를 현재가로 사용
       if (marketState === "CLOSED") {
         marketData.price = marketData.regularMarketPrice;
       }
 
-      // 변화율은 항상 최근 장 종가와 이전 장 종가의 비교
       if (marketData.regularMarketPrice && marketData.previousClose) {
         marketData.change = marketData.regularMarketPrice - marketData.previousClose;
         marketData.changePercent = (marketData.change / marketData.previousClose) * 100;
