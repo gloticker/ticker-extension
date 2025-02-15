@@ -102,6 +102,11 @@ async function fetchYahooData(symbol: string) {
     } else if (marketState === "REGULAR") {
       change = currentPrice - meta.previousClose;
       changePercent = (change / meta.previousClose) * 100;
+    } else {
+      // CLOSED 상태일 때 처리가 없음
+      // 여기에 장 종료 시의 계산 로직 추가 필요
+      change = currentPrice - meta.previousClose;
+      changePercent = (change / meta.previousClose) * 100;
     }
 
     const marketData = {
@@ -137,30 +142,37 @@ async function fetchYahooData(symbol: string) {
 
 // Yahoo WebSocket 연결
 const connectYahooWebSocket = () => {
-  if (!isPopupOpen) return; // 팝업이 닫혀있으면 연결하지 않음
+  if (!isPopupOpen) return;
 
   const ws = new WebSocket("wss://streamer.finance.yahoo.com/");
 
   ws.onopen = () => {
-    const yahooSymbols = Object.entries(ALL_SYMBOLS)
-      .filter(([, info]) => info.type === "INDEX" || info.type === "STOCK" || info.type === "FOREX")
-      .map(([symbol]) => symbol);
+    try {
+      const yahooSymbols = Object.entries(ALL_SYMBOLS)
+        .filter(
+          ([, info]) => info.type === "INDEX" || info.type === "STOCK" || info.type === "FOREX"
+        )
+        .map(([symbol]) => symbol);
 
-    ws.send(
-      JSON.stringify({
-        subscribe: yahooSymbols.map((symbol) => ({
-          symbol,
-          fields: [
-            "regularMarketPrice",
-            "preMarketPrice",
-            "postMarketPrice",
-            "price",
-            "change",
-            "changePercent",
-          ],
-        })),
-      })
-    );
+      ws.send(
+        JSON.stringify({
+          subscribe: yahooSymbols.map((symbol) => ({
+            symbol,
+            fields: [
+              "regularMarketPrice",
+              "preMarketPrice",
+              "postMarketPrice",
+              "price",
+              "change",
+              "changePercent",
+            ],
+          })),
+        })
+      );
+    } catch (error) {
+      console.error("Failed to send subscription:", error);
+      ws.close();
+    }
   };
 
   ws.onmessage = async (event) => {
@@ -197,14 +209,20 @@ const connectYahooWebSocket = () => {
     }
   };
 
-  ws.onclose = () => {
-    if (isPopupOpen) {
-      // 팝업이 열려있을 때만 재연결
-      setTimeout(connectYahooWebSocket, 5000);
+  ws.onclose = (event) => {
+    if (isPopupOpen && !event.wasClean) {
+      // 정상적인 종료가 아닐 경우에만 재연결 시도
+      setTimeout(() => {
+        if (isPopupOpen) {
+          connectYahooWebSocket();
+        }
+      }, 5000);
     }
   };
 
   ws.onerror = (error) => console.error("Yahoo WebSocket Error:", error);
+
+  return ws;
 };
 
 // 주식/지수/환율 데이터 업데이트
