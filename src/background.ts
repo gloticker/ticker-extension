@@ -6,6 +6,9 @@ const BINANCE_WS_URL = "wss://stream.binance.com:9443/ws";
 
 let binanceWs: WebSocket | null = null;
 const reconnectAttempts = { binance: 0 };
+let isPopupOpen = false;
+let heartbeatInterval: NodeJS.Timeout;
+let updateInterval: NodeJS.Timeout;
 
 // 미국 주식 시장 시간 (ET, Eastern Time 기준)
 // Pre-Market: 4:00 AM - 9:30 AM ET
@@ -149,6 +152,8 @@ async function fetchYahooData(symbol: string) {
 
 // Yahoo WebSocket 연결
 const connectYahooWebSocket = () => {
+  if (!isPopupOpen) return; // 팝업이 닫혀있으면 연결하지 않음
+
   const ws = new WebSocket("wss://streamer.finance.yahoo.com/");
 
   ws.onopen = () => {
@@ -207,7 +212,13 @@ const connectYahooWebSocket = () => {
     }
   };
 
-  ws.onclose = () => setTimeout(connectYahooWebSocket, 5000);
+  ws.onclose = () => {
+    if (isPopupOpen) {
+      // 팝업이 열려있을 때만 재연결
+      setTimeout(connectYahooWebSocket, 5000);
+    }
+  };
+
   ws.onerror = (error) => console.error("Yahoo WebSocket Error:", error);
 };
 
@@ -350,16 +361,49 @@ const connectBinanceWebSocket = () => {
 // 업데이트 주기 설정
 async function initialize() {
   await updateYahooMarkets();
-  await fetchBTCDominance(); // 초기 BTC.D 데이터 가져오기
+  await fetchBTCDominance();
   connectYahooWebSocket();
   connectBinanceWebSocket();
 
   // 1분마다 업데이트
-  setInterval(async () => {
+  updateInterval = setInterval(async () => {
     await updateYahooMarkets();
-    await fetchBTCDominance(); // BTC.D 업데이트
-  }, 60000); // 60000ms = 1분
+    await fetchBTCDominance();
+  }, 60000);
 }
+
+// 팝업 상태 모니터링
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name === "popup") {
+    isPopupOpen = true;
+
+    // 팝업이 열리면 연결 시작
+    initialize();
+
+    // 하트비트 시작
+    heartbeatInterval = setInterval(() => {
+      if (binanceWs && binanceWs.readyState === WebSocket.OPEN) {
+        binanceWs.send(JSON.stringify({ type: "ping" }));
+      }
+    }, 30000); // 30초마다 하트비트
+
+    port.onDisconnect.addListener(() => {
+      isPopupOpen = false;
+
+      // 팝업이 닫히면 연결 정리
+      if (binanceWs) {
+        binanceWs.close();
+        binanceWs = null;
+      }
+
+      // 하트비트 정리
+      clearInterval(heartbeatInterval);
+
+      // 업데이트 중지
+      clearInterval(updateInterval);
+    });
+  }
+});
 
 // 시작
 initialize();
