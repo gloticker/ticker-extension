@@ -150,7 +150,9 @@ const connectYahooWebSocket = () => {
     try {
       const yahooSymbols = Object.entries(ALL_SYMBOLS)
         .filter(
-          ([, info]) => info.type === "INDEX" || info.type === "STOCK" || info.type === "FOREX"
+          ([symbol, info]) =>
+            (info.type === "INDEX" || info.type === "STOCK" || info.type === "FOREX") &&
+            symbol !== "FEAR.GREED" // Fear & Greed Index 제외
         )
         .map(([symbol]) => symbol);
 
@@ -229,7 +231,11 @@ const connectYahooWebSocket = () => {
 async function updateYahooMarkets() {
   try {
     const yahooSymbols = Object.entries(ALL_SYMBOLS)
-      .filter(([, info]) => info.type === "INDEX" || info.type === "STOCK" || info.type === "FOREX")
+      .filter(
+        ([symbol, info]) =>
+          (info.type === "INDEX" || info.type === "STOCK" || info.type === "FOREX") &&
+          symbol !== "FEAR.GREED" // Fear & Greed Index 제외
+      )
       .map(([symbol]) => symbol);
 
     const promises = yahooSymbols.map(fetchYahooData);
@@ -270,39 +276,74 @@ async function fetchBTCDominance() {
   }
 }
 
+async function fetchFearAndGreedIndex() {
+  try {
+    const response = await fetch("https://production.dataviz.cnn.io/index/fearandgreed/graphdata");
+    const data = await response.json();
+
+    if (data && data.fear_and_greed && data.fear_and_greed.score) {
+      const score = data.fear_and_greed.score;
+      let rating = "Neutral";
+
+      // 점수에 따른 상태 결정
+      if (score <= 25) rating = "Extreme Fear";
+      else if (score <= 45) rating = "Fear";
+      else if (score <= 55) rating = "Neutral";
+      else if (score <= 75) rating = "Greed";
+      else rating = "Extreme Greed";
+
+      const fng = {
+        symbol: "FEAR.GREED",
+        name: "Fear & Greed",
+        type: "INDEX",
+        price: score,
+        change: 0,
+        changePercent: 0,
+        lastUpdated: new Date(),
+        rating,
+      };
+
+      chrome.storage.local.set({ "FEAR.GREED": fng });
+    }
+  } catch (error) {
+    console.error("Failed to fetch Fear & Greed index:", error);
+  }
+}
+
 export async function fetchHistoricalData(symbol: string, type: MarketType) {
   try {
-    if (type === "CRYPTO") {
-      if (symbol === "BTC.D") {
-        return [];
-      }
-
-      return (
-        await (
-          await fetch(
-            `https://api.binance.com/api/v3/klines?symbol=${symbol.replace(
-              "-USD",
-              "USDT"
-            )}&interval=5m&limit=288`
-          )
-        ).json()
-      ).map((data: BinanceKline) => ({
-        time: new Date(data[0]).toISOString(),
-        value: parseFloat(data[4]),
-      }));
+    // BTC.D와 Fear & Greed Index는 차트 데이터 제외
+    if (symbol === "BTC.D" || symbol === "FEAR.GREED") {
+      return [];
     }
 
-    const response = await fetch(
-      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=5m&range=1d&includePrePost=true`
-    );
-    const data = await response.json();
-    const timestamps = data.chart.result[0].timestamp;
-    const prices = data.chart.result[0].indicators.quote[0].close;
+    if (type === "CRYPTO") {
+      // Binance API for crypto
+      const response = await fetch(
+        `https://api.binance.com/api/v3/klines?symbol=${symbol.replace(
+          "-USD",
+          "USDT"
+        )}&interval=5m&limit=288`
+      );
+      const data = await response.json();
+      return data.map((candle: BinanceKline) => ({
+        time: new Date(candle[0]).toISOString(),
+        value: parseFloat(candle[4]),
+      }));
+    } else {
+      // Yahoo Finance API for stocks, indices, and forex
+      const response = await fetch(
+        `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=5m&range=1d&includePrePost=true`
+      );
+      const data = await response.json();
+      const timestamps = data.chart.result[0].timestamp;
+      const prices = data.chart.result[0].indicators.quote[0].close;
 
-    return timestamps.map((time: number, i: number) => ({
-      time: new Date(time * 1000).toISOString(),
-      value: prices[i] || prices[i - 1],
-    }));
+      return timestamps.map((time: number, i: number) => ({
+        time: new Date(time * 1000).toISOString(),
+        value: prices[i] || prices[i - 1],
+      }));
+    }
   } catch (error) {
     console.error(`Failed to fetch historical data for ${symbol}:`, error);
     return [];
@@ -365,6 +406,7 @@ const connectBinanceWebSocket = () => {
 async function initialize() {
   await updateYahooMarkets();
   await fetchBTCDominance();
+  await fetchFearAndGreedIndex();
   connectYahooWebSocket();
   connectBinanceWebSocket();
 
@@ -372,6 +414,7 @@ async function initialize() {
   updateInterval = setInterval(async () => {
     await updateYahooMarkets();
     await fetchBTCDominance();
+    await fetchFearAndGreedIndex(); // Fear & Greed Index도 주기적으로 업데이트
   }, 60000);
 }
 

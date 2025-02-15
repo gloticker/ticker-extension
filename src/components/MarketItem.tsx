@@ -61,17 +61,18 @@ export const MarketItem = ({ data }: MarketItemProps) => {
     switch (type) {
       case "CRYPTO":
         if (symbol === "BTC.D") {
-          return "https://coinmarketcap.com/charts/";  // BTC 도미넌스는 코인마켓캡
+          return "https://coinmarketcap.com/charts/";
         }
-        return `https://www.binance.com/en/trade/${symbol.replace("-USD", "USDT")}`;  // 바이낸스
+        return `https://www.binance.com/en/trade/${symbol.replace("-USD", "USDT")}`;
 
-      case "STOCK":
       case "INDEX":
-      case "FOREX":
-        return `https://finance.yahoo.com/quote/${symbol}`;  // 야후 파이낸스
+        if (symbol === "FEAR.GREED") {
+          return "https://edition.cnn.com/markets/fear-and-greed";
+        }
+        return `https://finance.yahoo.com/quote/${symbol}`;
 
       default:
-        return "";
+        return `https://finance.yahoo.com/quote/${symbol}`;
     }
   };
 
@@ -100,7 +101,7 @@ export const MarketItem = ({ data }: MarketItemProps) => {
         <div className="flex items-center gap-2">
           <div className="flex flex-col items-end">
             <span className="text-xs">
-              {data.price ? formatNumber(data.price) : '0.00'}
+              {data.price ? formatNumber(data.price) : "0.00"}
             </span>
             {marketStateLabel && (
               <span className="text-xs text-gray-400">
@@ -108,12 +109,11 @@ export const MarketItem = ({ data }: MarketItemProps) => {
               </span>
             )}
           </div>
-          <div className="w-10 h-4">
-            {data.symbol !== "BTC.D" && chartData.length > 0 && (
-              <SparklineChart
-                data={chartData}
-                isPositive={data.change >= 0}
-              />
+          <div className="w-10 h-4 flex items-center justify-center">
+            {data.symbol !== "FEAR.GREED" && data.symbol !== "BTC.D" && chartData.length > 0 ? (
+              <SparklineChart data={chartData} isPositive={data.change >= 0} />
+            ) : data.symbol === "FEAR.GREED" && data.rating && (
+              <span className="text-xs text-gray-400">({data.rating})</span>
             )}
           </div>
         </div>

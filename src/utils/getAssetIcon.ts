@@ -17,6 +17,8 @@ const indexDomains: Record<string, string> = {
   "^GSPC": "spglobal.com", // S&P 500
   "^IXIC": "nasdaq.com", // NASDAQ
   "^KS11": "kind.krx.co.kr", // KOSPI
+  "^VIX": "www.cboe.com", // CBOE VIX
+  "FEAR.GREED": "money.cnn.com", // CNN Fear & Greed
 };
 
 export const getAssetIcon = (symbol: string, type: string) => {

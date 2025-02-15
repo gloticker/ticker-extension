@@ -23,6 +23,7 @@ export interface MarketData {
   changePercent: number;
   lastUpdated: Date;
   marketState?: "PRE" | "REGULAR" | "POST" | "CLOSED";
+  rating?: string; // Fear & Greed Index의 상태를 위한 필드 추가
 }
 
 export interface WebSocketMessage {
