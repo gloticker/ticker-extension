@@ -8,8 +8,7 @@ let binanceWs: WebSocket | null = null;
 let yahooWs: WebSocket | null = null;
 const reconnectAttempts = { binance: 0 };
 let isPopupOpen = false;
-let heartbeatInterval: NodeJS.Timeout;
-let updateInterval: NodeJS.Timeout;
+let updateInterval: NodeJS.Timeout | null = null;
 let lastFearGreedUpdate: Date | null = null;
 
 // 미국 주식 시장 시간 (ET, Eastern Time 기준)
@@ -147,35 +146,44 @@ const connectYahooWebSocket = () => {
   if (!isPopupOpen) return null;
 
   const ws = new WebSocket("wss://streamer.finance.yahoo.com/");
+  let isSubscribed = false;
 
   ws.onopen = () => {
-    try {
-      const yahooSymbols = Object.entries(ALL_SYMBOLS)
-        .filter(
-          ([symbol, info]) =>
-            (info.type === "INDEX" || info.type === "STOCK" || info.type === "FOREX") &&
-            symbol !== "FEAR.GREED" // Fear & Greed Index 제외
-        )
-        .map(([symbol]) => symbol);
+    // 연결이 완료된 후 구독 시도
+    if (!isSubscribed) {
+      setTimeout(() => {
+        try {
+          if (ws.readyState === WebSocket.OPEN) {
+            const yahooSymbols = Object.entries(ALL_SYMBOLS)
+              .filter(
+                ([symbol, info]) =>
+                  (info.type === "INDEX" || info.type === "STOCK" || info.type === "FOREX") &&
+                  symbol !== "FEAR.GREED"
+              )
+              .map(([symbol]) => symbol);
 
-      ws.send(
-        JSON.stringify({
-          subscribe: yahooSymbols.map((symbol) => ({
-            symbol,
-            fields: [
-              "regularMarketPrice",
-              "preMarketPrice",
-              "postMarketPrice",
-              "price",
-              "change",
-              "changePercent",
-            ],
-          })),
-        })
-      );
-    } catch (error) {
-      console.error("Failed to send subscription:", error);
-      ws.close();
+            ws.send(
+              JSON.stringify({
+                subscribe: yahooSymbols.map((symbol) => ({
+                  symbol,
+                  fields: [
+                    "regularMarketPrice",
+                    "preMarketPrice",
+                    "postMarketPrice",
+                    "price",
+                    "change",
+                    "changePercent",
+                  ],
+                })),
+              })
+            );
+            isSubscribed = true;
+          }
+        } catch (error) {
+          console.error("Failed to send subscription:", error);
+          ws.close();
+        }
+      }, 1000); // 1초 딜레이 추가
     }
   };
 
@@ -386,22 +394,31 @@ interface BinanceKline {
 // Binance WebSocket 연결
 const connectBinanceWebSocket = () => {
   binanceWs = new WebSocket(BINANCE_WS_URL);
+  let isSubscribed = false;
 
   binanceWs.onopen = () => {
     reconnectAttempts.binance = 0;
 
-    const cryptoSymbols = Object.entries(ALL_SYMBOLS)
-      .filter(([symbol, info]) => info.type === "CRYPTO" && !symbol.includes("BTC.D"))
-      .map(([symbol]) => symbol.toLowerCase().replace("-usd", "usdt"));
+    // 연결이 완료된 후 구독 시도
+    if (!isSubscribed) {
+      const cryptoSymbols = Object.entries(ALL_SYMBOLS)
+        .filter(([symbol, info]) => info.type === "CRYPTO" && !symbol.includes("BTC.D"))
+        .map(([symbol]) => symbol.toLowerCase().replace("-usd", "usdt"));
 
-    if (binanceWs && cryptoSymbols.length > 0) {
-      binanceWs.send(
-        JSON.stringify({
-          method: "SUBSCRIBE",
-          params: cryptoSymbols.map((symbol) => `${symbol}@ticker`),
-          id: 1,
-        })
-      );
+      if (cryptoSymbols.length > 0) {
+        setTimeout(() => {
+          if (binanceWs && binanceWs.readyState === WebSocket.OPEN) {
+            binanceWs.send(
+              JSON.stringify({
+                method: "SUBSCRIBE",
+                params: cryptoSymbols.map((symbol) => `${symbol}@ticker`),
+                id: 1,
+              })
+            );
+            isSubscribed = true;
+          }
+        }, 1000); // 1초 딜레이 추가
+      }
     }
   };
 
@@ -438,18 +455,24 @@ const connectBinanceWebSocket = () => {
   };
 };
 
-// 웹소켓 연결 상태 체크 및 재연결
+// 웹소켓 연결 상태 체크 및 재연결 함수 수정
 function checkConnections() {
   if (isPopupOpen) {
     // 야후 웹소켓 체크
     if (!yahooWs || yahooWs.readyState !== WebSocket.OPEN) {
+      console.log("Reconnecting Yahoo WebSocket...");
       connectYahooWebSocket();
     }
 
     // 바이낸스 웹소켓 체크
     if (!binanceWs || binanceWs.readyState !== WebSocket.OPEN) {
+      console.log("Reconnecting Binance WebSocket...");
       connectBinanceWebSocket();
     }
+
+    // 데이터 강제 업데이트
+    updateYahooMarkets();
+    fetchBTCDominance();
   }
 }
 
@@ -488,34 +511,38 @@ async function initialize() {
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === "popup") {
     isPopupOpen = true;
-
-    // 팝업이 열리면 연결 시작
     initialize();
 
-    // 하트비트 시작
-    heartbeatInterval = setInterval(() => {
-      if (binanceWs && binanceWs.readyState === WebSocket.OPEN) {
-        binanceWs.send(JSON.stringify({ type: "ping" }));
+    port.onMessage.addListener((message) => {
+      if (message.type === "CHECK_CONNECTIONS") {
+        checkConnections();
       }
-    }, 30000); // 30초마다 하트비트
+    });
 
     port.onDisconnect.addListener(() => {
       isPopupOpen = false;
-
-      // 팝업이 닫히면 연결 정리
       if (binanceWs) {
         binanceWs.close();
         binanceWs = null;
       }
-
-      // 하트비트 정리
-      clearInterval(heartbeatInterval);
-
-      // 업데이트 중지
-      clearInterval(updateInterval);
+      if (yahooWs) {
+        yahooWs.close();
+        yahooWs = null;
+      }
+      if (updateInterval) {
+        clearInterval(updateInterval);
+        updateInterval = null;
+      }
     });
   }
 });
+
+// 주기적인 연결 상태 체크
+setInterval(() => {
+  if (isPopupOpen) {
+    checkConnections();
+  }
+}, 30000); // 30초마다 체크
 
 // 시작
 initialize();

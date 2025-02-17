@@ -29,6 +29,23 @@ function App() {
     loadMarketData();
   }, [setMarkets]);
 
+  useEffect(() => {
+    const port = chrome.runtime.connect({ name: "popup" });
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        port.postMessage({ type: "CHECK_CONNECTIONS" });
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      port.disconnect();
+    };
+  }, []);
+
   return (
     <div className="w-[300px] h-[600px] bg-slate-900 text-white overflow-hidden">
       <div className="relative w-full h-full">
