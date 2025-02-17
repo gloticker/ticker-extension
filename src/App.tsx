@@ -55,7 +55,7 @@ function App() {
         >
           <div className="p-4 h-full flex flex-col">
             <div className="flex justify-between items-center mb-4">
-              <h1 className="text-xl font-bold">inviticker</h1>
+              <h1 className="text-xl font-bold">gloticker</h1>
               <button onClick={() => setShowSettings(true)} className="text-gray-400 hover:text-white">
                 <img src="images/setting.svg" alt="Settings" className="w-6 h-6" />
               </button>
