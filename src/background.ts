@@ -332,20 +332,6 @@ export async function fetchHistoricalData(symbol: string, type: MarketType) {
     return [];
   }
 
-  // VIX 지수는 flat line으로 표시
-  if (symbol === "^VIX") {
-    const market = await fetchYahooData(symbol);
-    if (!market?.price) return [];
-
-    const now = new Date();
-    return Array(288)
-      .fill(null)
-      .map((_, i) => ({
-        time: new Date(now.getTime() - (287 - i) * 5 * 60 * 1000).toISOString(),
-        value: market.price,
-      }));
-  }
-
   try {
     // 암호화폐는 바이낸스 API 사용
     if (type === "CRYPTO") {
@@ -370,7 +356,27 @@ export async function fetchHistoricalData(symbol: string, type: MarketType) {
       }
     }
 
-    // 현재 가격으로 flat line 생성
+    // 야후 파이낸스 API로 과거 데이터 가져오기 시도
+    try {
+      const response = await fetch(
+        `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=5m&range=1d&includePrePost=true`
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+
+      const data = await response.json();
+      const result = data?.chart?.result?.[0];
+
+      if (result?.timestamp && result?.indicators?.quote?.[0]?.close) {
+        return result.timestamp.map((timestamp: number, index: number) => ({
+          time: new Date(timestamp * 1000).toISOString(),
+          value: result.indicators.quote[0].close[index] || result.meta.regularMarketPrice,
+        }));
+      }
+    } catch (error) {
+      console.debug(`Failed to fetch historical data for ${symbol}, falling back to flat line`);
+    }
+
+    // 과거 데이터를 가져오지 못한 경우 현재 가격으로 flat line 생성
     const market = await fetchYahooData(symbol);
     if (!market?.price) return [];
 

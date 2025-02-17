@@ -24,7 +24,7 @@ export const MarketItem = ({ data }: MarketItemProps) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (data.symbol === "FEAR.GREED" || data.symbol === "BTC.D" || data.symbol === "^VIX") {
+      if (data.symbol === "FEAR.GREED" || data.symbol === "BTC.D") {
         setChartData([]);
         return;
       }
