@@ -21,19 +21,41 @@ const indexDomains: Record<string, string> = {
   "FEAR.GREED": "money.cnn.com", // CNN Fear & Greed
 };
 
+const getCryptoId = (symbol: string) => cryptoIds[symbol];
+const getStockDomain = (symbol: string) => companyDomains[symbol];
+const getIndexDomain = (symbol: string) => indexDomains[symbol];
+
 export const getAssetIcon = (symbol: string, type: string) => {
   switch (type) {
     case "CRYPTO":
       if (symbol === "BTC.D") return "";
-      return `https://s2.coinmarketcap.com/static/img/coins/64x64/${cryptoIds[symbol]}.png`;
+      return `https://s2.coinmarketcap.com/static/img/coins/64x64/${getCryptoId(symbol)}.png`;
 
     case "STOCK":
-      return `https://www.google.com/s2/favicons?domain=${companyDomains[symbol]}&sz=64`;
+      return `https://www.google.com/s2/favicons?domain=${getStockDomain(symbol)}&sz=64`;
 
     case "INDEX":
-      return `https://www.google.com/s2/favicons?domain=${indexDomains[symbol]}&sz=64`;
+      return `https://www.google.com/s2/favicons?domain=${getIndexDomain(symbol)}&sz=64`;
 
     case "FOREX":
+      // KRW=X는 USD/KRW를 의미
+      if (symbol === "KRW=X") {
+        return "https://flagcdn.com/w80/us.png"; // 미국
+      }
+      // EURKRW=X, CNYKRW=X, JPYKRW=X 처리
+      if (symbol.includes("KRW=X")) {
+        const baseCurrency = symbol.replace("KRW=X", "").toLowerCase();
+        switch (baseCurrency) {
+          case "eur":
+            return "https://flagcdn.com/w80/eu.png"; // 유럽연합
+          case "cny":
+            return "https://flagcdn.com/w80/cn.png"; // 중국
+          case "jpy":
+            return "https://flagcdn.com/w80/jp.png"; // 일본
+          default:
+            return "";
+        }
+      }
       return "";
 
     default:
