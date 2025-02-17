@@ -411,27 +411,52 @@ interface BinanceKline {
 const connectBinanceWebSocket = () => {
   if (!isPopupOpen) return null;
 
+  // 기존 재연결 타이머 제거
   if (wsReconnectTimeout) {
     clearTimeout(wsReconnectTimeout);
     wsReconnectTimeout = null;
   }
 
-  binanceWs = new WebSocket(BINANCE_WS_URL);
+  // 웹소켓 연결 해제 시 정리 로직 추가
+  const ws = new WebSocket(BINANCE_WS_URL);
+
+  ws.onclose = (event) => {
+    // 연결이 종료되기 전에 모든 리스너 제거
+    ws.onmessage = null;
+    ws.onerror = null;
+    ws.onopen = null;
+
+    if (isPopupOpen && !event.wasClean && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+      reconnectAttempts++;
+      wsReconnectTimeout = setTimeout(() => {
+        if (isPopupOpen) {
+          connectBinanceWebSocket();
+        }
+      }, RECONNECT_DELAY);
+    }
+  };
+
+  // 에러 핸들링 개선
+  ws.onerror = (error) => {
+    console.error("Binance WebSocket error:", error);
+    ws.close();
+  };
+
   let isSubscribed = false;
   let reconnectAttempts = 0;
 
-  binanceWs.onopen = () => {
+  ws.onopen = () => {
     reconnectAttempts = 0;
 
     if (!isSubscribed) {
       setTimeout(() => {
-        if (binanceWs?.readyState === WebSocket.OPEN) {
+        if (ws.readyState === WebSocket.OPEN) {
           const cryptoSymbols = Object.entries(ALL_SYMBOLS)
             .filter(([symbol, info]) => info.type === "CRYPTO" && !symbol.includes("BTC.D"))
             .map(([symbol]) => symbol.toLowerCase().replace("-usd", "usdt"));
 
           if (cryptoSymbols.length > 0) {
-            binanceWs.send(
+            ws.send(
               JSON.stringify({
                 method: "SUBSCRIBE",
                 params: cryptoSymbols.map((symbol) => `${symbol}@ticker`),
@@ -445,7 +470,7 @@ const connectBinanceWebSocket = () => {
     }
   };
 
-  binanceWs.onmessage = (event) => {
+  ws.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
       if (data.e === "24hrTicker") {
@@ -469,16 +494,7 @@ const connectBinanceWebSocket = () => {
     }
   };
 
-  binanceWs.onclose = () => {
-    if (isPopupOpen && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-      reconnectAttempts++;
-      wsReconnectTimeout = setTimeout(() => {
-        if (isPopupOpen) {
-          connectBinanceWebSocket();
-        }
-      }, RECONNECT_DELAY);
-    }
-  };
+  return ws;
 };
 
 // 웹소켓 연결 상태 체크 및 재연결 함수 수정
@@ -530,7 +546,8 @@ async function initialize() {
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === "popup") {
     isPopupOpen = true;
-    initialize();
+    binanceWs = connectBinanceWebSocket();
+    yahooWs = connectYahooWebSocket();
 
     port.onMessage.addListener((message) => {
       if (message.type === "CHECK_CONNECTIONS") {
@@ -541,6 +558,7 @@ chrome.runtime.onConnect.addListener((port) => {
     port.onDisconnect.addListener(() => {
       isPopupOpen = false;
       if (binanceWs) {
+        binanceWs.onclose = null;
         binanceWs.close();
         binanceWs = null;
       }
@@ -551,6 +569,10 @@ chrome.runtime.onConnect.addListener((port) => {
       if (updateInterval) {
         clearInterval(updateInterval);
         updateInterval = null;
+      }
+      if (wsReconnectTimeout) {
+        clearTimeout(wsReconnectTimeout);
+        wsReconnectTimeout = null;
       }
     });
   }
