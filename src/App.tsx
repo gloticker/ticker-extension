@@ -19,7 +19,7 @@ function App() {
             [key]: value
           }), {});
 
-        console.log('Loaded market data:', marketData);
+        // console.log('Loaded market data:', marketData);
         setMarkets(marketData);
       } catch (error) {
         console.error('Failed to load market data:', error);
