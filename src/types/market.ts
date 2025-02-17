@@ -7,7 +7,7 @@ export interface MarketItem {
   lastUpdated: Date;
 }
 
-export type MarketType = "STOCK" | "CRYPTO" | "INDEX" | "FOREX";
+export type MarketType = "INDEX" | "STOCK" | "CRYPTO" | "FOREX";
 
 export interface MarketData {
   symbol: string;
@@ -21,8 +21,8 @@ export interface MarketData {
   previousClose?: number; // 전일 종가
   change: number;
   changePercent: number;
-  lastUpdated: Date;
-  marketState?: "PRE" | "REGULAR" | "POST" | "CLOSED";
+  lastUpdated: Date | string;
+  marketState?: string;
   rating?: string; // Fear & Greed Index의 상태를 위한 필드 추가
 }
 
@@ -33,7 +33,7 @@ export interface WebSocketMessage {
 
 export interface MarketInfo {
   name: string;
-  type: string;
+  type: MarketType;
 }
 
 export interface HistoricalData {

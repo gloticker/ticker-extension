@@ -1,6 +1,6 @@
 /// <reference types="chrome"/>
 import { ALL_SYMBOLS } from "./constants/websocket";
-import type { MarketData, MarketType } from "./types/market";
+import type { MarketType } from "./types/market";
 
 const BINANCE_WS_URL = "wss://stream.binance.com:9443/ws";
 
@@ -262,12 +262,13 @@ async function fetchBTCDominance() {
     );
     const data = await response.json();
 
-    // BTC.D 데이터 구조 확인 및 처리
     if (data && data.data && data.data.btcDominance) {
       const btcDominance = {
         symbol: "BTC.D",
+        name: "BTC Dominance",
+        type: "CRYPTO",
         price: data.data.btcDominance,
-        change: 0, // 변화량은 별도로 계산 필요
+        change: 0,
         changePercent: 0,
         lastUpdated: new Date().toISOString(),
       };
@@ -375,7 +376,7 @@ const connectBinanceWebSocket = () => {
     reconnectAttempts.binance = 0;
 
     const cryptoSymbols = Object.entries(ALL_SYMBOLS)
-      .filter(([symbol, info]) => info.type === "CRYPTO" && !symbol.includes("BTC.D")) // BTC.D 제외
+      .filter(([symbol, info]) => info.type === "CRYPTO" && !symbol.includes("BTC.D"))
       .map(([symbol]) => symbol.toLowerCase().replace("-usd", "usdt"));
 
     if (binanceWs && cryptoSymbols.length > 0) {
@@ -395,12 +396,12 @@ const connectBinanceWebSocket = () => {
       if (data.e === "24hrTicker") {
         const symbol = data.s.replace("USDT", "-USD");
         if (ALL_SYMBOLS[symbol]) {
-          const marketData: Partial<MarketData> = {
+          const marketData = {
             symbol,
-            price: parseFloat(data.c), // 현재가
-            dayStartPrice: parseFloat(data.o), // UTC 00:00 기준 시작가
-            change: parseFloat(data.c) - parseFloat(data.o), // UTC 00:00 대비 변화량
-            changePercent: ((parseFloat(data.c) - parseFloat(data.o)) / parseFloat(data.o)) * 100, // UTC 00:00 대비 변화율
+            price: parseFloat(data.c),
+            dayStartPrice: parseFloat(data.o),
+            change: parseFloat(data.c) - parseFloat(data.o),
+            changePercent: ((parseFloat(data.c) - parseFloat(data.o)) / parseFloat(data.o)) * 100,
             lastUpdated: new Date(),
             name: ALL_SYMBOLS[symbol].name,
             type: ALL_SYMBOLS[symbol].type as MarketType,
@@ -411,6 +412,14 @@ const connectBinanceWebSocket = () => {
     } catch (error) {
       console.error("Failed to process message:", error);
     }
+  };
+
+  binanceWs.onclose = () => {
+    setTimeout(() => {
+      if (isPopupOpen) {
+        connectBinanceWebSocket();
+      }
+    }, 5000);
   };
 };
 
