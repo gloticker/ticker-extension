@@ -29,7 +29,8 @@
     "https://logo.clearbit.com/*",
     "https://cryptoicons.org/*",
     "https://s2.coinmarketcap.com/*",
-    "https://s3.polygon.io/*"
+    "https://s3.polygon.io/*",
+    "https://flagcdn.com/*"
   ],
   "background": {
     "service_worker": "src/background.ts",
