@@ -315,50 +315,65 @@ async function fetchFearAndGreedIndex() {
 }
 
 export async function fetchHistoricalData(symbol: string, type: MarketType) {
-  try {
-    // FEAR.GREED와 BTC.D는 차트 데이터를 표시하지 않음
-    if (symbol === "FEAR.GREED" || symbol === "BTC.D") {
-      return [];
-    }
+  if (!symbol || !type) {
+    return [];
+  }
 
-    if (type === "CRYPTO") {
-      const response = await fetch(
-        `https://api.binance.com/api/v3/klines?symbol=${symbol.replace(
-          "-USD",
-          "USDT"
-        )}&interval=5m&limit=288`
-      );
-      const data = await response.json();
-      return data.map((item: BinanceKline) => ({
-        time: new Date(item[0]).toISOString(),
-        value: parseFloat(item[4]),
+  // FEAR.GREED와 BTC.D는 차트 데이터를 표시하지 않음
+  if (symbol === "FEAR.GREED" || symbol === "BTC.D") {
+    return [];
+  }
+
+  // VIX 지수는 flat line으로 표시
+  if (symbol === "^VIX") {
+    const market = await fetchYahooData(symbol);
+    if (!market?.price) return [];
+
+    const now = new Date();
+    return Array(288)
+      .fill(null)
+      .map((_, i) => ({
+        time: new Date(now.getTime() - (287 - i) * 5 * 60 * 1000).toISOString(),
+        value: market.price,
       }));
+  }
+
+  try {
+    // 암호화폐는 바이낸스 API 사용
+    if (type === "CRYPTO") {
+      try {
+        const response = await fetch(
+          `https://api.binance.com/api/v3/klines?symbol=${symbol.replace(
+            "-USD",
+            "USDT"
+          )}&interval=5m&limit=288`
+        );
+        if (!response.ok) return [];
+
+        const data = await response.json();
+        if (!Array.isArray(data)) return [];
+
+        return data.map((item: BinanceKline) => ({
+          time: new Date(item[0]).toISOString(),
+          value: parseFloat(item[4]),
+        }));
+      } catch {
+        return [];
+      }
     }
 
-    // 야후 파이낸스 API 호출
-    const response = await fetch(
-      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=5m&range=1d&includePrePost=true`
-    );
+    // 현재 가격으로 flat line 생성
+    const market = await fetchYahooData(symbol);
+    if (!market?.price) return [];
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const result = data.chart?.result?.[0];
-    if (!result?.timestamp || !result?.indicators?.quote?.[0]?.close) {
-      return [];
-    }
-
-    const timestamps = result.timestamp;
-    const prices = result.indicators.quote[0].close;
-
-    return timestamps.map((timestamp: number, index: number) => ({
-      time: new Date(timestamp * 1000).toISOString(),
-      value: prices[index] || prices[index - 1],
-    }));
-  } catch (error) {
-    console.error(`Failed to fetch historical data for ${symbol}:`, error);
+    const now = new Date();
+    return Array(288)
+      .fill(null)
+      .map((_, i) => ({
+        time: new Date(now.getTime() - (287 - i) * 5 * 60 * 1000).toISOString(),
+        value: market.price,
+      }));
+  } catch {
     return [];
   }
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MarketData, HistoricalData } from '../types/market';
+import { MarketData } from '../types/market';
 import { SparklineChart } from './SparklineChart';
 import { fetchHistoricalData } from '../utils/api';
 import { getAssetIcon } from '../utils/getAssetIcon';
@@ -9,7 +9,8 @@ interface MarketItemProps {
 }
 
 export const MarketItem = ({ data }: MarketItemProps) => {
-  const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
+  const [chartData, setChartData] = useState<{ time: string; value: number }[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const isPositive = data.change >= 0;
   const changeClass = isPositive ? "text-green-500" : "text-red-500";
   const marketStateText = data.type === "STOCK" || data.type === "INDEX"
@@ -23,14 +24,31 @@ export const MarketItem = ({ data }: MarketItemProps) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // FEAR.GREED와 BTC.D는 히스토리 데이터를 가져오지 않음
-      if (data.symbol === "FEAR.GREED" || data.symbol === "BTC.D") {
-        setHistoricalData([]);
+      if (data.symbol === "FEAR.GREED" || data.symbol === "BTC.D" || data.symbol === "^VIX") {
+        setChartData([]);
         return;
       }
 
-      const historicalData = await fetchHistoricalData(data.symbol, data.type);
-      setHistoricalData(historicalData);
+      setIsLoading(true);
+      try {
+        const history = await fetchHistoricalData(data.symbol, data.type);
+        if (Array.isArray(history) &&
+          history.length > 0 &&
+          history.every(item =>
+            item &&
+            typeof item.time === 'string' &&
+            typeof item.value === 'number' &&
+            !isNaN(item.value)
+          )) {
+          setChartData(history);
+        } else {
+          setChartData([]);
+        }
+      } catch {
+        setChartData([]);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchData();
@@ -104,8 +122,10 @@ export const MarketItem = ({ data }: MarketItemProps) => {
             )}
           </div>
           <div className="w-10 h-4 flex items-center justify-center">
-            {data.symbol !== "FEAR.GREED" && data.symbol !== "BTC.D" && historicalData.length > 0 ? (
-              <SparklineChart data={historicalData} isPositive={data.change >= 0} />
+            {isLoading ? (
+              <span className="text-xs text-gray-400">...</span>
+            ) : data.symbol !== "FEAR.GREED" && data.symbol !== "BTC.D" && chartData.length > 0 ? (
+              <SparklineChart data={chartData} isPositive={data.change >= 0} />
             ) : data.symbol === "FEAR.GREED" && data.rating && (
               <span className="text-xs text-gray-400">({data.rating})</span>
             )}
