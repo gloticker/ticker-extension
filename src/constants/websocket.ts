@@ -24,6 +24,9 @@ export const MARKET_SYMBOLS: Record<string, Record<string, MarketInfo>> = {
   },
   FOREX: {
     "KRW=X": { name: "USD/KRW", type: "FOREX" as MarketType },
+    "EURKRW=X": { name: "EUR/KRW", type: "FOREX" as MarketType },
+    "CNYKRW=X": { name: "CNY/KRW", type: "FOREX" as MarketType },
+    "JPYKRW=X": { name: "JPY/KRW", type: "FOREX" as MarketType },
   },
 } as const;
 
