@@ -35,3 +35,8 @@ export interface MarketInfo {
   name: string;
   type: string;
 }
+
+export interface HistoricalData {
+  time: string;
+  value: number;
+}

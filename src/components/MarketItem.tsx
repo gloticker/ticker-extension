@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MarketData } from '../types/market';
+import { MarketData, HistoricalData } from '../types/market';
 import { SparklineChart } from './SparklineChart';
 import { fetchHistoricalData } from '../utils/api';
 import { getAssetIcon } from '../utils/getAssetIcon';
@@ -9,37 +9,31 @@ interface MarketItemProps {
 }
 
 export const MarketItem = ({ data }: MarketItemProps) => {
-  const [chartData, setChartData] = useState<{ time: string; value: number }[]>([]);
+  const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
   const isPositive = data.change >= 0;
-  const changeColor = isPositive ? 'text-green-500' : 'text-red-500';
+  const changeClass = isPositive ? "text-green-500" : "text-red-500";
+  const marketStateText = data.type === "STOCK" || data.type === "INDEX"
+    ? { PRE: "", POST: "", REGULAR: "", CLOSED: "" }[data.marketState || "CLOSED"]
+    : "";
 
-  // 주식과 지수에만 시장 상태 표시
-  const marketStateLabel = (data.type === 'STOCK' || data.type === 'INDEX') ? {
-    PRE: '',      // '프리마켓' → ''
-    POST: '',     // '애프터마켓' → ''
-    REGULAR: '',  // '정규장' → ''
-    CLOSED: ''    // '장종료' → ''
-  }[data.marketState || 'CLOSED'] : '';
-
-  // 숫자를 소수점 둘째자리까지 포맷팅하는 함수
-  const formatNumber = (num: number) => {
-    return num.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-  };
+  const formatNumber = (num: number) => num.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
   useEffect(() => {
-    const loadChartData = async () => {
-      // BTC.D는 빈 배열로 차트 데이터 설정
-      if (data.symbol === "BTC.D") {
-        setChartData([]);
+    const fetchData = async () => {
+      // FEAR.GREED와 BTC.D는 히스토리 데이터를 가져오지 않음
+      if (data.symbol === "FEAR.GREED" || data.symbol === "BTC.D") {
+        setHistoricalData([]);
         return;
       }
-      const history = await fetchHistoricalData(data.symbol, data.type);
-      setChartData(history);
+
+      const historicalData = await fetchHistoricalData(data.symbol, data.type);
+      setHistoricalData(historicalData);
     };
-    loadChartData();
+
+    fetchData();
   }, [data.symbol, data.type]);
 
   // 장외 거래 가격 변동 계산 (주식과 지수에만)
@@ -103,27 +97,27 @@ export const MarketItem = ({ data }: MarketItemProps) => {
             <span className="text-xs">
               {data.price ? formatNumber(data.price) : "0.00"}
             </span>
-            {marketStateLabel && (
+            {marketStateText && (
               <span className="text-xs text-gray-400">
-                {marketStateLabel} {getPrePostChange()}
+                {marketStateText} {getPrePostChange()}
               </span>
             )}
           </div>
           <div className="w-10 h-4 flex items-center justify-center">
-            {data.symbol !== "FEAR.GREED" && data.symbol !== "BTC.D" && chartData.length > 0 ? (
-              <SparklineChart data={chartData} isPositive={data.change >= 0} />
+            {data.symbol !== "FEAR.GREED" && data.symbol !== "BTC.D" && historicalData.length > 0 ? (
+              <SparklineChart data={historicalData} isPositive={data.change >= 0} />
             ) : data.symbol === "FEAR.GREED" && data.rating && (
               <span className="text-xs text-gray-400">({data.rating})</span>
             )}
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`text-xs ${changeColor}`}>
+          <span className={`text-xs ${changeClass}`}>
             {data.change ? (
               `${isPositive ? '+' : ''}${formatNumber(data.change)}`
             ) : '+0.00'}
           </span>
-          <span className={`text-xs ${changeColor}`}>
+          <span className={`text-xs ${changeClass}`}>
             {data.changePercent ? (
               `${isPositive ? '+' : ''}${formatNumber(data.changePercent)}%`
             ) : '+0.00%'}

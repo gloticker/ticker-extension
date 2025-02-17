@@ -5,10 +5,12 @@ import type { MarketData, MarketType } from "./types/market";
 const BINANCE_WS_URL = "wss://stream.binance.com:9443/ws";
 
 let binanceWs: WebSocket | null = null;
+let yahooWs: WebSocket | null = null;
 const reconnectAttempts = { binance: 0 };
 let isPopupOpen = false;
 let heartbeatInterval: NodeJS.Timeout;
 let updateInterval: NodeJS.Timeout;
+let lastFearGreedUpdate: Date | null = null;
 
 // 미국 주식 시장 시간 (ET, Eastern Time 기준)
 // Pre-Market: 4:00 AM - 9:30 AM ET
@@ -142,7 +144,7 @@ async function fetchYahooData(symbol: string) {
 
 // Yahoo WebSocket 연결
 const connectYahooWebSocket = () => {
-  if (!isPopupOpen) return;
+  if (!isPopupOpen) return null;
 
   const ws = new WebSocket("wss://streamer.finance.yahoo.com/");
 
@@ -224,6 +226,7 @@ const connectYahooWebSocket = () => {
 
   ws.onerror = (error) => console.error("Yahoo WebSocket Error:", error);
 
+  yahooWs = ws;
   return ws;
 };
 
@@ -312,13 +315,12 @@ async function fetchFearAndGreedIndex() {
 
 export async function fetchHistoricalData(symbol: string, type: MarketType) {
   try {
-    // BTC.D와 Fear & Greed Index는 차트 데이터 제외
-    if (symbol === "BTC.D" || symbol === "FEAR.GREED") {
+    // FEAR.GREED와 BTC.D는 차트 데이터를 표시하지 않음
+    if (symbol === "FEAR.GREED" || symbol === "BTC.D") {
       return [];
     }
 
     if (type === "CRYPTO") {
-      // Binance API for crypto
       const response = await fetch(
         `https://api.binance.com/api/v3/klines?symbol=${symbol.replace(
           "-USD",
@@ -326,24 +328,34 @@ export async function fetchHistoricalData(symbol: string, type: MarketType) {
         )}&interval=5m&limit=288`
       );
       const data = await response.json();
-      return data.map((candle: BinanceKline) => ({
-        time: new Date(candle[0]).toISOString(),
-        value: parseFloat(candle[4]),
-      }));
-    } else {
-      // Yahoo Finance API for stocks, indices, and forex
-      const response = await fetch(
-        `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=5m&range=1d&includePrePost=true`
-      );
-      const data = await response.json();
-      const timestamps = data.chart.result[0].timestamp;
-      const prices = data.chart.result[0].indicators.quote[0].close;
-
-      return timestamps.map((time: number, i: number) => ({
-        time: new Date(time * 1000).toISOString(),
-        value: prices[i] || prices[i - 1],
+      return data.map((item: BinanceKline) => ({
+        time: new Date(item[0]).toISOString(),
+        value: parseFloat(item[4]),
       }));
     }
+
+    // 야후 파이낸스 API 호출
+    const response = await fetch(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=5m&range=1d&includePrePost=true`
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const result = data.chart?.result?.[0];
+    if (!result?.timestamp || !result?.indicators?.quote?.[0]?.close) {
+      return [];
+    }
+
+    const timestamps = result.timestamp;
+    const prices = result.indicators.quote[0].close;
+
+    return timestamps.map((timestamp: number, index: number) => ({
+      time: new Date(timestamp * 1000).toISOString(),
+      value: prices[index] || prices[index - 1],
+    }));
   } catch (error) {
     console.error(`Failed to fetch historical data for ${symbol}:`, error);
     return [];
@@ -402,20 +414,50 @@ const connectBinanceWebSocket = () => {
   };
 };
 
-// 업데이트 주기 설정
+// 웹소켓 연결 상태 체크 및 재연결
+function checkConnections() {
+  if (isPopupOpen) {
+    // 야후 웹소켓 체크
+    if (!yahooWs || yahooWs.readyState !== WebSocket.OPEN) {
+      connectYahooWebSocket();
+    }
+
+    // 바이낸스 웹소켓 체크
+    if (!binanceWs || binanceWs.readyState !== WebSocket.OPEN) {
+      connectBinanceWebSocket();
+    }
+  }
+}
+
+function getETDate() {
+  const now = new Date();
+  const isDSTActive = isDST();
+  const offset = isDSTActive ? -4 : -5; // ET는 UTC-4 (서머타임) 또는 UTC-5
+  return new Date(now.getTime() + offset * 60 * 60 * 1000).getDate();
+}
+
+// initialize 함수 수정
 async function initialize() {
   await updateYahooMarkets();
-  await fetchBTCDominance();
-  await fetchFearAndGreedIndex();
+  await fetchBTCDominance(); // BTC.D 데이터 가져오기
+  await fetchFearAndGreedIndex(); // FEAR.GREED 데이터 가져오기
+  lastFearGreedUpdate = new Date();
   connectYahooWebSocket();
   connectBinanceWebSocket();
 
-  // 1분마다 업데이트
   updateInterval = setInterval(async () => {
     await updateYahooMarkets();
-    await fetchBTCDominance();
-    await fetchFearAndGreedIndex(); // Fear & Greed Index도 주기적으로 업데이트
-  }, 60000);
+    await fetchBTCDominance(); // BTC.D 데이터 1분마다 업데이트
+
+    // Fear & Greed 지수는 ET 기준으로 하루에 한 번만 업데이트
+    const etDate = getETDate();
+    if (!lastFearGreedUpdate || etDate !== new Date(lastFearGreedUpdate.getTime()).getDate()) {
+      await fetchFearAndGreedIndex();
+      lastFearGreedUpdate = new Date();
+    }
+
+    checkConnections();
+  }, 60000); // 60초 = 1분
 }
 
 // 팝업 상태 모니터링
