@@ -283,7 +283,7 @@ async function fetchBTCDominance() {
     if (data && data.data && data.data.btcDominance) {
       const btcDominance = {
         symbol: "BTC.D",
-        name: "BTC Dominance",
+        name: "BTC.D",
         type: "CRYPTO",
         price: data.data.btcDominance,
         change: 0,

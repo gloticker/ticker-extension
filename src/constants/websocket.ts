@@ -20,7 +20,7 @@ export const MARKET_SYMBOLS: Record<string, Record<string, MarketInfo>> = {
     "BTC-USD": { name: "Bitcoin", type: "CRYPTO" as MarketType },
     "ETH-USD": { name: "Ethereum", type: "CRYPTO" as MarketType },
     "SOL-USD": { name: "Solana", type: "CRYPTO" as MarketType },
-    "BTC.D": { name: "BTC Dominance", type: "CRYPTO" as MarketType },
+    "BTC.D": { name: "BTC.D", type: "CRYPTO" as MarketType },
   },
   FOREX: {
     "KRW=X": { name: "USD/KRW", type: "FOREX" as MarketType },

@@ -28,7 +28,9 @@ const getIndexDomain = (symbol: string) => indexDomains[symbol];
 export const getAssetIcon = (symbol: string, type: string) => {
   switch (type) {
     case "CRYPTO":
-      if (symbol === "BTC.D") return "";
+      if (symbol === "BTC.D") {
+        return `https://s2.coinmarketcap.com/static/img/coins/64x64/1.png`;
+      }
       return `https://s2.coinmarketcap.com/static/img/coins/64x64/${getCryptoId(symbol)}.png`;
 
     case "STOCK":
