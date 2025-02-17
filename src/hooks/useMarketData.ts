@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useMarketStore } from "../stores/marketStore";
+import { useMarketStore } from "../store/marketStore";
 import { ALL_SYMBOLS } from "../constants/websocket";
 import type { MarketData, MarketInfo, MarketType } from "../types/market";
 

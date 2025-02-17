@@ -1,4 +1,4 @@
-import { useMarketStore } from '../stores/marketStore';
+import { useMarketStore } from '../store/marketStore';
 import { MarketItem } from './MarketItem';
 import { MarketType } from '../types/market';
 
