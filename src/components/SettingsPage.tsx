@@ -83,45 +83,150 @@ export const SettingsPage = ({ onClose }: SettingsProps) => {
                 </button>
             </div>
 
-            <div className="space-y-6 flex-1 overflow-y-auto scrollbar-hide">
-                {Object.entries(symbolsByCategory).map(([category, symbols]) => (
-                    <div key={category} className="space-y-2">
-                        <div className="flex items-center space-x-2">
-                            <input
-                                type="checkbox"
-                                id={`category-${category}`}
-                                checked={settings.categories[category as MarketType]}
-                                onChange={() => toggleCategory(category as MarketType)}
-                                className="w-4 h-4"
-                            />
-                            <label htmlFor={`category-${category}`} className="font-medium">
-                                {category}
-                            </label>
-                        </div>
-
-                        <div className="ml-6 space-y-2">
-                            {symbols.map(symbol => (
-                                <div key={symbol} className="flex items-center space-x-2">
-                                    <input
-                                        type="checkbox"
-                                        id={`symbol-${symbol}`}
-                                        checked={settings.symbols[symbol]}
-                                        onChange={() => toggleSymbol(symbol)}
-                                        disabled={!settings.categories[category as MarketType]}
-                                        className="w-4 h-4 disabled:opacity-50"
-                                    />
-                                    <label
-                                        htmlFor={`symbol-${symbol}`}
-                                        className={`${!settings.categories[category as MarketType] ?
-                                            'text-gray-500 line-through' : ''}`}
-                                    >
-                                        {ALL_SYMBOLS[symbol].name}
-                                    </label>
-                                </div>
-                            ))}
-                        </div>
+            <div className="grid grid-cols-2 gap-4 flex-1 overflow-y-auto scrollbar-hide">
+                {/* INDEX */}
+                <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                        <input
+                            type="checkbox"
+                            id="category-INDEX"
+                            checked={settings.categories.INDEX}
+                            onChange={() => toggleCategory('INDEX')}
+                            className="w-4 h-4"
+                        />
+                        <label htmlFor="category-INDEX" className="font-medium">
+                            INDEX
+                        </label>
                     </div>
-                ))}
+                    <div className="ml-6 space-y-2">
+                        {symbolsByCategory.INDEX.map(symbol => (
+                            <div key={symbol} className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    id={`symbol-${symbol}`}
+                                    checked={settings.symbols[symbol]}
+                                    onChange={() => toggleSymbol(symbol)}
+                                    disabled={!settings.categories.INDEX}
+                                    className="w-4 h-4 disabled:opacity-50"
+                                />
+                                <label
+                                    htmlFor={`symbol-${symbol}`}
+                                    className={`${!settings.categories.INDEX ? 'text-gray-500 line-through' : ''}`}
+                                >
+                                    {ALL_SYMBOLS[symbol].name}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* STOCK */}
+                <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                        <input
+                            type="checkbox"
+                            id="category-STOCK"
+                            checked={settings.categories.STOCK}
+                            onChange={() => toggleCategory('STOCK')}
+                            className="w-4 h-4"
+                        />
+                        <label htmlFor="category-STOCK" className="font-medium">
+                            STOCK
+                        </label>
+                    </div>
+                    <div className="ml-6 space-y-2">
+                        {symbolsByCategory.STOCK.map(symbol => (
+                            <div key={symbol} className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    id={`symbol-${symbol}`}
+                                    checked={settings.symbols[symbol]}
+                                    onChange={() => toggleSymbol(symbol)}
+                                    disabled={!settings.categories.STOCK}
+                                    className="w-4 h-4 disabled:opacity-50"
+                                />
+                                <label
+                                    htmlFor={`symbol-${symbol}`}
+                                    className={`${!settings.categories.STOCK ? 'text-gray-500 line-through' : ''}`}
+                                >
+                                    {ALL_SYMBOLS[symbol].name}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* CRYPTO */}
+                <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                        <input
+                            type="checkbox"
+                            id="category-CRYPTO"
+                            checked={settings.categories.CRYPTO}
+                            onChange={() => toggleCategory('CRYPTO')}
+                            className="w-4 h-4"
+                        />
+                        <label htmlFor="category-CRYPTO" className="font-medium">
+                            CRYPTO
+                        </label>
+                    </div>
+                    <div className="ml-6 space-y-2">
+                        {symbolsByCategory.CRYPTO.map(symbol => (
+                            <div key={symbol} className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    id={`symbol-${symbol}`}
+                                    checked={settings.symbols[symbol]}
+                                    onChange={() => toggleSymbol(symbol)}
+                                    disabled={!settings.categories.CRYPTO}
+                                    className="w-4 h-4 disabled:opacity-50"
+                                />
+                                <label
+                                    htmlFor={`symbol-${symbol}`}
+                                    className={`${!settings.categories.CRYPTO ? 'text-gray-500 line-through' : ''}`}
+                                >
+                                    {ALL_SYMBOLS[symbol].name}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* FOREX */}
+                <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                        <input
+                            type="checkbox"
+                            id="category-FOREX"
+                            checked={settings.categories.FOREX}
+                            onChange={() => toggleCategory('FOREX')}
+                            className="w-4 h-4"
+                        />
+                        <label htmlFor="category-FOREX" className="font-medium">
+                            FOREX
+                        </label>
+                    </div>
+                    <div className="ml-6 space-y-2">
+                        {symbolsByCategory.FOREX.map(symbol => (
+                            <div key={symbol} className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    id={`symbol-${symbol}`}
+                                    checked={settings.symbols[symbol]}
+                                    onChange={() => toggleSymbol(symbol)}
+                                    disabled={!settings.categories.FOREX}
+                                    className="w-4 h-4 disabled:opacity-50"
+                                />
+                                <label
+                                    htmlFor={`symbol-${symbol}`}
+                                    className={`${!settings.categories.FOREX ? 'text-gray-500 line-through' : ''}`}
+                                >
+                                    {ALL_SYMBOLS[symbol].name}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );
