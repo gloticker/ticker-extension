@@ -5,7 +5,6 @@ import type { MarketType } from "./types/market";
 const BINANCE_WS_URL = "wss://stream.binance.com:9443/ws";
 
 let binanceWs: WebSocket | null = null;
-let yahooWs: WebSocket | null = null;
 let isPopupOpen = false;
 let updateInterval: NodeJS.Timeout | null = null;
 let lastFearGreedUpdate: Date | null = null;
@@ -144,109 +143,6 @@ async function fetchYahooData(symbol: string) {
     return null;
   }
 }
-
-// Yahoo WebSocket 연결
-const connectYahooWebSocket = () => {
-  if (!isPopupOpen) return null;
-
-  if (wsReconnectTimeout) {
-    clearTimeout(wsReconnectTimeout);
-    wsReconnectTimeout = null;
-  }
-
-  const ws = new WebSocket("wss://streamer.finance.yahoo.com/");
-  let isSubscribed = false;
-  let reconnectAttempts = 0;
-
-  ws.onopen = () => {
-    reconnectAttempts = 0;
-
-    if (!isSubscribed) {
-      setTimeout(() => {
-        try {
-          if (ws.readyState === WebSocket.OPEN) {
-            const yahooSymbols = Object.entries(ALL_SYMBOLS)
-              .filter(
-                ([symbol, info]) =>
-                  (info.type === "INDEX" || info.type === "STOCK" || info.type === "FOREX") &&
-                  symbol !== "FEAR.GREED"
-              )
-              .map(([symbol]) => symbol);
-
-            ws.send(
-              JSON.stringify({
-                subscribe: yahooSymbols.map((symbol) => ({
-                  symbol,
-                  fields: [
-                    "regularMarketPrice",
-                    "preMarketPrice",
-                    "postMarketPrice",
-                    "price",
-                    "change",
-                    "changePercent",
-                  ],
-                })),
-              })
-            );
-            isSubscribed = true;
-          }
-        } catch {
-          ws.close();
-        }
-      }, 1000);
-    }
-  };
-
-  ws.onmessage = async (event) => {
-    try {
-      if (typeof event.data === "string") {
-        const data = JSON.parse(event.data);
-        if (data && data.symbol && ALL_SYMBOLS[data.symbol]) {
-          const marketData = await fetchYahooData(data.symbol);
-          if (marketData) {
-            // KS11(코스피)의 경우 한국 시간 기준으로 처리
-            if (data.symbol === "^KS11") {
-              const krTime = new Date(Date.now() + 9 * 60 * 60 * 1000);
-              const krHour = krTime.getUTCHours();
-              const krMinute = krTime.getUTCMinutes();
-
-              // 장 시간 외에는 당일 종가 사용
-              if (krHour < 9 || (krHour === 15 && krMinute > 30) || krHour > 15) {
-                marketData.price = marketData.regularMarketPrice || marketData.price;
-              }
-
-              // 전일 종가 대비 변화율 계산
-              if (marketData.previousClose) {
-                // 장 중에는 실시간 가격, 장 외에는 당일 종가로 계산
-                marketData.change = marketData.price - marketData.previousClose;
-                marketData.changePercent = (marketData.change / marketData.previousClose) * 100;
-              }
-            }
-            chrome.storage.local.set({ [data.symbol]: marketData });
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Failed to process Yahoo message:", error);
-    }
-  };
-
-  ws.onclose = (event) => {
-    if (isPopupOpen && !event.wasClean && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-      reconnectAttempts++;
-      wsReconnectTimeout = setTimeout(() => {
-        if (isPopupOpen) {
-          connectYahooWebSocket();
-        }
-      }, RECONNECT_DELAY);
-    }
-  };
-
-  ws.onerror = () => {};
-
-  yahooWs = ws;
-  return ws;
-};
 
 // 주식/지수/환율 데이터 업데이트
 async function updateYahooMarkets() {
@@ -500,13 +396,10 @@ const connectBinanceWebSocket = () => {
 // 웹소켓 연결 상태 체크 및 재연결 함수 수정
 function checkConnections() {
   if (isPopupOpen) {
-    if (!yahooWs || yahooWs.readyState !== WebSocket.OPEN) {
-      connectYahooWebSocket();
-    }
     if (!binanceWs || binanceWs.readyState !== WebSocket.OPEN) {
       connectBinanceWebSocket();
     }
-    updateYahooMarkets();
+    updateYahooMarkets(); // REST API 폴링만 유지
     fetchBTCDominance();
   }
 }
@@ -521,17 +414,15 @@ function getETDate() {
 // initialize 함수 수정
 async function initialize() {
   await updateYahooMarkets();
-  await fetchBTCDominance(); // BTC.D 데이터 가져오기
-  await fetchFearAndGreedIndex(); // FEAR.GREED 데이터 가져오기
+  await fetchBTCDominance();
+  await fetchFearAndGreedIndex();
   lastFearGreedUpdate = new Date();
-  connectYahooWebSocket();
   connectBinanceWebSocket();
 
   updateInterval = setInterval(async () => {
     await updateYahooMarkets();
-    await fetchBTCDominance(); // BTC.D 데이터 1분마다 업데이트
+    await fetchBTCDominance();
 
-    // Fear & Greed 지수는 ET 기준으로 하루에 한 번만 업데이트
     const etDate = getETDate();
     if (!lastFearGreedUpdate || etDate !== new Date(lastFearGreedUpdate.getTime()).getDate()) {
       await fetchFearAndGreedIndex();
@@ -539,15 +430,14 @@ async function initialize() {
     }
 
     checkConnections();
-  }, 60000); // 60초 = 1분
+  }, 10000); // 10초로 변경
 }
 
-// 팝업 상태 모니터링
+// 팝업 상태 모니터링 수정
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === "popup") {
     isPopupOpen = true;
     binanceWs = connectBinanceWebSocket();
-    yahooWs = connectYahooWebSocket();
 
     port.onMessage.addListener((message) => {
       if (message.type === "CHECK_CONNECTIONS") {
@@ -561,10 +451,6 @@ chrome.runtime.onConnect.addListener((port) => {
         binanceWs.onclose = null;
         binanceWs.close();
         binanceWs = null;
-      }
-      if (yahooWs) {
-        yahooWs.close();
-        yahooWs = null;
       }
       if (updateInterval) {
         clearInterval(updateInterval);
