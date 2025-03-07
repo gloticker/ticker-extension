@@ -29,7 +29,7 @@ export const MarketGroupHeader = ({ type, isExpanded, onToggle }: MarketGroupHea
 
     return (
         <div
-            className="w-full max-w-100 h-10 px-4 mx-auto flex items-center justify-between text-xl mb-2.5 cursor-pointer"
+            className="w-[288px] h-10 px-4 mx-auto flex items-center justify-between text-xl mb-2.5 cursor-pointer"
             onClick={onToggle}
             style={{ color: COLORS[theme].text.primary }}
         >
@@ -42,7 +42,7 @@ export const MarketGroupHeader = ({ type, isExpanded, onToggle }: MarketGroupHea
             <img
                 src={`/images/icon/${isExpanded ? 'close' : 'open'}.svg`}
                 alt={isExpanded ? 'close' : 'open'}
-                className="mr-[5px]"
+                // className="mr-[5px]"
                 style={{
                     filter: `brightness(${brightness})`
                 }}

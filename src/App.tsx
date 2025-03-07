@@ -29,9 +29,11 @@ function AppContent({ showSettings, setShowSettings }: { showSettings: boolean; 
     >
       <div className="relative w-full h-full">
         <div className={`absolute w-full h-full transition-transform duration-300 ease-in-out ${showSettings ? 'translate-x-[-100%]' : 'translate-x-0'}`}>
-          <div className="h-full flex flex-col items-center">
-            <Header onSettingsClick={() => setShowSettings(true)} />
-            <div className="flex-1 overflow-y-auto scrollbar-hide w-full">
+          <div className="h-full flex flex-col">
+            <div className="flex items-center">
+              <Header onSettingsClick={() => setShowSettings(true)} />
+            </div>
+            <div className="flex-1 overflow-y-auto scrollbar-hide">
               <div className="space-y-2">
                 <MarketSection />
               </div>
