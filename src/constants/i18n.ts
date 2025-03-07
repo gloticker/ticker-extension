@@ -46,6 +46,7 @@ export const TRANSLATIONS = {
       after: "애프터 마켓",
       closed: "장 종료",
     },
+    delayed: "15분 지연",
   },
   en: {
     sections: {
@@ -92,6 +93,7 @@ export const TRANSLATIONS = {
       after: "After-Market",
       closed: "Market Closed",
     },
+    delayed: "15m delayed",
   },
 } as const;
 

@@ -6,6 +6,7 @@ import { PriceSection } from './PriceSection';
 import { ChangeSection } from './ChangeSection';
 import { useState, useEffect } from 'react';
 import { useI18n } from '../../constants/i18n';
+import { TRANSLATIONS } from '../../constants/i18n';
 
 interface MarketItemProps {
     symbol: string;
@@ -68,7 +69,7 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
             />
             {isDelayedData && (
                 <span
-                    className="absolute text-[9px] left-[73px] top-1/2 -translate-y-1/2 z-10"
+                    className="absolute text-[9px] left-[73px] top-1/2 -translate-y-1/2 z-10 group"
                     style={{
                         color: COLORS[theme].text.secondary,
                         backgroundColor: COLORS[theme].surface,
@@ -76,6 +77,12 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
                     }}
                 >
                     D
+                    <span
+                        className="invisible group-hover:visible absolute left-1/2 -translate-x-1/2 bottom-[50%] px-2 py-1 text-[10px] whitespace-nowrap"
+                        style={{ color: COLORS[theme].text.secondary }}
+                    >
+                        {TRANSLATIONS[language].delayed}
+                    </span>
                 </span>
             )}
 
