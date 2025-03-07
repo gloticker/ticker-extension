@@ -1,0 +1,37 @@
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Thin.woff2") format("woff2");
+  font-weight: 100;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+*,
+*::before,
+*::after {
+  font-family: "Pretendard" !important;
+  font-weight: 400 !important;
+}
+
+[style],
+[style*="font-family"],
+[style*="color"],
+span[style],
+div[style] {
+  font-family: "Pretendard" !important;
+  font-weight: 400 !important;
+}
+
+/* 폰트 페일백 방지 */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: "Pretendard" !important;
+  font-weight: 400 !important;
+}
