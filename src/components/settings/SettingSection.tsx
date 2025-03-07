@@ -104,9 +104,9 @@ export const SettingSection = ({
             </div>
 
             {symbols.length > 0 && (
-                <div className="px-4 mt-2">
+                <div className="mt-2">
                     <div
-                        className="w-[288px] h-10 mx-auto flex items-center gap-4 rounded-[10px] px-3"
+                        className="w-full max-w-[266px] h-10 mx-auto flex items-center gap-4 rounded-[10px] px-3"
                         style={{
                             backgroundColor: COLORS[theme].surface,
                             opacity: isActive ? 1 : 0.5
