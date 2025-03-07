@@ -46,6 +46,7 @@ export const MarketSection = () => {
                     value: data.value,
                     score: data.score,
                     rate: data.rate,
+                    rating: data.rating,
                     current_value: data.current_value,
                     current_price: data.current_price,
                     otc_price: data.otc_price,
