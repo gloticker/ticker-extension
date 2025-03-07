@@ -136,19 +136,22 @@ export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
                                 style={{ filter: `brightness(${brightness})` }}
                             />
                         </button>
-                        <span
-                            className="absolute left-7 text-[10px] whitespace-nowrap transition-opacity duration-300 pointer-events-none flex flex-col items-start translate-y-[-50%] top-1/2"
+                        <div className="absolute left-7 whitespace-nowrap transition-opacity duration-300 pointer-events-none"
                             style={{
                                 color: COLORS[theme].text.primary,
                                 opacity: showStatus ? 1 : 0,
                             }}
                         >
-                            <span className="flex items-center">
-                                <span className="w-11 tabular-nums">{currentTime.time}</span>
-                                <span className="ml-0.5">{currentTime.period}</span>
-                            </span>
-                            <span>{TRANSLATIONS[language].marketStatus[marketStatus]}</span>
-                        </span>
+                            <div className="absolute -translate-y-1/2 top-1/2">
+                                <span className="flex items-center text-xs">
+                                    <span className="w-11 tabular-nums">{currentTime.time}</span>
+                                    <span className="ml-3">{currentTime.period}</span>
+                                </span>
+                            </div>
+                            <div className="absolute top-[60%]">
+                                <span className="text-[10px]">{TRANSLATIONS[language].marketStatus[marketStatus]}</span>
+                            </div>
+                        </div>
                     </div>
 
                     <button className="w-[18px] h-[18px]">
