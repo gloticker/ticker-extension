@@ -35,6 +35,8 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
     const symbolInfo = getSymbolInfo(symbol, language);
     const textSizeClass = symbolInfo.displayName.length > 5 ? 'text-[9px]' : 'text-xs';
 
+    const isDelayedData = symbol === '^GSPC' || symbol === '^RUT';
+
     return (
         <div
             className="w-full max-w-[266px] h-10 mx-auto flex items-center mb-2.5 relative rounded-[10px] transition-colors duration-300"
@@ -46,7 +48,7 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
                 cursor: 'pointer'
             }}
         >
-            <div className="flex items-center pl-3">
+            <div className="flex items-center pl-3 w-[35%]">
                 <img
                     src={getSymbolImage(symbol)}
                     alt={symbol}
@@ -64,6 +66,18 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
                 symbol={symbol}
                 marketData={marketData}
             />
+            {isDelayedData && (
+                <span
+                    className="absolute text-[9px] left-[73px] top-1/2 -translate-y-1/2 z-10"
+                    style={{
+                        color: COLORS[theme].text.secondary,
+                        backgroundColor: COLORS[theme].surface,
+                        padding: '0 2px'
+                    }}
+                >
+                    D
+                </span>
+            )}
 
             {symbol !== 'BTC.D' && (
                 <ChangeSection symbol={symbol} marketData={marketData} />
