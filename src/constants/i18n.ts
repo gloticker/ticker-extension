@@ -40,6 +40,12 @@ export const TRANSLATIONS = {
       Korean: "한국어",
       English: "영어",
     },
+    marketStatus: {
+      pre: "프리 마켓",
+      regular: "정규장",
+      after: "애프터 마켓",
+      closed: "장 종료",
+    },
   },
   en: {
     sections: {
@@ -79,6 +85,12 @@ export const TRANSLATIONS = {
       Dark: "Dark",
       Korean: "Korean",
       English: "English",
+    },
+    marketStatus: {
+      pre: "Pre-Market",
+      regular: "Market Opened",
+      after: "After-Market",
+      closed: "Market Closed",
     },
   },
 } as const;

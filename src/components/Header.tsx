@@ -1,13 +1,16 @@
 import { useTheme, COLORS } from '../constants/theme';
 import { useState, useEffect } from 'react';
 import { format, toZonedTime } from 'date-fns-tz';
+import { useI18n, TRANSLATIONS } from '../constants/i18n';
 
 interface HeaderProps {
     isSettings?: boolean;
     onSettingsClick: () => void;
 }
 
-const getMarketStatus = () => {
+type MarketStatusType = 'pre' | 'regular' | 'after' | 'closed';
+
+const getMarketStatus = (): MarketStatusType => {
     const nyDate = toZonedTime(new Date(), 'America/New_York');
     const nyTime = format(nyDate, 'HH:mm', { timeZone: 'America/New_York' });
     const [hours, minutes] = nyTime.split(':').map(Number);
@@ -52,10 +55,31 @@ const getNextUpdateDelay = () => {
 
 export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
     const { theme } = useTheme();
-    const [marketStatus, setMarketStatus] = useState(getMarketStatus());
+    const { language } = useI18n();
+
+    const getNYTime = () => {
+        const nyDate = toZonedTime(new Date(), 'America/New_York');
+        const time = format(nyDate, 'hh:mm:ss', { timeZone: 'America/New_York' });
+        const period = format(nyDate, 'a', { timeZone: 'America/New_York' });
+        return { time, period };
+    };
+
+    const [marketStatus, setMarketStatus] = useState<MarketStatusType>(getMarketStatus());
+    const [showStatus, setShowStatus] = useState(() => {
+        const saved = localStorage.getItem('showMarketStatus');
+        return saved ? JSON.parse(saved) : false;
+    });
+    const [currentTime, setCurrentTime] = useState(getNYTime());
+
     const primaryColor = COLORS[theme].text.primary;
     const brightness = parseInt(primaryColor.slice(1), 16) / 0xFFFFFF;
 
+    // showStatus 변경시 localStorage 저장
+    useEffect(() => {
+        localStorage.setItem('showMarketStatus', JSON.stringify(showStatus));
+    }, [showStatus]);
+
+    // 마켓 상태 업데이트
     useEffect(() => {
         const scheduleNextUpdate = () => {
             const delay = getNextUpdateDelay();
@@ -69,6 +93,17 @@ export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
         const timer = scheduleNextUpdate();
         return () => clearTimeout(timer);
     }, []);
+
+    // 시간 업데이트 - 1초가 아닌 0.5초로 변경
+    useEffect(() => {
+        if (!showStatus) return; // 마우스 오버 상태일 때만 업데이트
+
+        const timer = setInterval(() => {
+            setCurrentTime(getNYTime());
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [showStatus]);
 
     const getMarketIcon = () => {
         switch (marketStatus) {
@@ -90,15 +125,31 @@ export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
         >
             {!isSettings && (
                 <>
-                    <button className="w-[18px] h-[18px]">
-                        <img
-                            src={getMarketIcon()}
-                            alt="market status"
+                    <div className="flex items-center relative">
+                        <button
+                            className="w-[18px] h-[18px]"
+                            onClick={() => setShowStatus((prev: boolean) => !prev)}
+                        >
+                            <img
+                                src={getMarketIcon()}
+                                alt="market status"
+                                style={{ filter: `brightness(${brightness})` }}
+                            />
+                        </button>
+                        <span
+                            className="absolute left-7 text-[10px] whitespace-nowrap transition-opacity duration-300 pointer-events-none flex flex-col items-start translate-y-[-50%] top-1/2"
                             style={{
-                                filter: `brightness(${brightness})`
+                                color: COLORS[theme].text.primary,
+                                opacity: showStatus ? 1 : 0,
                             }}
-                        />
-                    </button>
+                        >
+                            <span className="flex items-center">
+                                <span className="w-11 tabular-nums">{currentTime.time}</span>
+                                <span className="ml-0.5">{currentTime.period}</span>
+                            </span>
+                            <span>{TRANSLATIONS[language].marketStatus[marketStatus]}</span>
+                        </span>
+                    </div>
 
                     <button className="w-[18px] h-[18px]">
                         <img
