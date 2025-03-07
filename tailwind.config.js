@@ -1,14 +1,15 @@
+import defaultTheme from "tailwindcss/defaultTheme";
+import scrollbarHide from "tailwind-scrollbar-hide";
+
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ["Pretendard", ...defaultTheme.fontFamily.sans],
+      },
+    },
   },
-  plugins: [
-    require('tailwind-scrollbar-hide')
-  ],
-}
-
+  plugins: [scrollbarHide],
+};

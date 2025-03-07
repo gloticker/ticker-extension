@@ -21,17 +21,7 @@
     "default_path": "index.html"
   },
   "permissions": ["storage"],
-  "host_permissions": [
-    "wss://streamer.finance.yahoo.com/",
-    "https://*.finance.yahoo.com/*",
-    "https://api.coinmarketcap.com/*",
-    "https://api.binance.com/*",
-    "https://logo.clearbit.com/*",
-    "https://cryptoicons.org/*",
-    "https://s2.coinmarketcap.com/*",
-    "https://s3.polygon.io/*",
-    "https://flagcdn.com/*"
-  ],
+  "host_permissions": ["https://api.gloticker.live/*"],
   "background": {
     "service_worker": "src/background.ts",
     "type": "module"

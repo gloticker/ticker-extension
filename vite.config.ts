@@ -7,14 +7,12 @@ import manifest from "./manifest.json";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), crx({ manifest: manifest as ManifestV3Export })],
+  assetsInclude: ["**/*.woff2"],
   resolve: {
     alias: {
       "@logo": path.resolve(process.cwd(), "@logo"),
+      "@assets": path.resolve(__dirname, "src/assets"),
+      "@": "/src",
     },
-  },
-  build: {
-    assetsDir: "assets",
-    copyPublicDir: true,
-    outDir: "dist",
   },
 });
