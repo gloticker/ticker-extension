@@ -55,7 +55,7 @@ export const TRANSLATIONS = {
       TLT: "TLT",
       VIX: "VIX",
       "F&G": "F&G",
-      APPL: "APPL",
+      AAPL: "AAPL",
       NVDA: "NVDA",
       MSFT: "MSFT",
       AMZN: "AMZN",

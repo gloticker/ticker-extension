@@ -1,4 +1,6 @@
 import { TRANSLATIONS } from "../constants/i18n";
+type Language = keyof typeof TRANSLATIONS;
+type SymbolKey = keyof (typeof TRANSLATIONS)["ko"]["symbols"];
 
 export const getSymbolImage = (symbol: string): string => {
   // 심볼 문자열 처리
@@ -20,19 +22,30 @@ export const getSymbolImage = (symbol: string): string => {
   return `/images/symbol/${processedSymbol}.svg`;
 };
 
-export const getDisplaySymbol = (symbol: string, language: "ko" | "en" = "en"): string => {
-  const processedSymbol = symbol
-    .replace("^", "")
-    .replace("=X", "")
-    .replace("-USD", "")
-    .replace("Fear&Greed", "F&G")
-    .replace("EURKRW", "EUR")
-    .replace("CNYKRW", "CNY")
-    .replace("JPYKRW", "JPY")
-    .replace("KRW", "USD");
+export const getDisplaySymbol = (symbol: string, language: Language = "en") => {
+  // 심볼 변환 매핑
+  const symbolMap: Record<string, string> = {
+    "^IXIC": "IXIC",
+    "^GSPC": "GSPC",
+    "^RUT": "RUT",
+    "^TLT": "TLT",
+    "^VIX": "VIX",
+    "Fear&Greed": "F&G",
+    "BTC-USD": "BTC",
+    "ETH-USD": "ETH",
+    "SOL-USD": "SOL",
+    "KRW=X": "USD",
+    "EURKRW=X": "EUR",
+    "CNYKRW=X": "CNY",
+    "JPYKRW=X": "JPY",
+  };
 
-  type SymbolKey = keyof (typeof TRANSLATIONS)["ko"]["symbols"] &
-    keyof (typeof TRANSLATIONS)["en"]["symbols"];
-  const translation = TRANSLATIONS[language].symbols[processedSymbol as SymbolKey];
-  return translation || processedSymbol;
+  // 변환된 심볼
+  const convertedSymbol = symbolMap[symbol] || symbol;
+
+  // 영어면 변환된 심볼만 반환
+  if (language === "en") return convertedSymbol;
+
+  // 한글이면 번역 적용
+  return TRANSLATIONS.ko.symbols[convertedSymbol as SymbolKey] || convertedSymbol;
 };

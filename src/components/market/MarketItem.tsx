@@ -5,6 +5,7 @@ import { getDisplaySymbol, getSymbolImage } from '../../utils/symbolUtils';
 import { PriceSection } from './PriceSection';
 import { ChangeSection } from './ChangeSection';
 import { useState, useEffect } from 'react';
+import { useI18n } from '../../constants/i18n';
 
 interface MarketItemProps {
     symbol: string;
@@ -14,6 +15,7 @@ interface MarketItemProps {
 
 export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) => {
     const { theme } = useTheme();
+    const { language } = useI18n();
     const [isFlashing, setIsFlashing] = useState(false);
     const [latestValue, setLatestValue] = useState('');
 
@@ -29,6 +31,9 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
         }
         setLatestValue(newValue || '');
     }, [newValue, latestValue]);
+
+    const displaySymbol = getDisplaySymbol(symbol, language);
+    const textSizeClass = displaySymbol.length > 5 ? 'text-[9px]' : 'text-xs';
 
     return (
         <div
@@ -46,10 +51,10 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
                     className="w-4 h-4"
                 />
                 <span
-                    className="text-xs ml-1.5"
+                    className={`${textSizeClass} ml-1.5`}
                     style={{ color: COLORS[theme].text.primary }}
                 >
-                    {getDisplaySymbol(symbol)}
+                    {displaySymbol}
                 </span>
             </div>
 
