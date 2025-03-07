@@ -136,7 +136,7 @@ export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
                                 style={{ filter: `brightness(${brightness})` }}
                             />
                         </button>
-                        <div className="absolute left-7 whitespace-nowrap transition-opacity duration-300 pointer-events-none"
+                        <div className="absolute left-7 whitespace-nowrap transition-opacity duration-300 pointer-events-none h-[50px]"
                             style={{
                                 color: COLORS[theme].text.primary,
                                 opacity: showStatus ? 1 : 0,
@@ -148,7 +148,7 @@ export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
                                     <span className="ml-3">{currentTime.period}</span>
                                 </span>
                             </div>
-                            <div className="absolute top-[60%]">
+                            <div className="absolute top-[55%]">
                                 <span className="text-[10px]">{TRANSLATIONS[language].marketStatus[marketStatus]}</span>
                             </div>
                         </div>
