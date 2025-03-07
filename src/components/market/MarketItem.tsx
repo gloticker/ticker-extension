@@ -1,7 +1,7 @@
 import { useTheme, COLORS } from '../../constants/theme';
 import { SparklineChart } from '../SparklineChart';
 import type { MarketData } from '../../types/market';
-import { getDisplaySymbol, getSymbolImage } from '../../utils/symbolUtils';
+import { getSymbolImage, getSymbolInfo } from '../../utils/symbolUtils';
 import { PriceSection } from './PriceSection';
 import { ChangeSection } from './ChangeSection';
 import { useState, useEffect } from 'react';
@@ -32,16 +32,18 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
         setLatestValue(newValue || '');
     }, [newValue, latestValue]);
 
-    const displaySymbol = getDisplaySymbol(symbol, language);
-    const textSizeClass = displaySymbol.length > 5 ? 'text-[9px]' : 'text-xs';
+    const symbolInfo = getSymbolInfo(symbol, language);
+    const textSizeClass = symbolInfo.displayName.length > 5 ? 'text-[9px]' : 'text-xs';
 
     return (
         <div
             className="w-full max-w-[266px] h-10 mx-auto flex items-center mb-2.5 relative rounded-[10px] transition-colors duration-300"
+            onClick={() => window.open(symbolInfo.link, '_blank')}
             style={{
                 backgroundColor: isFlashing
                     ? `${COLORS[theme].primary}10`
-                    : COLORS[theme].surface
+                    : COLORS[theme].surface,
+                cursor: 'pointer'
             }}
         >
             <div className="flex items-center pl-3">
@@ -54,7 +56,7 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
                     className={`${textSizeClass} ml-1.5`}
                     style={{ color: COLORS[theme].text.primary }}
                 >
-                    {displaySymbol}
+                    {symbolInfo.displayName}
                 </span>
             </div>
 

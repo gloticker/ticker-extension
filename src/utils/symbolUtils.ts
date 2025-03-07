@@ -2,6 +2,51 @@ import { TRANSLATIONS } from "../constants/i18n";
 type Language = keyof typeof TRANSLATIONS;
 type SymbolKey = keyof (typeof TRANSLATIONS)["ko"]["symbols"];
 
+interface SymbolInfo {
+  displayName: string;
+  link: string;
+}
+
+export const getSymbolInfo = (symbol: string, language: Language = "en"): SymbolInfo => {
+  // 심볼 변환 매핑
+  const symbolMap: Record<string, string> = {
+    "^IXIC": "IXIC",
+    "^GSPC": "GSPC",
+    "^RUT": "RUT",
+    "^TLT": "TLT",
+    "^VIX": "VIX",
+    "Fear&Greed": "F&G",
+    "BTC-USD": "BTC",
+    "ETH-USD": "ETH",
+    "SOL-USD": "SOL",
+    "KRW=X": "USD",
+    "EURKRW=X": "EUR",
+    "CNYKRW=X": "CNY",
+    "JPYKRW=X": "JPY",
+  };
+
+  const convertedSymbol = symbolMap[symbol] || symbol;
+
+  // 특수 케이스 링크 처리
+  let link = `https://finance.yahoo.com/quote/${symbol}`;
+
+  if (["BTC", "ETH", "SOL"].includes(convertedSymbol)) {
+    link = `https://www.binance.com/en/trade/${convertedSymbol}_USDT`;
+  } else if (convertedSymbol === "BTC.D") {
+    link = "https://coinmarketcap.com/charts/bitcoin-dominance/";
+  } else if (convertedSymbol === "F&G") {
+    link = "https://edition.cnn.com/markets/fear-and-greed";
+  }
+
+  return {
+    displayName:
+      language === "en"
+        ? convertedSymbol
+        : TRANSLATIONS.ko.symbols[convertedSymbol as SymbolKey] || convertedSymbol,
+    link,
+  };
+};
+
 export const getSymbolImage = (symbol: string): string => {
   // 심볼 문자열 처리
   const processedSymbol = symbol
@@ -22,30 +67,6 @@ export const getSymbolImage = (symbol: string): string => {
   return `/images/symbol/${processedSymbol}.svg`;
 };
 
-export const getDisplaySymbol = (symbol: string, language: Language = "en") => {
-  // 심볼 변환 매핑
-  const symbolMap: Record<string, string> = {
-    "^IXIC": "IXIC",
-    "^GSPC": "GSPC",
-    "^RUT": "RUT",
-    "^TLT": "TLT",
-    "^VIX": "VIX",
-    "Fear&Greed": "F&G",
-    "BTC-USD": "BTC",
-    "ETH-USD": "ETH",
-    "SOL-USD": "SOL",
-    "KRW=X": "USD",
-    "EURKRW=X": "EUR",
-    "CNYKRW=X": "CNY",
-    "JPYKRW=X": "JPY",
-  };
-
-  // 변환된 심볼
-  const convertedSymbol = symbolMap[symbol] || symbol;
-
-  // 영어면 변환된 심볼만 반환
-  if (language === "en") return convertedSymbol;
-
-  // 한글이면 번역 적용
-  return TRANSLATIONS.ko.symbols[convertedSymbol as SymbolKey] || convertedSymbol;
+export const getDisplaySymbol = (symbol: string, language: Language = "en"): string => {
+  return getSymbolInfo(symbol, language).displayName;
 };
