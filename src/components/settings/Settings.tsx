@@ -128,9 +128,9 @@ export const Settings = ({ onClose }: SettingsProps) => {
         : `${TRANSLATIONS.en.settings.Light} | ${TRANSLATIONS.en.settings.Dark}`;
 
     return (
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col items-center">
             <SettingsHeader onBackClick={onClose} />
-            <div className="flex-1 overflow-y-auto scrollbar-hide">
+            <div className="flex-1 overflow-y-auto scrollbar-hide w-full">
                 <div>
                     <SettingSection
                         title="Index"

@@ -62,7 +62,7 @@ export const SettingSection = ({
     return (
         <div className="mb-2.5">
             <div
-                className="w-full max-w-100 h-10 px-4 mx-auto flex items-center justify-between"
+                className="w-[288px] h-10 px-4 mx-auto flex items-center justify-between"
                 style={{ color: COLORS[theme].text.primary }}
             >
                 <span
@@ -106,7 +106,7 @@ export const SettingSection = ({
             {symbols.length > 0 && (
                 <div className="px-4 mt-2">
                     <div
-                        className="w-full max-w-[266px] h-10 mx-auto flex items-center gap-4 rounded-[10px] px-3"
+                        className="w-[288px] h-10 mx-auto flex items-center gap-4 rounded-[10px] px-3"
                         style={{
                             backgroundColor: COLORS[theme].surface,
                             opacity: isActive ? 1 : 0.5

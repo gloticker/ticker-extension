@@ -12,7 +12,7 @@ export const SettingsHeader = ({ onBackClick }: SettingsHeaderProps) => {
 
     return (
         <div
-            className="h-[50px] px-4 flex items-center justify-end"
+            className="h-[50px] px-4 flex items-center justify-end w-[288px]"
             style={{ backgroundColor: COLORS[theme].background }}
         >
             <button

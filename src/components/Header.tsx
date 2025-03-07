@@ -120,7 +120,7 @@ export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
 
     return (
         <div
-            className="h-[50px] px-4 flex items-center justify-between"
+            className="h-[50px] px-4 flex items-center justify-between w-[288px]"
             style={{ backgroundColor: COLORS[theme].background }}
         >
             {!isSettings && (
