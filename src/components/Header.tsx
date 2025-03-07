@@ -128,7 +128,10 @@ export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
                     <div className="flex items-center relative">
                         <button
                             className="w-[18px] h-[18px]"
-                            onClick={() => setShowStatus((prev: boolean) => !prev)}
+                            onClick={() => {
+                                setShowStatus((prev: boolean) => !prev);
+                                setCurrentTime(getNYTime());
+                            }}
                         >
                             <img
                                 src={getMarketIcon()}
