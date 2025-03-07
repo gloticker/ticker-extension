@@ -1,13 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-type Theme = 'light' | 'dark';
-
-interface ThemeContextType {
-    theme: Theme;
-    toggleTheme: () => void;
-}
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+import { useState, useEffect, ReactNode } from 'react';
+import { Theme, ThemeContext } from '../constants/theme';
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const [theme, setTheme] = useState<Theme>(() => {
@@ -16,7 +8,6 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     });
 
     useEffect(() => {
-        // 초기 로드 시 body class 설정
         document.body.className = theme;
     }, [theme]);
 
@@ -34,12 +25,4 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
             {children}
         </ThemeContext.Provider>
     );
-};
-
-export const useTheme = () => {
-    const context = useContext(ThemeContext);
-    if (context === undefined) {
-        throw new Error('useTheme must be used within a ThemeProvider');
-    }
-    return context;
 }; 

@@ -1,5 +1,4 @@
-import { useTheme } from '../../contexts/ThemeContext';
-import { COLORS } from '../../constants/theme';
+import { useTheme, COLORS } from '../../constants/theme';
 import { SparklineChart } from '../SparklineChart';
 import type { MarketData } from '../../types/market';
 import { getDisplaySymbol, getSymbolImage } from '../../utils/symbolUtils';

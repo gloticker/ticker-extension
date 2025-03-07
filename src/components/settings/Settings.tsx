@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { SettingsHeader } from './SettingsHeader';
 import { SettingSection } from './SettingSection';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../constants/theme';
 
 const ORDER_MAP = {
     Index: ['^IXIC', '^GSPC', '^RUT', '^TLT', '^VIX', 'Fear&Greed'],

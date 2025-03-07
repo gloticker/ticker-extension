@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { MarketSection } from './components/MarketSection';
 import { Header } from './components/Header';
 import { Settings } from './components/settings/Settings';
-import { COLORS } from './constants/theme';
-import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { ThemeProvider } from './contexts/ThemeProvider';
+import { useTheme, COLORS } from './constants/theme';
 
 function App() {
   const [showSettings, setShowSettings] = useState(false);

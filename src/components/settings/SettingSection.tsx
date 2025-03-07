@@ -1,5 +1,4 @@
-import { useTheme } from '../../contexts/ThemeContext';
-import { COLORS } from '../../constants/theme';
+import { useTheme, COLORS } from '../../constants/theme';
 import { getSymbolImage } from '../../utils/symbolUtils';
 
 interface SettingSectionProps {
