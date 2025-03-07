@@ -94,7 +94,6 @@ export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
         return () => clearTimeout(timer);
     }, []);
 
-    // 시간 업데이트 - 1초가 아닌 0.5초로 변경
     useEffect(() => {
         if (!showStatus) return; // 마우스 오버 상태일 때만 업데이트
 
@@ -120,67 +119,69 @@ export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
 
     return (
         <div
-            className="h-[50px] px-4 flex items-center justify-between w-[288px] mx-auto"
+            className="h-[50px] w-full flex items-center justify-between"
             style={{ backgroundColor: COLORS[theme].background }}
         >
-            {!isSettings && (
-                <>
-                    <div className="flex items-center relative">
-                        <button
-                            className="w-[18px] h-[18px]"
-                            onClick={() => {
-                                setShowStatus((prev: boolean) => !prev);
-                                setCurrentTime(getNYTime());
-                            }}
-                        >
-                            <img
-                                src={getMarketIcon()}
-                                alt="market status"
-                                style={{ filter: `brightness(${brightness})` }}
-                            />
-                        </button>
-                        <div className="absolute left-7 whitespace-nowrap transition-opacity duration-300 pointer-events-none h-[50px]"
-                            style={{
-                                color: COLORS[theme].text.primary,
-                                opacity: showStatus ? 1 : 0,
-                            }}
-                        >
-                            <div className="absolute -translate-y-1/2 top-1/2">
-                                <span className="flex items-center text-xs">
-                                    <span className="w-11 tabular-nums">{currentTime.time}</span>
-                                    <span className="ml-3">{currentTime.period}</span>
-                                </span>
-                            </div>
-                            <div className="absolute top-[55%]">
-                                <span className="text-[10px]">{TRANSLATIONS[language].marketStatus[marketStatus]}</span>
+            <div className="w-full max-w-[288px] px-4 mx-auto flex items-center justify-between">
+                {!isSettings && (
+                    <>
+                        <div className="flex items-center relative">
+                            <button
+                                className="w-[18px] h-[18px]"
+                                onClick={() => {
+                                    setShowStatus((prev: boolean) => !prev);
+                                    setCurrentTime(getNYTime());
+                                }}
+                            >
+                                <img
+                                    src={getMarketIcon()}
+                                    alt="market status"
+                                    style={{ filter: `brightness(${brightness})` }}
+                                />
+                            </button>
+                            <div className="absolute left-6 whitespace-nowrap transition-opacity duration-300 pointer-events-none h-[50px]"
+                                style={{
+                                    color: COLORS[theme].text.primary,
+                                    opacity: showStatus ? 1 : 0,
+                                }}
+                            >
+                                <div className="absolute -translate-y-1/2 top-1/2">
+                                    <span className="flex items-center text-xs">
+                                        <span className="w-11 tabular-nums">{currentTime.time}</span>
+                                        <span className="ml-3">{currentTime.period}</span>
+                                    </span>
+                                </div>
+                                <div className="absolute top-[55%]">
+                                    <span className="text-[10px]">{TRANSLATIONS[language].marketStatus[marketStatus]}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <button className="w-[18px] h-[18px]">
-                        <img
-                            src="/images/icon/ai.svg"
-                            alt="ai"
-                            style={{
-                                filter: `brightness(${brightness})`
-                            }}
-                        />
-                    </button>
-                </>
-            )}
+                        <button className="w-[18px] h-[18px]">
+                            <img
+                                src="/images/icon/ai.svg"
+                                alt="ai"
+                                style={{
+                                    filter: `brightness(${brightness})`
+                                }}
+                            />
+                        </button>
+                    </>
+                )}
 
-            <button
-                className={isSettings ? "w-[20px] h-[10px] ml-auto" : "w-[18px] h-[18px]"}
-                onClick={onSettingsClick}
-            >
-                <img
-                    src={isSettings ? "/images/icon/back.svg" : "/images/icon/setting.svg"}
-                    alt={isSettings ? "back" : "settings"}
-                    style={{
-                        filter: `brightness(${brightness})`
-                    }}
-                />
-            </button>
+                <button
+                    className={isSettings ? "w-[20px] h-[10px] ml-auto" : "w-[18px] h-[18px]"}
+                    onClick={onSettingsClick}
+                >
+                    <img
+                        src={isSettings ? "/images/icon/back.svg" : "/images/icon/setting.svg"}
+                        alt={isSettings ? "back" : "settings"}
+                        style={{
+                            filter: `brightness(${brightness})`
+                        }}
+                    />
+                </button>
+            </div>
         </div>
     );
 };

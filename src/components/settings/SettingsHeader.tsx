@@ -12,21 +12,23 @@ export const SettingsHeader = ({ onBackClick }: SettingsHeaderProps) => {
 
     return (
         <div
-            className="h-[50px] px-4 flex items-center justify-between w-[288px] mx-auto"
+            className="h-[50px] w-full flex items-center justify-between"
             style={{ backgroundColor: COLORS[theme].background }}
         >
-            <button
-                className="w-[20px] h-[10px] ml-auto"
-                onClick={onBackClick}
-            >
-                <img
-                    src="/images/icon/back.svg"
-                    alt="back"
-                    style={{
-                        filter: `brightness(${brightness})`
-                    }}
-                />
-            </button>
+            <div className="w-full max-w-[288px] px-4 mx-auto flex items-center justify-between">
+                <button
+                    className="w-[20px] h-[10px] ml-auto"
+                    onClick={onBackClick}
+                >
+                    <img
+                        src="/images/icon/back.svg"
+                        alt="back"
+                        style={{
+                            filter: `brightness(${brightness})`
+                        }}
+                    />
+                </button>
+            </div>
         </div>
     );
 };
