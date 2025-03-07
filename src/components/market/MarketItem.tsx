@@ -15,9 +15,8 @@ interface MarketItemProps {
 export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) => {
     const { theme } = useTheme();
     const [isFlashing, setIsFlashing] = useState(false);
-    const [latestValue, setLatestValue] = useState(''); // 최신 표시값 (otc든 current든)
+    const [latestValue, setLatestValue] = useState('');
 
-    // 새로운 데이터에서 우선순위에 따라 값 선택
     const newValue = symbol === 'BTC.D'
         ? marketData.value
         : (marketData.otc_price || marketData.current_price || marketData.current_value || marketData.rate || marketData.score || marketData.value);
@@ -54,7 +53,10 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
                 </span>
             </div>
 
-            <PriceSection symbol={symbol} marketData={marketData} />
+            <PriceSection
+                symbol={symbol}
+                marketData={marketData}
+            />
 
             {symbol !== 'BTC.D' && (
                 <ChangeSection symbol={symbol} marketData={marketData} />
