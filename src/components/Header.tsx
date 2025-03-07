@@ -2,6 +2,8 @@ import { useTheme, COLORS } from '../constants/theme';
 import { useState, useEffect } from 'react';
 import { format, toZonedTime } from 'date-fns-tz';
 import { useI18n, TRANSLATIONS } from '../constants/i18n';
+import { isMarketHoliday } from '../constants/marketHolidays';
+import { MARKET_TIMES } from '../constants/marketTimes';
 
 interface HeaderProps {
     isSettings?: boolean;
@@ -10,66 +12,67 @@ interface HeaderProps {
 
 type MarketStatusType = 'pre' | 'regular' | 'after' | 'closed';
 
-const getMarketStatus = (): MarketStatusType => {
-    const nyDate = toZonedTime(new Date(), 'America/New_York');
-    const nyTime = format(nyDate, 'HH:mm', { timeZone: 'America/New_York' });
-    const [hours, minutes] = nyTime.split(':').map(Number);
-    const timeInMinutes = hours * 60 + minutes;
-
-    // Closed: 20:00 PM - 04:00 AM (1200 - 240)
-    if (timeInMinutes >= 1200 || timeInMinutes < 240) {
-        return 'closed';
-    }
-    // Pre-market: 4:00 AM - 9:30 AM (240 - 570)
-    else if (timeInMinutes >= 240 && timeInMinutes < 570) {
-        return 'pre';
-    }
-    // Regular: 9:30 AM - 4:00 PM (570 - 960)
-    else if (timeInMinutes >= 570 && timeInMinutes < 960) {
-        return 'regular';
-    }
-    // After: 4:00 PM - 8:00 PM (960 - 1200)
-    else {
-        return 'after';
-    }
+const isWeekend = (date: Date): boolean => {
+    const day = date.getDay();
+    return day === 0 || day === 6;
 };
 
-const getNextUpdateDelay = () => {
-    const nyDate = toZonedTime(new Date(), 'America/New_York');
-    const nyTime = format(nyDate, 'HH:mm:ss', { timeZone: 'America/New_York' });
-    const [hours, minutes, seconds] = nyTime.split(':').map(Number);
-    const timeInMinutes = hours * 60 + minutes;
+const getMarketStatus = (date: Date, timeInMinutes: number): MarketStatusType => {
+    if (isWeekend(date) || isMarketHoliday(date)) {
+        return 'closed';
+    }
 
-    let nextCheckpoint;
-    if (timeInMinutes < 240) nextCheckpoint = 240; // 4:00 AM
-    else if (timeInMinutes < 570) nextCheckpoint = 570; // 9:30 AM
-    else if (timeInMinutes < 960) nextCheckpoint = 960; // 4:00 PM
-    else if (timeInMinutes < 1200) nextCheckpoint = 1200; // 8:00 PM
-    else nextCheckpoint = 1440 + 240; // 다음날 4:00 AM
+    if (timeInMinutes >= MARKET_TIMES.CLOSED_START || timeInMinutes < MARKET_TIMES.PRE_START) return 'closed';
+    if (timeInMinutes < MARKET_TIMES.REGULAR_START) return 'pre';
+    if (timeInMinutes < MARKET_TIMES.AFTER_START) return 'regular';
+    return 'after';
+};
 
-    const minutesUntilNext = nextCheckpoint - timeInMinutes;
-    const secondsUntilNext = minutesUntilNext * 60 - seconds;
+const useNYDateTime = () => {
+    const getNYDateTime = () => {
+        const nyDate = toZonedTime(new Date(), 'America/New_York');
+        return {
+            date: nyDate,
+            time: format(nyDate, 'hh:mm:ss', { timeZone: 'America/New_York' }),
+            period: format(nyDate, 'a', { timeZone: 'America/New_York' }),
+            minutes: nyDate.getHours() * 60 + nyDate.getMinutes(),
+            seconds: nyDate.getSeconds()
+        };
+    };
 
-    return secondsUntilNext * 1000; // 밀리초 단위로 반환
+    const [nyDateTime, setNYDateTime] = useState(getNYDateTime());
+
+    // 1초마다 시간 업데이트
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setNYDateTime(getNYDateTime());
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    return nyDateTime;
 };
 
 export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
     const { theme } = useTheme();
     const { language } = useI18n();
+    const nyDateTime = useNYDateTime();
 
-    const getNYTime = () => {
-        const nyDate = toZonedTime(new Date(), 'America/New_York');
-        const time = format(nyDate, 'hh:mm:ss', { timeZone: 'America/New_York' });
-        const period = format(nyDate, 'a', { timeZone: 'America/New_York' });
-        return { time, period };
-    };
-
-    const [marketStatus, setMarketStatus] = useState<MarketStatusType>(getMarketStatus());
+    const [marketStatus, setMarketStatus] = useState<MarketStatusType>(() =>
+        getMarketStatus(nyDateTime.date, nyDateTime.minutes)
+    );
     const [showStatus, setShowStatus] = useState(() => {
         const saved = localStorage.getItem('showMarketStatus');
         return saved ? JSON.parse(saved) : false;
     });
-    const [currentTime, setCurrentTime] = useState(getNYTime());
+
+    // 마켓 상태 업데이트
+    useEffect(() => {
+        const newStatus = getMarketStatus(nyDateTime.date, nyDateTime.minutes);
+        if (newStatus !== marketStatus) {
+            setMarketStatus(newStatus);
+        }
+    }, [nyDateTime.minutes, nyDateTime.date, marketStatus]);
 
     const primaryColor = COLORS[theme].text.primary;
     const brightness = parseInt(primaryColor.slice(1), 16) / 0xFFFFFF;
@@ -77,31 +80,6 @@ export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
     // showStatus 변경시 localStorage 저장
     useEffect(() => {
         localStorage.setItem('showMarketStatus', JSON.stringify(showStatus));
-    }, [showStatus]);
-
-    // 마켓 상태 업데이트
-    useEffect(() => {
-        const scheduleNextUpdate = () => {
-            const delay = getNextUpdateDelay();
-            const timer = setTimeout(() => {
-                setMarketStatus(getMarketStatus());
-                scheduleNextUpdate();
-            }, delay);
-            return timer;
-        };
-
-        const timer = scheduleNextUpdate();
-        return () => clearTimeout(timer);
-    }, []);
-
-    useEffect(() => {
-        if (!showStatus) return; // 마우스 오버 상태일 때만 업데이트
-
-        const timer = setInterval(() => {
-            setCurrentTime(getNYTime());
-        }, 1000);
-
-        return () => clearInterval(timer);
     }, [showStatus]);
 
     const getMarketIcon = () => {
@@ -130,7 +108,6 @@ export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
                                 className="w-[18px] h-[18px]"
                                 onClick={() => {
                                     setShowStatus((prev: boolean) => !prev);
-                                    setCurrentTime(getNYTime());
                                 }}
                             >
                                 <img
@@ -147,8 +124,8 @@ export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
                             >
                                 <div className="absolute -translate-y-1/2 top-1/2">
                                     <span className="flex items-center text-xs">
-                                        <span className="w-11 tabular-nums">{currentTime.time}</span>
-                                        <span className="ml-3">{currentTime.period}</span>
+                                        <span className="w-11 tabular-nums">{nyDateTime.time}</span>
+                                        <span className="ml-3">{nyDateTime.period}</span>
                                     </span>
                                 </div>
                                 <div className="absolute top-[55%]">
