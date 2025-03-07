@@ -48,6 +48,11 @@ export const Settings = ({ onClose }: SettingsProps) => {
         };
     });
 
+    const [isPriceChangeVisible, setIsPriceChangeVisible] = useState(() => {
+        const saved = localStorage.getItem('isPriceChangeVisible');
+        return saved ? JSON.parse(saved) : true;
+    });
+
     const handleSymbolToggle = (section: string, symbol: string) => {
         if (!activeSections[section]) return;
 
@@ -105,6 +110,15 @@ export const Settings = ({ onClose }: SettingsProps) => {
         });
     };
 
+    const handlePriceChangeToggle = () => {
+        setIsPriceChangeVisible((prev: boolean) => {
+            const newState = !prev;
+            localStorage.setItem('isPriceChangeVisible', JSON.stringify(newState));
+            window.dispatchEvent(new Event('settingsChange'));
+            return newState;
+        });
+    };
+
     const languageValue = language === 'ko'
         ? `${TRANSLATIONS.ko.settings.Korean} | ${TRANSLATIONS.ko.settings.English}`
         : `${TRANSLATIONS.en.settings.Korean} | ${TRANSLATIONS.en.settings.English}`;
@@ -157,6 +171,8 @@ export const Settings = ({ onClose }: SettingsProps) => {
                     <SettingSection
                         title="Price Change"
                         isToggle={true}
+                        isActive={isPriceChangeVisible}
+                        onToggle={handlePriceChangeToggle}
                     />
                     <SettingSection
                         title="Theme"

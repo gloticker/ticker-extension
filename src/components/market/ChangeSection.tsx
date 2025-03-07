@@ -1,5 +1,6 @@
 import { useTheme, COLORS } from '../../constants/theme';
 import { MarketData } from '../../types/market';
+import { useState, useEffect } from 'react';
 
 interface ChangeSectionProps {
     symbol: string;
@@ -13,6 +14,21 @@ const formatter = new Intl.NumberFormat('en-US', {
 
 export const ChangeSection = ({ symbol, marketData }: ChangeSectionProps) => {
     const { theme } = useTheme();
+    const [isPriceChangeVisible, setIsPriceChangeVisible] = useState(() => {
+        const saved = localStorage.getItem('isPriceChangeVisible');
+        return saved ? JSON.parse(saved) : true;
+    });
+
+    useEffect(() => {
+        const handleSettingsChange = () => {
+            const saved = localStorage.getItem('isPriceChangeVisible');
+            setIsPriceChangeVisible(saved ? JSON.parse(saved) : true);
+        };
+
+        window.addEventListener('settingsChange', handleSettingsChange);
+        return () => window.removeEventListener('settingsChange', handleSettingsChange);
+    }, []);
+
     const formatChange = (value: string) => {
         const numValue = Number(value);
         if (numValue === 0) return "0.00";
@@ -37,7 +53,7 @@ export const ChangeSection = ({ symbol, marketData }: ChangeSectionProps) => {
                 >
                     {marketData.rating ? marketData.rating : formatChange(marketData.change_percent) + '%'}
                 </span>
-                {!marketData.rating && (
+                {!marketData.rating && isPriceChangeVisible && (
                     <span
                         className="absolute bottom-0 text-[10px]"
                         style={{ color: COLORS[theme].text.secondary }}
