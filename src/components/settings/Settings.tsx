@@ -131,7 +131,7 @@ export const Settings = ({ onClose }: SettingsProps) => {
         <div className="h-full flex flex-col">
             <SettingsHeader onBackClick={onClose} />
             <div className="flex-1 overflow-y-auto scrollbar-hide">
-                <div className="space-y-2">
+                <div>
                     <SettingSection
                         title="Index"
                         symbols={ORDER_MAP.Index}
