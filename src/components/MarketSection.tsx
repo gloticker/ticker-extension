@@ -1,117 +1,135 @@
-import { useEffect, useState } from 'react';
-import { MarketItem } from './MarketItem';
-import { useMarketStore } from '../store/marketStore';
-import { MarketType } from '../types/market';
-import { MARKET_SYMBOLS } from '../constants/websocket';
+import { useEffect, useState, useCallback } from 'react';
+import { marketService } from '../services/market';
+import { MarketGroup } from './market/MarketGroup';
+import { useMarketStream } from '../hooks/useMarketStream';
+import { MarketData } from '../types/market';  // 타입 import
 
-interface MarketSectionProps {
-  title: string;
-  type: MarketType;
-}
+type MarketSnapshot = Record<string, MarketData>;
+type MarketType = 'Index' | 'Stock' | 'Crypto' | 'Forex';
 
-export const MarketSection = ({ title, type }: MarketSectionProps) => {
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [displaySettings, setDisplaySettings] = useState<{
-    categories: Record<MarketType, boolean>;
-    symbols: Record<string, boolean>;
-  } | null>(null);
+// 섹션별 고정 순서 정의
+const ORDER_MAP = {
+    Index: ['^IXIC', '^GSPC', '^RUT', '^TLT', '^VIX', 'Fear&Greed'],
+    Stock: ['AAPL', 'NVDA', 'MSFT', 'AMZN', 'GOOGL', 'META', 'TSLA'],
+    Crypto: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BTC.D'],
+    Forex: ['KRW=X', 'EURKRW=X', 'CNYKRW=X', 'JPYKRW=X']
+};
 
-  const markets = useMarketStore(state => state.markets);
+const marketTypes: MarketType[] = ['Index', 'Stock', 'Crypto', 'Forex'];
 
-  // 타입에 따른 MARKET_SYMBOLS 키 매핑
-  const sectionKey = {
-    'INDEX': 'INDICES',
-    'STOCK': 'STOCKS',
-    'CRYPTO': 'CRYPTO',
-    'FOREX': 'FOREX'
-  }[type];
+type ChartDataItem = {
+    symbol: string;
+    chart_data: Record<string, { close: string }>;
+};
 
-  useEffect(() => {
-    const loadSettings = () => {
-      chrome.storage.local.get(['displaySettings', `section_${type}_expanded`], (result) => {
-        setDisplaySettings(result.displaySettings);
-        setIsExpanded(result[`section_${type}_expanded`] ?? true);
-      });
-    };
+export const MarketSection = () => {
+    const [allData, setAllData] = useState<MarketSnapshot[]>([]);
+    const [chartData, setChartData] = useState<Record<string, Record<string, { close: string }>>>({});
+    const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+        Index: true,
+        Stock: true,
+        Crypto: true,
+        Forex: true
+    });
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
+    const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
 
-    loadSettings();
+    const handleMarketData = useCallback((newData: Record<string, MarketData>) => {
+        if (!isInitialDataLoaded) return;
 
-    // storage 변경 감지 리스너
-    const handleStorageChange = (changes: { [key: string]: chrome.storage.StorageChange }) => {
-      // displaySettings 변경 감지
-      if (changes.displaySettings) {
-        setDisplaySettings(changes.displaySettings.newValue);
-      }
+        setAllData(prev => {
+            const lastSnapshot = { ...prev[prev.length - 1] };
 
-      // 마켓 데이터 변경 감지
-      const marketChanges = Object.keys(changes).filter(key =>
-        MARKET_SYMBOLS[sectionKey]?.[key]
-      );
+            Object.entries(newData).forEach(([symbol, data]) => {
+                lastSnapshot[symbol] = {
+                    ...lastSnapshot[symbol],
+                    value: data.value,
+                    score: data.score,
+                    rate: data.rate,
+                    current_value: data.current_value,
+                    current_price: data.current_price,
+                    otc_price: data.otc_price,
+                    change: data.change,
+                    change_percent: data.change_percent
+                };
+            });
 
-      if (marketChanges.length > 0) {
-        const store = useMarketStore.getState();
-        const updatedMarkets = { ...store.markets };
-        marketChanges.forEach(symbol => {
-          updatedMarkets[symbol] = changes[symbol].newValue;
+            return [...prev.slice(0, -1), lastSnapshot];
         });
-        store.setMarkets(updatedMarkets);
-      }
+    }, [isInitialDataLoaded]);
+
+    useMarketStream(handleMarketData);
+
+    // 초기 데이터 로드
+    useEffect(() => {
+        let mounted = true;
+
+        const fetchData = async () => {
+            try {
+                const [snapshotResponse, chartResponse] = await Promise.all([
+                    marketService.getSnapshot(),
+                    marketService.getChartData()
+                ]);
+
+                if (mounted) {
+                    setAllData(snapshotResponse);
+                    const formattedChartData = chartResponse.reduce((acc: Record<string, Record<string, { close: string }>>, item: ChartDataItem) => {
+                        acc[item.symbol] = item.chart_data;
+                        return acc;
+                    }, {});
+
+                    setChartData(formattedChartData);
+                    setIsInitialLoad(false);
+                    setIsInitialDataLoaded(true);
+                }
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+            }
+        };
+
+        fetchData();
+
+        return () => {
+            mounted = false;
+        };
+    }, []);
+
+    if (!allData.length) return <div>Loading...</div>;
+
+    const combinedData = allData.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+
+    // 데이터를 타입별로 그룹화하고 정해진 순서대로 정렬
+    const sortedGroupedData = marketTypes.reduce((acc, type) => {
+        const orderList = ORDER_MAP[type];
+        acc[type] = orderList.reduce((sorted, symbol) => {
+            if (combinedData[symbol]) {
+                sorted[symbol] = combinedData[symbol];
+            }
+            return sorted;
+        }, {} as Record<string, MarketData>);
+        return acc;
+    }, {} as Record<MarketType, Record<string, MarketData>>);
+
+    const toggleSection = (type: string) => {
+        setExpandedSections(prev => ({
+            ...prev,
+            [type]: !prev[type]
+        }));
     };
 
-    chrome.storage.onChanged.addListener(handleStorageChange);
-    return () => {
-      chrome.storage.onChanged.removeListener(handleStorageChange);
-    };
-  }, [type, sectionKey]);
-
-  const toggleExpand = () => {
-    const newState = !isExpanded;
-    setIsExpanded(newState);
-    chrome.storage.local.set({ [`section_${type}_expanded`]: newState });
-  };
-
-  // MARKET_SYMBOLS에서 해당 타입의 심볼 순서 가져오기
-  const orderedSymbols = Object.keys(MARKET_SYMBOLS[sectionKey] || {});
-
-  const filteredMarkets = orderedSymbols
-    .filter(symbol => {
-      const market = markets[symbol];
-      if (!market) return false;
-      if (!displaySettings) return true;
-      return displaySettings.categories[type] &&
-        (displaySettings.symbols[symbol] ?? true);
-    })
-    .map(symbol => markets[symbol]);
-
-  if (!displaySettings?.categories[type]) return null;
-
-  return (
-    <div className="border-b border-gray-800 last:border-0">
-      <button
-        onClick={toggleExpand}
-        className="w-full flex items-center justify-between py-2 hover:bg-slate-800/50 transition-colors"
-      >
-        <h2 className="text-lg font-medium">{title}</h2>
-        <span className="text-gray-400">
-          {isExpanded ? (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          )}
-        </span>
-      </button>
-      <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-        }`}>
-        <div className="space-y-2 py-2">
-          {filteredMarkets.map(market => (
-            <MarketItem key={market.symbol} data={market} />
-          ))}
+    return (
+        <div className="flex flex-col w-full">
+            {marketTypes.map((type) => (
+                <MarketGroup
+                    key={type}
+                    type={type}
+                    data={sortedGroupedData[type]}
+                    chartData={chartData}
+                    isExpanded={expandedSections[type]}
+                    onToggle={() => toggleSection(type)}
+                    isInitialLoad={isInitialLoad}
+                />
+            ))}
         </div>
-      </div>
-    </div>
-  );
+    );
 }; 
