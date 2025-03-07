@@ -1,3 +1,5 @@
+import { TRANSLATIONS } from "../constants/i18n";
+
 export const getSymbolImage = (symbol: string): string => {
   // 심볼 문자열 처리
   const processedSymbol = symbol
@@ -18,9 +20,8 @@ export const getSymbolImage = (symbol: string): string => {
   return `/images/symbol/${processedSymbol}.svg`;
 };
 
-export const getDisplaySymbol = (symbol: string): string => {
-  // 화면에 표시할 심볼 이름 반환
-  return symbol
+export const getDisplaySymbol = (symbol: string, language: "ko" | "en" = "en"): string => {
+  const processedSymbol = symbol
     .replace("^", "")
     .replace("=X", "")
     .replace("-USD", "")
@@ -29,4 +30,9 @@ export const getDisplaySymbol = (symbol: string): string => {
     .replace("CNYKRW", "CNY")
     .replace("JPYKRW", "JPY")
     .replace("KRW", "USD");
+
+  type SymbolKey = keyof (typeof TRANSLATIONS)["ko"]["symbols"] &
+    keyof (typeof TRANSLATIONS)["en"]["symbols"];
+  const translation = TRANSLATIONS[language].symbols[processedSymbol as SymbolKey];
+  return translation || processedSymbol;
 };

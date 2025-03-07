@@ -1,8 +1,10 @@
 import { useTheme, COLORS } from '../../constants/theme';
 import { getSymbolImage } from '../../utils/symbolUtils';
+import { useI18n, TRANSLATIONS } from '../../constants/i18n';
+import { useState, useEffect } from 'react';
 
 interface SettingSectionProps {
-    title: string;
+    title: keyof typeof TRANSLATIONS.ko.settings | keyof typeof TRANSLATIONS.ko.sections;
     symbols?: string[];
     selectedSymbols?: string[];
     value?: string;
@@ -27,6 +29,35 @@ export const SettingSection = ({
     valueAlign,
 }: SettingSectionProps) => {
     const { theme } = useTheme();
+    const { language } = useI18n();
+    const [isValueFading, setIsValueFading] = useState(false);
+    const [isTitleFading, setIsTitleFading] = useState(false);
+    const [displayValue, setDisplayValue] = useState(value);
+    const [displayTitle, setDisplayTitle] = useState('');
+
+    const translatedTitle = TRANSLATIONS[language].settings[title as keyof typeof TRANSLATIONS.ko.settings]
+        || TRANSLATIONS[language].sections[title as keyof typeof TRANSLATIONS.ko.sections]
+        || title;
+
+    useEffect(() => {
+        if (value !== displayValue) {
+            setIsValueFading(true);
+            const timer = setTimeout(() => {
+                setDisplayValue(value);
+                setIsValueFading(false);
+            }, 150);
+            return () => clearTimeout(timer);
+        }
+    }, [value, displayValue]);
+
+    useEffect(() => {
+        setIsTitleFading(true);
+        const timer = setTimeout(() => {
+            setDisplayTitle(translatedTitle);
+            setIsTitleFading(false);
+        }, 150);
+        return () => clearTimeout(timer);
+    }, [translatedTitle]);
 
     return (
         <div className="mb-2.5">
@@ -34,16 +65,26 @@ export const SettingSection = ({
                 className="w-full max-w-100 h-10 px-4 mx-auto flex items-center justify-between"
                 style={{ color: COLORS[theme].text.primary }}
             >
-                <span style={{ fontSize: titleSize || 20, flex: '0 0 auto' }}>{title}</span>
+                <span
+                    className="transition-opacity duration-150"
+                    style={{
+                        fontSize: titleSize || 20,
+                        flex: '0 0 auto',
+                        opacity: isTitleFading ? 0 : 1
+                    }}
+                >
+                    {displayTitle || translatedTitle}
+                </span>
                 {value ? (
                     <span
-                        className={`flex-1 text-right ${valueAlign === 'right' ? 'mr-2' : ''}`}
+                        className={`flex-1 text-right ${valueAlign === 'right' ? 'mr-2' : ''} transition-opacity duration-150`}
                         style={{
                             color: COLORS[theme].text.secondary,
-                            fontSize: '10px'
+                            fontSize: '10px',
+                            opacity: isValueFading ? 0 : 1
                         }}
                     >
-                        {value}
+                        {displayValue}
                     </span>
                 ) : null}
                 {isToggle && (

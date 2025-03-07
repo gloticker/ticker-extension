@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { SettingsHeader } from './SettingsHeader';
 import { SettingSection } from './SettingSection';
 import { useTheme } from '../../constants/theme';
+import { useI18n, TRANSLATIONS } from '../../constants/i18n';
 
 const ORDER_MAP = {
     Index: ['^IXIC', '^GSPC', '^RUT', '^TLT', '^VIX', 'Fear&Greed'],
@@ -16,6 +17,7 @@ interface SettingsProps {
 
 export const Settings = ({ onClose }: SettingsProps) => {
     const { theme, toggleTheme } = useTheme();
+    const { language, toggleLanguage } = useI18n();
     const [selectedSymbols, setSelectedSymbols] = useState<Record<string, string[]>>(() => {
         const saved = localStorage.getItem('selectedSymbols');
         return saved ? JSON.parse(saved) : {
@@ -103,6 +105,14 @@ export const Settings = ({ onClose }: SettingsProps) => {
         });
     };
 
+    const languageValue = language === 'ko'
+        ? `${TRANSLATIONS.ko.settings.Korean} | ${TRANSLATIONS.ko.settings.English}`
+        : `${TRANSLATIONS.en.settings.Korean} | ${TRANSLATIONS.en.settings.English}`;
+
+    const themeValue = language === 'ko'
+        ? `${TRANSLATIONS.ko.settings.Light} | ${TRANSLATIONS.ko.settings.Dark}`
+        : `${TRANSLATIONS.en.settings.Light} | ${TRANSLATIONS.en.settings.Dark}`;
+
     return (
         <div className="h-full flex flex-col">
             <SettingsHeader onBackClick={onClose} />
@@ -145,27 +155,24 @@ export const Settings = ({ onClose }: SettingsProps) => {
                         onSymbolToggle={(symbol) => handleSymbolToggle('Forex', symbol)}
                     />
                     <SettingSection
+                        title="Price Change"
+                        isToggle={true}
+                    />
+                    <SettingSection
                         title="Theme"
-                        value="Light | Dark"
+                        value={themeValue}
                         valueAlign="right"
                         isToggle={true}
                         isActive={theme === 'dark'}
-                        onToggle={() => {
-                            toggleTheme();
-                            localStorage.setItem('theme', theme === 'light' ? 'dark' : 'light');
-                        }}
-                    />
-                    <SettingSection
-                        title="Price Change"
-                        isToggle={true}
-                        titleSize={15}
+                        onToggle={toggleTheme}
                     />
                     <SettingSection
                         title="Language"
-                        value="Korean | English"
+                        value={languageValue}
                         valueAlign="right"
                         isToggle={true}
-                        titleSize={15}
+                        isActive={language === 'en'}
+                        onToggle={toggleLanguage}
                     />
                 </div>
             </div>

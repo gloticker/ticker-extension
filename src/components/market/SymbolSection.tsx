@@ -1,4 +1,5 @@
 import { useTheme, COLORS } from '../../constants/theme';
+import { useI18n } from '../../constants/i18n';
 import { getSymbolImage, getDisplaySymbol } from '../../utils/symbolUtils';
 
 interface SymbolSectionProps {
@@ -7,6 +8,9 @@ interface SymbolSectionProps {
 
 export const SymbolSection = ({ symbol }: SymbolSectionProps) => {
     const { theme } = useTheme();
+    const { language } = useI18n();
+
+    const translatedSymbol = getDisplaySymbol(symbol, language);
 
     return (
         <div className="flex items-center w-[35%]">
@@ -21,7 +25,7 @@ export const SymbolSection = ({ symbol }: SymbolSectionProps) => {
                 className="text-sm ml-[6px]"
                 style={{ color: COLORS[theme].text.primary }}
             >
-                {getDisplaySymbol(symbol)}
+                {translatedSymbol}
             </span>
         </div>
     );

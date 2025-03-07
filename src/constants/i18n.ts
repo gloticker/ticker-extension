@@ -1,3 +1,5 @@
+import { createContext, useContext } from "react";
+
 export const TRANSLATIONS = {
   ko: {
     sections: {
@@ -13,7 +15,7 @@ export const TRANSLATIONS = {
       TLT: "국채",
       VIX: "변동성",
       "F&G": "공포탐욕",
-      APPL: "애플",
+      AAPL: "애플",
       NVDA: "엔비디아",
       MSFT: "마이크로소프트",
       AMZN: "아마존",
@@ -80,3 +82,20 @@ export const TRANSLATIONS = {
     },
   },
 } as const;
+
+export type Language = "ko" | "en";
+
+export interface I18nContextType {
+  language: Language;
+  toggleLanguage: () => void;
+}
+
+export const I18nContext = createContext<I18nContextType | undefined>(undefined);
+
+export const useI18n = () => {
+  const context = useContext(I18nContext);
+  if (context === undefined) {
+    throw new Error("useI18n must be used within a I18nProvider");
+  }
+  return context;
+};
