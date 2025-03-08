@@ -57,7 +57,10 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
                 />
                 <span
                     className={`${textSizeClass} ml-1.5`}
-                    style={{ color: COLORS[theme].text.primary }}
+                    style={{
+                        color: COLORS[theme].text.primary,
+                        fontWeight: 400
+                    }}
                 >
                     {symbolInfo.displayName}
                 </span>
@@ -73,7 +76,8 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
                     style={{
                         color: COLORS[theme].text.secondary,
                         backgroundColor: COLORS[theme].surface,
-                        padding: '0 2px'
+                        padding: '0 2px',
+                        fontWeight: 400
                     }}
                 >
                     D

@@ -35,7 +35,10 @@ export const MarketGroupHeader = ({ type, isExpanded, onToggle }: MarketGroupHea
         >
             <span
                 className="transition-opacity duration-150"
-                style={{ opacity: isTitleFading ? 0 : 1 }}
+                style={{
+                    opacity: isTitleFading ? 0 : 1,
+                    fontWeight: 400
+                }}
             >
                 {displayTitle || translatedTitle}
             </span>

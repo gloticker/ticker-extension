@@ -9,7 +9,7 @@ export const COLORS = {
     icon: "1F1F1F",
     text: {
       primary: "#1F1F1F",
-      secondary: "#ACACAC",
+      secondary: "#838383",
     },
   },
   dark: {

@@ -23,7 +23,10 @@ export const PriceSection = ({ symbol, marketData }: PriceSectionProps) => {
 
     return (
         <div className="absolute left-[35%] w-[30%] text-xs font-medium"
-            style={{ color: COLORS[theme].text.primary }}
+            style={{
+                color: COLORS[theme].text.primary,
+                fontWeight: 400
+            }}
         >
             {formattedValue}
         </div>
