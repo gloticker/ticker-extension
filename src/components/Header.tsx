@@ -33,7 +33,7 @@ const useNYDateTime = () => {
         const nyDate = toZonedTime(new Date(), 'America/New_York');
         return {
             date: nyDate,
-            time: format(nyDate, 'hh:mm:ss', { timeZone: 'America/New_York' }),
+            time: format(nyDate, 'h:mm:ss', { timeZone: 'America/New_York' }),
             period: format(nyDate, 'a', { timeZone: 'America/New_York' }),
             minutes: nyDate.getHours() * 60 + nyDate.getMinutes(),
             seconds: nyDate.getSeconds()
@@ -116,20 +116,18 @@ export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
                                     style={{ filter: `brightness(${brightness})` }}
                                 />
                             </button>
-                            <div className="absolute left-6 whitespace-nowrap transition-opacity duration-300 pointer-events-none h-[50px]"
+                            <div className="absolute left-5 whitespace-nowrap transition-opacity duration-300 pointer-events-none h-[50px]"
                                 style={{
                                     color: COLORS[theme].text.primary,
                                     opacity: showStatus ? 1 : 0,
                                 }}
                             >
-                                <div className="absolute -translate-y-1/2 top-1/2">
+                                <div className="absolute -translate-y-1/2 top-1/2 flex flex-col items-end">
                                     <span className="flex items-center text-xs">
-                                        <span className="w-11 tabular-nums">{nyDateTime.time}</span>
-                                        <span className="ml-3">{nyDateTime.period}</span>
+                                        <span className="inline-block w-[52px] tabular-nums text-right">{nyDateTime.time}</span>
+                                        <span className="ml-1">{nyDateTime.period}</span>
                                     </span>
-                                </div>
-                                <div className="absolute top-[55%]">
-                                    <span className="text-[10px]">{TRANSLATIONS[language].marketStatus[marketStatus]}</span>
+                                    <span className="text-[10px] mt-1">{TRANSLATIONS[language].marketStatus[marketStatus]}</span>
                                 </div>
                             </div>
                         </div>
