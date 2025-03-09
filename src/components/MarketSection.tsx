@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { marketService } from '../services/market';
 import { MarketGroup } from './market/MarketGroup';
 import { useMarketStream } from '../hooks/useMarketStream';
@@ -21,7 +21,6 @@ type ChartDataItem = {
     chart_data: Record<string, { close: string }>;
 };
 
-// 커스텀 이벤트 이름 정의
 const SETTINGS_CHANGE_EVENT = 'settingsChange';
 
 export const MarketSection = () => {
@@ -36,6 +35,7 @@ export const MarketSection = () => {
             Forex: true
         };
     });
+    const isInitialDataLoadedRef = useRef(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
 
@@ -91,9 +91,9 @@ export const MarketSection = () => {
     }, [expandedSections]);
 
     const handleMarketData = useCallback((newData: Record<string, MarketData>) => {
-        if (!isInitialDataLoaded) return;
-
         setAllData(prev => {
+            if (!isInitialDataLoadedRef.current || prev.length === 0) return prev;
+
             const lastSnapshot = { ...prev[prev.length - 1] };
             Object.entries(newData).forEach(([symbol, data]) => {
                 lastSnapshot[symbol] = {
@@ -112,6 +112,10 @@ export const MarketSection = () => {
 
             return [...prev.slice(0, -1), lastSnapshot];
         });
+    }, []);
+
+    useEffect(() => {
+        isInitialDataLoadedRef.current = isInitialDataLoaded;
     }, [isInitialDataLoaded]);
 
     useMarketStream(handleMarketData);
