@@ -1,0 +1,7 @@
+export const MARKET_TIMES = {
+  PREPRE_START: 0, // 00:00
+  PRE_START: 240, // 04:00
+  REGULAR_START: 570, // 09:30
+  AFTER_START: 960, // 16:00
+  CLOSED_START: 1200, // 20:00
+} as const;
