@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { API_BASE_URL, API_ENDPOINTS } from "../services/api";
+import { marketService } from "../services/market";
 
 type MarketData = {
   current_price?: string;
@@ -35,6 +36,7 @@ export const useMarketStream = (onMessage: (data: Record<string, MarketData>) =>
         try {
           const data = JSON.parse(event.data);
           onMessage(data);
+          marketService.updateSnapshotCache(data);
         } catch (error) {
           console.error("Error parsing SSE data:", error);
         }
