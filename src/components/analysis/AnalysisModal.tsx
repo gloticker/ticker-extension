@@ -164,14 +164,58 @@ export const AnalysisModal = ({ isOpen, onClose }: AnalysisModalProps) => {
                     >
                         {/* 헤더 영역 */}
                         <div className="flex justify-between items-center px-4 py-3">
-                            <h2
-                                className="text-xl font-normal"
-                                style={{
-                                    color: COLORS[theme].text.primary,
-                                }}
-                            >
-                                {TRANSLATIONS[language].modals.AIAnalysis}
-                            </h2>
+                            <div className="flex items-center">
+                                <h2
+                                    className="text-xl"
+                                    style={{
+                                        color: COLORS[theme].text.primary,
+                                        fontWeight: 400
+                                    }}
+                                >
+                                    {TRANSLATIONS[language].modals.AIAnalysis}
+                                </h2>
+                                <div className="flex gap-1 ml-3 items-center">
+                                    <motion.div
+                                        className="w-1 h-1 rounded-full"
+                                        style={{ backgroundColor: COLORS[theme].primary }}
+                                        animate={{
+                                            opacity: [0.3, 1, 0.3],
+                                            scale: [0.8, 1, 0.8],
+                                        }}
+                                        transition={{
+                                            duration: 1.2,
+                                            repeat: Infinity,
+                                            delay: 0,
+                                        }}
+                                    />
+                                    <motion.div
+                                        className="w-1 h-1 rounded-full"
+                                        style={{ backgroundColor: COLORS[theme].primary }}
+                                        animate={{
+                                            opacity: [0.3, 1, 0.3],
+                                            scale: [0.8, 1, 0.8],
+                                        }}
+                                        transition={{
+                                            duration: 1.2,
+                                            repeat: Infinity,
+                                            delay: 0.4,
+                                        }}
+                                    />
+                                    <motion.div
+                                        className="w-1 h-1 rounded-full"
+                                        style={{ backgroundColor: COLORS[theme].primary }}
+                                        animate={{
+                                            opacity: [0.3, 1, 0.3],
+                                            scale: [0.8, 1, 0.8],
+                                        }}
+                                        transition={{
+                                            duration: 1.2,
+                                            repeat: Infinity,
+                                            delay: 0.8,
+                                        }}
+                                    />
+                                </div>
+                            </div>
                             <button
                                 onClick={onClose}
                                 className="w-5 h-5 flex items-center justify-center"
