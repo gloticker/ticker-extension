@@ -125,8 +125,10 @@ export const MarketSection = () => {
 
         const fetchData = async () => {
             try {
+                // 먼저 캐시된 스냅샷 확인
+                const cachedSnapshot = await marketService.getSnapshotFromCache();
                 const [snapshotResponse, chartResponse] = await Promise.all([
-                    marketService.getSnapshot(),
+                    cachedSnapshot || marketService.getSnapshot(), // 캐시가 없을 때만 새로운 스냅샷 요청
                     marketService.getChartData()
                 ]);
 

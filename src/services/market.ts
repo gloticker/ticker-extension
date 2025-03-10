@@ -64,6 +64,21 @@ class MarketService {
     }
   }
 
+  // 캐시된 스냅샷 데이터를 가져오는 메서드
+  async getSnapshotFromCache() {
+    const cachedData = localStorage.getItem(this.SNAPSHOT_CACHE_KEY);
+    const cachedTimestamp = localStorage.getItem(this.SNAPSHOT_CACHE_TIMESTAMP_KEY);
+
+    if (cachedData && cachedTimestamp) {
+      const now = Date.now();
+      if (now - Number(cachedTimestamp) < this.SNAPSHOT_CACHE_DURATION) {
+        const data = JSON.parse(cachedData);
+        return Array.isArray(data) ? data : [data];
+      }
+    }
+    return null;
+  }
+
   async getChart(params: { symbol: string; interval: string }) {
     const queryString = new URLSearchParams(params).toString();
     const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.MARKET_CHART}?${queryString}`);
@@ -119,8 +134,9 @@ class MarketService {
       const lastSnapshot = { ...existingData[existingData.length - 1], ...newData };
       const updatedData = [...existingData.slice(0, -1), lastSnapshot];
 
-      // 데이터만 업데이트하고 타임스탬프는 유지
+      // 데이터와 타임스탬프 모두 업데이트
       localStorage.setItem(this.SNAPSHOT_CACHE_KEY, JSON.stringify(updatedData));
+      localStorage.setItem(this.SNAPSHOT_CACHE_TIMESTAMP_KEY, Date.now().toString());
     } catch (error) {
       console.error("Error updating snapshot cache:", error);
     }
