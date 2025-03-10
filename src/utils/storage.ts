@@ -111,9 +111,3 @@ const chromeStorageWrapper = {
 };
 
 export const storage = isDevelopment ? localStorageWrapper : chromeStorageWrapper;
-
-// 개발 환경인지 로그로 확인
-console.log(
-  "Storage mode:",
-  isDevelopment ? "localStorage (Development)" : "chrome.storage (Production)"
-);
