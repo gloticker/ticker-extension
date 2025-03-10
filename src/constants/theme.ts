@@ -3,7 +3,7 @@ import { createContext, useContext } from "react";
 export const COLORS = {
   light: {
     primary: "#1E7094",
-    danger: "#FF5162",
+    danger: "#FF253B",
     background: "#DBDBDB",
     surface: "#E8E8E8",
     icon: "1F1F1F",
