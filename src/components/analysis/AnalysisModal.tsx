@@ -159,7 +159,7 @@ export const AnalysisModal = ({ isOpen, onClose }: AnalysisModalProps) => {
                             duration: 0.15,
                             ease: "easeInOut"
                         }}
-                        className="absolute top-[60px] w-full max-w-[266px] h-[200px] mx-auto left-0 right-0 rounded-lg shadow-lg"
+                        className="absolute top-[60px] w-full max-w-[266px] h-[225px] mx-auto left-0 right-0 rounded-lg shadow-lg"
                         style={{
                             zIndex: 50,
                             backgroundColor: COLORS[theme].surface,
@@ -235,7 +235,7 @@ export const AnalysisModal = ({ isOpen, onClose }: AnalysisModalProps) => {
                         </div>
 
                         {/* 컨텐츠 영역 */}
-                        <div className="h-[calc(100%-4rem)]">
+                        <div className="h-[calc(100%-3rem)]">
                             {isLoading ? (
                                 <div className="flex items-center justify-center h-full">
                                     <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent" />
@@ -261,7 +261,7 @@ export const AnalysisModal = ({ isOpen, onClose }: AnalysisModalProps) => {
                                             ))}
                                         </div>
                                     </div>
-                                    <div className="h-8 flex justify-end items-center">
+                                    <div className="h-10 flex justify-end items-center pb-4">
                                         <span
                                             className="text-xs"
                                             style={{ color: COLORS[theme].text.secondary }}
