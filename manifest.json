@@ -19,7 +19,7 @@
   "side_panel": {
     "default_path": "popup.html"
   },
-  "permissions": ["storage", "activeTab"],
+  "permissions": ["storage"],
   "host_permissions": [
     "https://api.gloticker.live/v1/market/analysis",
     "https://api.gloticker.live/v1/market/snapshot",
