@@ -1,6 +1,8 @@
-import { useTheme, COLORS } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
+import { COLORS } from '../../constants/theme';
 import { MarketData } from '../../types/market';
 import { useState, useEffect } from 'react';
+import { storage } from '../../utils/storage';
 
 interface ChangeSectionProps {
     symbol: string;
@@ -14,15 +16,24 @@ const formatter = new Intl.NumberFormat('en-US', {
 
 export const ChangeSection = ({ symbol, marketData }: ChangeSectionProps) => {
     const { theme } = useTheme();
-    const [isPriceChangeVisible, setIsPriceChangeVisible] = useState(() => {
-        const saved = localStorage.getItem('isPriceChangeVisible');
-        return saved ? JSON.parse(saved) : true;
-    });
+    const [isPriceChangeVisible, setIsPriceChangeVisible] = useState(true);
 
     useEffect(() => {
-        const handleSettingsChange = () => {
-            const saved = localStorage.getItem('isPriceChangeVisible');
-            setIsPriceChangeVisible(saved ? JSON.parse(saved) : true);
+        const loadPriceChangeVisible = async () => {
+            const saved = await storage.get<boolean>('isPriceChangeVisible');
+            if (saved !== null) {
+                setIsPriceChangeVisible(saved);
+            }
+        };
+        loadPriceChangeVisible();
+    }, []);
+
+    useEffect(() => {
+        const handleSettingsChange = async () => {
+            const saved = await storage.get<boolean>('isPriceChangeVisible');
+            if (saved !== null) {
+                setIsPriceChangeVisible(saved);
+            }
         };
 
         window.addEventListener('settingsChange', handleSettingsChange);
@@ -58,7 +69,7 @@ export const ChangeSection = ({ symbol, marketData }: ChangeSectionProps) => {
                         className="absolute bottom-0 text-[10px]"
                         style={{ color: COLORS[theme].text.secondary }}
                     >
-                        {formatChange(marketData.change)}
+                        {formatChange(String(marketData.change))}
                     </span>
                 )}
             </div>

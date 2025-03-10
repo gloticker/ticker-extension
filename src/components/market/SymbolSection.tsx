@@ -1,5 +1,6 @@
-import { useTheme, COLORS } from '../../constants/theme';
-import { useI18n } from '../../constants/i18n';
+import { useTheme } from '../../hooks/useTheme';
+import { COLORS } from '../../constants/theme';
+import { useI18n } from '../../hooks/useI18n';
 import { getSymbolImage, getDisplaySymbol } from '../../utils/symbolUtils';
 
 interface SymbolSectionProps {

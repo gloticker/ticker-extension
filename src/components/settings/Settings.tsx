@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SettingsHeader } from './SettingsHeader';
 import { SettingSection } from './SettingSection';
-import { useTheme } from '../../constants/theme';
-import { useI18n, TRANSLATIONS } from '../../constants/i18n';
+import { useTheme } from '../../hooks/useTheme';
+import { useI18n } from '../../hooks/useI18n';
+import { TRANSLATIONS } from '../../constants/i18n';
+import { storage } from "../../utils/storage";
 
 const ORDER_MAP = {
     Index: ['^IXIC', '^GSPC', '^RUT', '^TLT', '^VIX', 'Fear&Greed'],
@@ -18,105 +20,111 @@ interface SettingsProps {
 export const Settings = ({ onClose }: SettingsProps) => {
     const { theme, toggleTheme } = useTheme();
     const { language, toggleLanguage } = useI18n();
-    const [selectedSymbols, setSelectedSymbols] = useState<Record<string, string[]>>(() => {
-        const saved = localStorage.getItem('selectedSymbols');
-        return saved ? JSON.parse(saved) : {
-            Index: ORDER_MAP.Index,
-            Stock: ORDER_MAP.Stock,
-            Crypto: ORDER_MAP.Crypto,
-            Forex: ORDER_MAP.Forex
-        };
+    const [selectedSymbols, setSelectedSymbols] = useState<Record<string, string[]>>({
+        Index: ORDER_MAP.Index,
+        Stock: ORDER_MAP.Stock,
+        Crypto: ORDER_MAP.Crypto,
+        Forex: ORDER_MAP.Forex
     });
 
-    const [activeSections, setActiveSections] = useState<Record<string, boolean>>(() => {
-        const saved = localStorage.getItem('activeSections');
-        return saved ? JSON.parse(saved) : {
-            Index: true,
-            Stock: true,
-            Crypto: true,
-            Forex: true
-        };
+    const [activeSections, setActiveSections] = useState<Record<string, boolean>>({
+        Index: true,
+        Stock: true,
+        Crypto: true,
+        Forex: true
     });
 
-    const [lastSelectedState, setLastSelectedState] = useState<Record<string, string[]>>(() => {
-        const saved = localStorage.getItem('lastSelectedState');
-        return saved ? JSON.parse(saved) : {
-            Index: ORDER_MAP.Index,
-            Stock: ORDER_MAP.Stock,
-            Crypto: ORDER_MAP.Crypto,
-            Forex: ORDER_MAP.Forex
-        };
+    const [lastSelectedState, setLastSelectedState] = useState<Record<string, string[]>>({
+        Index: ORDER_MAP.Index,
+        Stock: ORDER_MAP.Stock,
+        Crypto: ORDER_MAP.Crypto,
+        Forex: ORDER_MAP.Forex
     });
 
-    const [isPriceChangeVisible, setIsPriceChangeVisible] = useState(() => {
-        const saved = localStorage.getItem('isPriceChangeVisible');
-        return saved ? JSON.parse(saved) : true;
-    });
+    const [isPriceChangeVisible, setIsPriceChangeVisible] = useState(true);
 
-    const handleSymbolToggle = (section: string, symbol: string) => {
-        if (!activeSections[section]) return;
-
-        setSelectedSymbols(prev => {
-            const newSelected = prev[section].includes(symbol)
-                ? prev[section].filter(s => s !== symbol)
-                : [...prev[section], symbol];
-
-            const newState = {
-                ...prev,
-                [section]: newSelected
-            };
-
-            localStorage.setItem('selectedSymbols', JSON.stringify(newState));
-            window.dispatchEvent(new Event('settingsChange'));
-            return newState;
-        });
-    };
-
-    const handleSectionToggle = (section: string) => {
-        setActiveSections(prev => {
-            const newState = {
-                ...prev,
-                [section]: !prev[section]
-            };
-
-            if (!newState[section]) {
-                setLastSelectedState(prev => ({
-                    ...prev,
-                    [section]: selectedSymbols[section]
-                }));
-                localStorage.setItem('lastSelectedState', JSON.stringify({
-                    ...lastSelectedState,
-                    [section]: selectedSymbols[section]
-                }));
-
-                setSelectedSymbols(prev => ({
-                    ...prev,
-                    [section]: []
-                }));
-            } else {
-                setSelectedSymbols(prev => ({
-                    ...prev,
-                    [section]: lastSelectedState[section]
-                }));
+    useEffect(() => {
+        const loadInitialState = async () => {
+            const savedSymbols = await storage.get<Record<string, string[]>>('selectedSymbols');
+            if (savedSymbols) {
+                setSelectedSymbols(savedSymbols);
             }
 
-            localStorage.setItem('activeSections', JSON.stringify(newState));
-            localStorage.setItem('selectedSymbols', JSON.stringify({
-                ...selectedSymbols,
-                [section]: newState[section] ? lastSelectedState[section] : []
-            }));
-            window.dispatchEvent(new Event('settingsChange'));
-            return newState;
-        });
+            const savedSections = await storage.get<Record<string, boolean>>('activeSections');
+            if (savedSections) {
+                setActiveSections(savedSections);
+            }
+
+            const savedLastState = await storage.get<Record<string, string[]>>('lastSelectedState');
+            if (savedLastState) {
+                setLastSelectedState(savedLastState);
+            }
+
+            const savedPriceChange = await storage.get<boolean>('isPriceChangeVisible');
+            if (savedPriceChange !== null) {
+                setIsPriceChangeVisible(savedPriceChange);
+            }
+        };
+
+        loadInitialState();
+    }, []);
+
+    const handleSymbolToggle = async (section: string, symbol: string) => {
+        if (!activeSections[section]) return;
+
+        const newSelected = selectedSymbols[section].includes(symbol)
+            ? selectedSymbols[section].filter(s => s !== symbol)
+            : [...selectedSymbols[section], symbol];
+
+        const newState = {
+            ...selectedSymbols,
+            [section]: newSelected
+        };
+
+        await storage.set('selectedSymbols', newState);
+        setSelectedSymbols(newState);
+        window.dispatchEvent(new Event('settingsChange'));
     };
 
-    const handlePriceChangeToggle = () => {
-        setIsPriceChangeVisible((prev: boolean) => {
-            const newState = !prev;
-            localStorage.setItem('isPriceChangeVisible', JSON.stringify(newState));
-            window.dispatchEvent(new Event('settingsChange'));
-            return newState;
-        });
+    const handleSectionToggle = async (section: string) => {
+        const newActiveState = {
+            ...activeSections,
+            [section]: !activeSections[section]
+        };
+
+        if (!newActiveState[section]) {
+            const newLastSelectedState = {
+                ...lastSelectedState,
+                [section]: selectedSymbols[section]
+            };
+            await storage.set('lastSelectedState', newLastSelectedState);
+            setLastSelectedState(newLastSelectedState);
+
+            const newSelectedState = {
+                ...selectedSymbols,
+                [section]: []
+            };
+            await storage.set('selectedSymbols', newSelectedState);
+            setSelectedSymbols(newSelectedState);
+        } else {
+            const newSelectedState = {
+                ...selectedSymbols,
+                [section]: lastSelectedState[section]
+            };
+            await storage.set('selectedSymbols', newSelectedState);
+            setSelectedSymbols(newSelectedState);
+        }
+
+        await storage.set('activeSections', newActiveState);
+        setActiveSections(newActiveState);
+        window.dispatchEvent(new Event('settingsChange'));
+    };
+
+    const handlePriceChangeToggle = async () => {
+        const newState = !isPriceChangeVisible;
+        await storage.set('isPriceChangeVisible', newState);
+        setIsPriceChangeVisible(newState);
+        window.dispatchEvent(new Event('settingsChange'));
     };
 
     const languageValue = language === 'ko'
@@ -140,6 +148,7 @@ export const Settings = ({ onClose }: SettingsProps) => {
                         isToggle={true}
                         onToggle={() => handleSectionToggle('Index')}
                         onSymbolToggle={(symbol) => handleSymbolToggle('Index', symbol)}
+                        language={language}
                     />
                     <SettingSection
                         title="Stock"
@@ -149,6 +158,7 @@ export const Settings = ({ onClose }: SettingsProps) => {
                         isToggle={true}
                         onToggle={() => handleSectionToggle('Stock')}
                         onSymbolToggle={(symbol) => handleSymbolToggle('Stock', symbol)}
+                        language={language}
                     />
                     <SettingSection
                         title="Crypto"
@@ -158,6 +168,7 @@ export const Settings = ({ onClose }: SettingsProps) => {
                         isToggle={true}
                         onToggle={() => handleSectionToggle('Crypto')}
                         onSymbolToggle={(symbol) => handleSymbolToggle('Crypto', symbol)}
+                        language={language}
                     />
                     <SettingSection
                         title="Forex"
@@ -167,12 +178,14 @@ export const Settings = ({ onClose }: SettingsProps) => {
                         isToggle={true}
                         onToggle={() => handleSectionToggle('Forex')}
                         onSymbolToggle={(symbol) => handleSymbolToggle('Forex', symbol)}
+                        language={language}
                     />
                     <SettingSection
                         title="Price Change"
                         isToggle={true}
                         isActive={isPriceChangeVisible}
                         onToggle={handlePriceChangeToggle}
+                        language={language}
                     />
                     <SettingSection
                         title="Theme"
@@ -181,6 +194,7 @@ export const Settings = ({ onClose }: SettingsProps) => {
                         isToggle={true}
                         isActive={theme === 'dark'}
                         onToggle={toggleTheme}
+                        language={language}
                     />
                     <SettingSection
                         title="Language"
@@ -189,6 +203,7 @@ export const Settings = ({ onClose }: SettingsProps) => {
                         isToggle={true}
                         isActive={language === 'en'}
                         onToggle={toggleLanguage}
+                        language={language}
                     />
                 </div>
             </div>

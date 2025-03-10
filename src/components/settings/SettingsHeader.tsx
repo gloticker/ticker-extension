@@ -1,4 +1,5 @@
-import { useTheme, COLORS } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
+import { COLORS } from '../../constants/theme';
 
 interface SettingsHeaderProps {
     onBackClick: () => void;

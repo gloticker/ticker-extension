@@ -1,19 +1,21 @@
-import { useTheme, COLORS } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
+import { COLORS } from '../../constants/theme';
 import { getSymbolImage } from '../../utils/symbolUtils';
-import { useI18n, TRANSLATIONS } from '../../constants/i18n';
+import { TRANSLATIONS } from '../../constants/i18n';
 import { useState, useEffect } from 'react';
 
 interface SettingSectionProps {
-    title: keyof typeof TRANSLATIONS.ko.settings | keyof typeof TRANSLATIONS.ko.sections;
+    title: string;
     symbols?: string[];
     selectedSymbols?: string[];
     value?: string;
     isToggle?: boolean;
     isActive?: boolean;
-    titleSize?: number;
+    titleSize?: string;
     onToggle?: () => void;
     onSymbolToggle?: (symbol: string) => void;
-    valueAlign?: 'right';
+    valueAlign?: string;
+    language: string;
 }
 
 export const SettingSection = ({
@@ -27,16 +29,16 @@ export const SettingSection = ({
     onToggle,
     onSymbolToggle,
     valueAlign,
+    language
 }: SettingSectionProps) => {
     const { theme } = useTheme();
-    const { language } = useI18n();
     const [isValueFading, setIsValueFading] = useState(false);
     const [isTitleFading, setIsTitleFading] = useState(false);
     const [displayValue, setDisplayValue] = useState(value);
     const [displayTitle, setDisplayTitle] = useState('');
 
-    const translatedTitle = TRANSLATIONS[language].settings[title as keyof typeof TRANSLATIONS.ko.settings]
-        || TRANSLATIONS[language].sections[title as keyof typeof TRANSLATIONS.ko.sections]
+    const translatedTitle = TRANSLATIONS[language as keyof typeof TRANSLATIONS].settings[title as keyof typeof TRANSLATIONS.ko.settings]
+        || TRANSLATIONS[language as keyof typeof TRANSLATIONS].sections[title as keyof typeof TRANSLATIONS.ko.sections]
         || title;
 
     useEffect(() => {

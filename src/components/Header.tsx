@@ -1,9 +1,12 @@
-import { useTheme, COLORS } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
+import { COLORS } from '../constants/theme';
 import { useState, useEffect } from 'react';
 import { format, toZonedTime } from 'date-fns-tz';
-import { useI18n, TRANSLATIONS } from '../constants/i18n';
+import { useI18n } from '../hooks/useI18n';
+import { TRANSLATIONS } from '../constants/i18n';
 import { isMarketHoliday } from '../constants/marketHolidays';
 import { MARKET_TIMES } from '../constants/marketTimes';
+import { storage } from "../utils/storage";
 
 interface HeaderProps {
     isSettings?: boolean;
@@ -58,14 +61,10 @@ export const Header = ({ isSettings, onSettingsClick, onAnalysisClick }: HeaderP
     const { theme } = useTheme();
     const { language } = useI18n();
     const nyDateTime = useNYDateTime();
-
     const [marketStatus, setMarketStatus] = useState<MarketStatusType>(() =>
         getMarketStatus(nyDateTime.date, nyDateTime.minutes)
     );
-    const [showStatus, setShowStatus] = useState(() => {
-        const saved = localStorage.getItem('showMarketStatus');
-        return saved ? JSON.parse(saved) : false;
-    });
+    const [showStatus, setShowStatus] = useState(false);
 
     // 마켓 상태 업데이트
     useEffect(() => {
@@ -75,13 +74,24 @@ export const Header = ({ isSettings, onSettingsClick, onAnalysisClick }: HeaderP
         }
     }, [nyDateTime.minutes, nyDateTime.date, marketStatus]);
 
+    // 초기 showStatus 로드
+    useEffect(() => {
+        const loadShowStatus = async () => {
+            const saved = await storage.get<boolean>('showMarketStatus');
+            if (saved !== null) {
+                setShowStatus(saved);
+            }
+        };
+        loadShowStatus();
+    }, []);
+
+    // showStatus 변경시 저장
+    useEffect(() => {
+        storage.set('showMarketStatus', showStatus);
+    }, [showStatus]);
+
     const primaryColor = COLORS[theme].text.primary;
     const brightness = parseInt(primaryColor.slice(1), 16) / 0xFFFFFF;
-
-    // showStatus 변경시 localStorage 저장
-    useEffect(() => {
-        localStorage.setItem('showMarketStatus', JSON.stringify(showStatus));
-    }, [showStatus]);
 
     const getMarketIcon = () => {
         switch (marketStatus) {

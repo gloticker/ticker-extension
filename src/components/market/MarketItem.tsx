@@ -1,11 +1,12 @@
-import { useTheme, COLORS } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
+import { COLORS } from '../../constants/theme';
 import { SparklineChart } from '../SparklineChart';
 import type { MarketData } from '../../types/market';
 import { getSymbolImage, getSymbolInfo } from '../../utils/symbolUtils';
 import { PriceSection } from './PriceSection';
 import { ChangeSection } from './ChangeSection';
 import { useState, useEffect } from 'react';
-import { useI18n } from '../../constants/i18n';
+import { useI18n } from '../../hooks/useI18n';
 import { TRANSLATIONS } from '../../constants/i18n';
 
 interface MarketItemProps {

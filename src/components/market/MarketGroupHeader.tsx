@@ -1,5 +1,7 @@
-import { useTheme, COLORS } from '../../constants/theme';
-import { useI18n, TRANSLATIONS } from '../../constants/i18n';
+import { useTheme } from '../../hooks/useTheme';
+import { COLORS } from '../../constants/theme';
+import { useI18n } from '../../hooks/useI18n';
+import { TRANSLATIONS } from '../../constants/i18n';
 
 interface MarketGroupHeaderProps {
     type: string;

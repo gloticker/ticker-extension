@@ -2,34 +2,13 @@ import { useState } from 'react';
 import { MarketSection } from './components/MarketSection';
 import { Header } from './components/Header';
 import { Settings } from './components/settings/Settings';
-import { ThemeProvider } from './contexts/ThemeProvider';
-import { useTheme, COLORS } from './constants/theme';
+import { useTheme } from './hooks/useTheme';
+import { COLORS } from './constants/theme';
 import { AnalysisModal } from './components/analysis/AnalysisModal';
 
-export const App = () => {
+function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
-
-  return (
-    <ThemeProvider>
-      <AppContent
-        showSettings={showSettings}
-        setShowSettings={setShowSettings}
-        isAnalysisOpen={isAnalysisOpen}
-        setIsAnalysisOpen={setIsAnalysisOpen}
-      />
-    </ThemeProvider>
-  );
-}
-
-interface AppContentProps {
-  showSettings: boolean;
-  setShowSettings: (show: boolean) => void;
-  isAnalysisOpen: boolean;
-  setIsAnalysisOpen: (open: boolean) => void;
-}
-
-function AppContent({ showSettings, setShowSettings, setIsAnalysisOpen, isAnalysisOpen }: AppContentProps) {
   const { theme } = useTheme();
 
   return (

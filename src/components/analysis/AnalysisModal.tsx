@@ -1,8 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import exitIcon from '/images/icon/exit.svg';
-import { useTheme, COLORS } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
+import { COLORS } from '../../constants/theme';
 import { useState, useEffect } from 'react';
-import { useI18n, TRANSLATIONS } from '../../constants/i18n';
+import { useI18n } from '../../hooks/useI18n';
+import { TRANSLATIONS } from '../../constants/i18n';
+import { storage } from "../../utils/storage";
 
 interface AnalysisModalProps {
     isOpen: boolean;
@@ -96,7 +99,7 @@ export const AnalysisModal = ({ isOpen, onClose }: AnalysisModalProps) => {
                     timestamp: data.timestamp
                 };
 
-                localStorage.setItem(ANALYSIS_CACHE_KEY, JSON.stringify(dataToCache));
+                await storage.set(ANALYSIS_CACHE_KEY, dataToCache);
                 setAnalysis(dataToCache);
             } catch (err) {
                 if (!isMounted) return;
@@ -110,19 +113,19 @@ export const AnalysisModal = ({ isOpen, onClose }: AnalysisModalProps) => {
         };
 
         if (isOpen) {
-            const cached = localStorage.getItem(ANALYSIS_CACHE_KEY);
-
-            if (cached) {
-                const parsedCache = JSON.parse(cached);
-                const shouldFetch = shouldFetchNewData(parsedCache.timestamp);
-
-                if (!shouldFetch) {
-                    setAnalysis(parsedCache);
-                    return;
+            const loadCachedData = async () => {
+                const cached = await storage.get<AnalysisData>(ANALYSIS_CACHE_KEY);
+                if (cached) {
+                    const shouldFetch = shouldFetchNewData(cached.timestamp);
+                    if (!shouldFetch) {
+                        setAnalysis(cached);
+                        return;
+                    }
                 }
-            }
+                fetchAnalysis();
+            };
 
-            fetchAnalysis();
+            loadCachedData();
         }
 
         return () => {

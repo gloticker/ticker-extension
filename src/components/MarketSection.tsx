@@ -3,6 +3,7 @@ import { marketService } from '../services/market';
 import { MarketGroup } from './market/MarketGroup';
 import { useMarketStream } from '../hooks/useMarketStream';
 import { MarketData } from '../types/market';
+import { storage } from "../utils/storage";
 
 type MarketSnapshot = Record<string, MarketData>;
 type MarketType = 'Index' | 'Stock' | 'Crypto' | 'Forex';
@@ -26,51 +27,63 @@ const SETTINGS_CHANGE_EVENT = 'settingsChange';
 export const MarketSection = () => {
     const [allData, setAllData] = useState<MarketSnapshot[]>([]);
     const [chartData, setChartData] = useState<Record<string, Record<string, { close: string }>>>({});
-    const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(() => {
-        const saved = localStorage.getItem('expandedSections');
-        return saved ? JSON.parse(saved) : {
-            Index: true,
-            Stock: true,
-            Crypto: true,
-            Forex: true
-        };
+    const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+        Index: true,
+        Stock: true,
+        Crypto: true,
+        Forex: true
     });
+
+    const [selectedSymbols, setSelectedSymbols] = useState<Record<string, string[]>>({
+        Index: ORDER_MAP.Index,
+        Stock: ORDER_MAP.Stock,
+        Crypto: ORDER_MAP.Crypto,
+        Forex: ORDER_MAP.Forex
+    });
+
+    const [activeSections, setActiveSections] = useState<Record<string, boolean>>({
+        Index: true,
+        Stock: true,
+        Crypto: true,
+        Forex: true
+    });
+
+    useEffect(() => {
+        const loadInitialState = async () => {
+            const savedExpandedSections = await storage.get<Record<string, boolean>>('expandedSections');
+            if (savedExpandedSections) {
+                setExpandedSections(savedExpandedSections);
+            }
+
+            const savedSelectedSymbols = await storage.get<Record<string, string[]>>('selectedSymbols');
+            if (savedSelectedSymbols) {
+                setSelectedSymbols(savedSelectedSymbols);
+            }
+
+            const savedActiveSections = await storage.get<Record<string, boolean>>('activeSections');
+            if (savedActiveSections) {
+                setActiveSections(savedActiveSections);
+            }
+        };
+
+        loadInitialState();
+    }, []);
+
     const isInitialDataLoadedRef = useRef(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
 
-    // Settings에서 관리하는 상태들 가져오기
-    const [selectedSymbols, setSelectedSymbols] = useState<Record<string, string[]>>(() => {
-        const saved = localStorage.getItem('selectedSymbols');
-        return saved ? JSON.parse(saved) : {
-            Index: ORDER_MAP.Index,
-            Stock: ORDER_MAP.Stock,
-            Crypto: ORDER_MAP.Crypto,
-            Forex: ORDER_MAP.Forex
-        };
-    });
-
-    const [activeSections, setActiveSections] = useState<Record<string, boolean>>(() => {
-        const saved = localStorage.getItem('activeSections');
-        return saved ? JSON.parse(saved) : {
-            Index: true,
-            Stock: true,
-            Crypto: true,
-            Forex: true
-        };
-    });
-
     // Settings 상태 변경 감지
     useEffect(() => {
-        const handleSettingsChange = () => {
-            const activeData = localStorage.getItem('activeSections');
-            const symbolsData = localStorage.getItem('selectedSymbols');
+        const handleSettingsChange = async () => {
+            const activeData = await storage.get<Record<string, boolean>>('activeSections');
+            const symbolsData = await storage.get<Record<string, string[]>>('selectedSymbols');
 
             if (activeData) {
-                setActiveSections(JSON.parse(activeData));
+                setActiveSections(activeData);
             }
             if (symbolsData) {
-                setSelectedSymbols(JSON.parse(symbolsData));
+                setSelectedSymbols(symbolsData);
             }
         };
 
@@ -87,7 +100,7 @@ export const MarketSection = () => {
     }, []);
 
     useEffect(() => {
-        localStorage.setItem('expandedSections', JSON.stringify(expandedSections));
+        storage.set('expandedSections', expandedSections);
     }, [expandedSections]);
 
     const handleMarketData = useCallback((newData: Record<string, MarketData>) => {

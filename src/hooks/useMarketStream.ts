@@ -1,19 +1,7 @@
 import { useEffect, useRef } from "react";
 import { API_BASE_URL, API_ENDPOINTS } from "../services/api";
 import { marketService } from "../services/market";
-
-type MarketData = {
-  current_price?: string;
-  current_value?: string;
-  market_cap?: string;
-  change: string;
-  change_percent: string;
-  rate?: string;
-  score?: string;
-  rating?: string;
-  value?: string;
-  otc_price?: string | null;
-};
+import { MarketData } from "../types/market";
 
 export const useMarketStream = (onMessage: (data: Record<string, MarketData>) => void) => {
   const eventSourceRef = useRef<EventSource | null>(null);
@@ -28,15 +16,14 @@ export const useMarketStream = (onMessage: (data: Record<string, MarketData>) =>
 
       const eventSource = new EventSource(`${API_BASE_URL}${API_ENDPOINTS.MARKET_SUBSCRIBE}`);
 
-      eventSource.onmessage = (event) => {
-        // console.log("SSE data:", event.data);
+      eventSource.onmessage = async (event) => {
         if (event.data === ":connected") return;
         if (event.data.startsWith("ping")) return;
 
         try {
           const data = JSON.parse(event.data);
           onMessage(data);
-          marketService.updateSnapshotCache(data);
+          await marketService.updateSnapshotCache(data);
         } catch (error) {
           console.error("Error parsing SSE data:", error);
         }

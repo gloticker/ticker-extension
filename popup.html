@@ -6,15 +6,15 @@
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self';
-                  connect-src 'self' https://api.gloticker.live;
+                  connect-src 'self' https://api.gloticker.live http://localhost:5173;
                   img-src 'self' data: https:;
                   style-src 'self' 'unsafe-inline';
-                  script-src 'self';"
+                  script-src 'self' http://localhost:5173"
     />
     <title>gloticker</title>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="./src/main.tsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
