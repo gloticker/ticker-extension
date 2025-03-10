@@ -1,14 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "gloticker",
+  "name": "GloTicker",
   "version": "1.0.0",
-  "description": "글로벌 경제 지표를 한눈에 보는 익스텐션",
+  "description": "실시간 글로벌 경제 지표를 한눈에 보는 익스텐션",
   "icons": {
     "16": "logo/icon16.png",
     "32": "logo/icon32.png",
-    "180": "logo/icon180.png",
-    "192": "logo/icon192.png",
-    "512": "logo/icon512.png"
+    "48": "logo/icon48.png",
+    "128": "logo/icon128.png"
   },
   "action": {
     "default_popup": "popup.html",
@@ -21,7 +20,12 @@
     "default_path": "popup.html"
   },
   "permissions": ["storage", "activeTab"],
-  "host_permissions": ["https://api.gloticker.live/*"],
+  "host_permissions": [
+    "https://api.gloticker.live/v1/market/analysis",
+    "https://api.gloticker.live/v1/market/snapshot",
+    "https://api.gloticker.live/v1/market/chart",
+    "https://api.gloticker.live/v1/market/subscribe"
+  ],
   "background": {
     "service_worker": "src/background.ts",
     "type": "module"
