@@ -31,6 +31,9 @@ export const TRANSLATIONS = {
       CNY: "위안",
       JPY: "엔",
     },
+    modals: {
+      AIAnalysis: "AI 분석",
+    },
     settings: {
       Theme: "테마",
       "Price Change": "가격 변동",
@@ -77,6 +80,9 @@ export const TRANSLATIONS = {
       EUR: "EUR",
       CNY: "CNY",
       JPY: "JPY",
+    },
+    modals: {
+      AIAnalysis: "AI Analysis",
     },
     settings: {
       Theme: "Theme",

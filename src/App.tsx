@@ -4,40 +4,62 @@ import { Header } from './components/Header';
 import { Settings } from './components/settings/Settings';
 import { ThemeProvider } from './contexts/ThemeProvider';
 import { useTheme, COLORS } from './constants/theme';
+import { AnalysisModal } from './components/analysis/AnalysisModal';
 
-function App() {
+export const App = () => {
   const [showSettings, setShowSettings] = useState(false);
+  const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
 
   return (
     <ThemeProvider>
-      <AppContent showSettings={showSettings} setShowSettings={setShowSettings} />
+      <AppContent
+        showSettings={showSettings}
+        setShowSettings={setShowSettings}
+        isAnalysisOpen={isAnalysisOpen}
+        setIsAnalysisOpen={setIsAnalysisOpen}
+      />
     </ThemeProvider>
   );
 }
 
-// ThemeProvider 내부에서 useTheme 사용
-function AppContent({ showSettings, setShowSettings }: { showSettings: boolean; setShowSettings: (show: boolean) => void }) {
+interface AppContentProps {
+  showSettings: boolean;
+  setShowSettings: (show: boolean) => void;
+  isAnalysisOpen: boolean;
+  setIsAnalysisOpen: (open: boolean) => void;
+}
+
+function AppContent({ showSettings, setShowSettings, setIsAnalysisOpen, isAnalysisOpen }: AppContentProps) {
   const { theme } = useTheme();
 
   return (
     <div
-      className="w-[300px] h-[600px] overflow-hidden"
+      className="w-[300px] h-[600px] overflow-hidden relative"
       style={{
         backgroundColor: COLORS[theme].background,
-        transition: 'all 0.3s ease'  // 모든 속성에 대해 transition 적용
+        transition: 'all 0.3s ease'
       }}
     >
       <div className="relative w-full h-full">
         <div className={`absolute w-full h-full transition-transform duration-300 ease-in-out ${showSettings ? 'translate-x-[-100%]' : 'translate-x-0'}`}>
           <div className="h-full flex flex-col">
             <div className="flex items-center">
-              <Header onSettingsClick={() => setShowSettings(true)} />
+              <Header
+                isSettings={showSettings}
+                onSettingsClick={() => setShowSettings(true)}
+                onAnalysisClick={() => setIsAnalysisOpen(true)}
+              />
             </div>
             <div className="flex-1 overflow-y-auto scrollbar-hide">
               <div className="space-y-2">
                 <MarketSection />
               </div>
             </div>
+
+            <AnalysisModal
+              isOpen={isAnalysisOpen}
+              onClose={() => setIsAnalysisOpen(false)}
+            />
           </div>
         </div>
 

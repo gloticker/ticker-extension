@@ -8,6 +8,7 @@ import { MARKET_TIMES } from '../constants/marketTimes';
 interface HeaderProps {
     isSettings?: boolean;
     onSettingsClick: () => void;
+    onAnalysisClick: () => void;
 }
 
 type MarketStatusType = 'pre' | 'regular' | 'after' | 'closed';
@@ -53,7 +54,7 @@ const useNYDateTime = () => {
     return nyDateTime;
 };
 
-export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
+export const Header = ({ isSettings, onSettingsClick, onAnalysisClick }: HeaderProps) => {
     const { theme } = useTheme();
     const { language } = useI18n();
     const nyDateTime = useNYDateTime();
@@ -132,7 +133,10 @@ export const Header = ({ isSettings, onSettingsClick }: HeaderProps) => {
                             </div>
                         </div>
 
-                        <button className="w-[18px] h-[18px]">
+                        <button
+                            className="w-[18px] h-[18px]"
+                            onClick={onAnalysisClick}
+                        >
                             <img
                                 src="/images/icon/ai.svg"
                                 alt="ai"
