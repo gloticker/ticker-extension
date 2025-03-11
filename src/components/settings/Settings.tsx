@@ -7,7 +7,7 @@ import { TRANSLATIONS } from '../../constants/i18n';
 import { storage } from "../../utils/storage";
 
 const ORDER_MAP = {
-    Index: ['^IXIC', '^GSPC', '^RUT', '^TLT', '^VIX', 'Fear&Greed'],
+    Index: ['^IXIC', '^GSPC', '^DJI', '^RUT', '^TLT', '^VIX', 'Fear&Greed'],
     Stock: ['AAPL', 'NVDA', 'MSFT', 'AMZN', 'GOOGL', 'META', 'TSLA'],
     Crypto: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BTC.D'],
     Forex: ['KRW=X', 'EURKRW=X', 'CNYKRW=X', 'JPYKRW=X']

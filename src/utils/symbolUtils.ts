@@ -12,6 +12,7 @@ export const getSymbolInfo = (symbol: string, language: Language = "en"): Symbol
   const symbolMap: Record<string, string> = {
     "^IXIC": "IXIC",
     "^GSPC": "GSPC",
+    "^DJI": "DJI",
     "^RUT": "RUT",
     "^TLT": "TLT",
     "^VIX": "VIX",

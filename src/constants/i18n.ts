@@ -11,6 +11,7 @@ export const TRANSLATIONS = {
     symbols: {
       IXIC: "나스닥",
       GSPC: "S&P",
+      DJI: "다우존스",
       RUT: "러셀",
       TLT: "국채",
       VIX: "변동성",
@@ -61,6 +62,7 @@ export const TRANSLATIONS = {
     symbols: {
       IXIC: "IXIC",
       GSPC: "GSPC",
+      DJI: "DJI",
       RUT: "RUT",
       TLT: "TLT",
       VIX: "VIX",

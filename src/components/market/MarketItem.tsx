@@ -83,7 +83,7 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
                 >
                     D
                     <span
-                        className="invisible group-hover:visible absolute left-1/2 -translate-x-1/2 bottom-[50%] px-2 py-1 text-[10px] whitespace-nowrap"
+                        className="invisible group-hover:visible absolute left-1/2 -translate-x-1/2 bottom-[60%] px-2 py-1 text-[10px] whitespace-nowrap"
                         style={{ color: COLORS[theme].text.secondary }}
                     >
                         {TRANSLATIONS[language].delayed}
