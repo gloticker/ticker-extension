@@ -8,6 +8,8 @@ export const TRANSLATIONS = {
       Crypto: "암호화폐",
       Forex: "환율",
     },
+    stockSubtitle: "달러",
+    cryptoSubtitle: "달러",
     forexSubtitle: "원화",
     symbols: {
       IXIC: "나스닥",
@@ -60,6 +62,8 @@ export const TRANSLATIONS = {
       Crypto: "Crypto",
       Forex: "Forex",
     },
+    stockSubtitle: "USD",
+    cryptoSubtitle: "USD",
     forexSubtitle: "KRW",
     symbols: {
       IXIC: "IXIC",
