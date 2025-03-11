@@ -159,7 +159,7 @@ export const AnalysisModal = ({ isOpen, onClose }: AnalysisModalProps) => {
                             duration: 0.15,
                             ease: "easeInOut"
                         }}
-                        className="absolute top-[60px] w-full max-w-[266px] h-[225px] mx-auto left-0 right-0 rounded-lg shadow-lg"
+                        className="absolute top-[60px] w-full max-w-[266px] h-[230px] mx-auto left-0 right-0 rounded-lg shadow-lg"
                         style={{
                             zIndex: 50,
                             backgroundColor: COLORS[theme].surface,
