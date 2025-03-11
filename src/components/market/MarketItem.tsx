@@ -8,42 +8,19 @@ import { ChangeSection } from './ChangeSection';
 import { useState, useEffect } from 'react';
 import { useI18n } from '../../hooks/useI18n';
 import { TRANSLATIONS } from '../../constants/i18n';
-import { storage } from '../../utils/storage';
 
 interface MarketItemProps {
     symbol: string;
     marketData: MarketData;
     chartData: Record<string, { close: string }>;
+    isDetailsVisible: boolean;
 }
 
-export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) => {
+export const MarketItem = ({ symbol, marketData, chartData, isDetailsVisible }: MarketItemProps) => {
     const { theme } = useTheme();
     const { language } = useI18n();
     const [isFlashing, setIsFlashing] = useState(false);
     const [latestValue, setLatestValue] = useState('');
-    const [isSubInfoVisible, setIsSubInfoVisible] = useState(true);
-
-    useEffect(() => {
-        const loadSubInfoVisible = async () => {
-            const saved = await storage.get<boolean>('isSubInfoVisible');
-            if (saved !== null) {
-                setIsSubInfoVisible(saved);
-            }
-        };
-        loadSubInfoVisible();
-    }, []);
-
-    useEffect(() => {
-        const handleSettingsChange = async () => {
-            const saved = await storage.get<boolean>('isSubInfoVisible');
-            if (saved !== null) {
-                setIsSubInfoVisible(saved);
-            }
-        };
-
-        window.addEventListener('settingsChange', handleSettingsChange);
-        return () => window.removeEventListener('settingsChange', handleSettingsChange);
-    }, []);
 
     const newValue = symbol === 'BTC.D'
         ? marketData.value
@@ -120,6 +97,7 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
                 <ChangeSection
                     symbol={symbol}
                     marketData={marketData}
+                    isDetailsVisible={isDetailsVisible}
                 />
             )}
 
@@ -132,7 +110,7 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
                             symbol={symbol}
                             marketData={marketData}
                         />
-                        {isStockOrCrypto && isSubInfoVisible && marketData.market_cap && (
+                        {isStockOrCrypto && isDetailsVisible && marketData.market_cap && (
                             <span
                                 className="absolute text-[10px] -bottom-[10px]"
                                 style={{

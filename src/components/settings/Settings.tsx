@@ -5,6 +5,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { useI18n } from '../../hooks/useI18n';
 import { TRANSLATIONS } from '../../constants/i18n';
 import { storage } from "../../utils/storage";
+import { useDetails } from "../../hooks/useDetails";
 
 const ORDER_MAP = {
     Index: ['^IXIC', '^GSPC', '^DJI', '^RUT', '^TLT', '^VIX', 'Fear&Greed'],
@@ -20,6 +21,7 @@ interface SettingsProps {
 export const Settings = ({ onClose }: SettingsProps) => {
     const { theme, toggleTheme } = useTheme();
     const { language, toggleLanguage } = useI18n();
+    const { isDetailsVisible, toggleDetails } = useDetails();
     const [selectedSymbols, setSelectedSymbols] = useState<Record<string, string[]>>({
         Index: ORDER_MAP.Index,
         Stock: ORDER_MAP.Stock,
@@ -41,28 +43,25 @@ export const Settings = ({ onClose }: SettingsProps) => {
         Forex: ORDER_MAP.Forex
     });
 
-    const [isSubInfoVisible, setIsSubInfoVisible] = useState(true);
-
     useEffect(() => {
         const loadInitialState = async () => {
-            const savedSymbols = await storage.get<Record<string, string[]>>('selectedSymbols');
-            if (savedSymbols) {
-                setSelectedSymbols(savedSymbols);
-            }
+            try {
+                const savedSymbols = await storage.get<Record<string, string[]>>('selectedSymbols');
+                if (savedSymbols) {
+                    setSelectedSymbols(savedSymbols);
+                }
 
-            const savedSections = await storage.get<Record<string, boolean>>('activeSections');
-            if (savedSections) {
-                setActiveSections(savedSections);
-            }
+                const savedSections = await storage.get<Record<string, boolean>>('activeSections');
+                if (savedSections) {
+                    setActiveSections(savedSections);
+                }
 
-            const savedLastState = await storage.get<Record<string, string[]>>('lastSelectedState');
-            if (savedLastState) {
-                setLastSelectedState(savedLastState);
-            }
-
-            const savedSubInfo = await storage.get<boolean>('isSubInfoVisible');
-            if (savedSubInfo !== null) {
-                setIsSubInfoVisible(savedSubInfo);
+                const savedLastState = await storage.get<Record<string, string[]>>('lastSelectedState');
+                if (savedLastState) {
+                    setLastSelectedState(savedLastState);
+                }
+            } catch (error) {
+                console.error('Failed to load initial state:', error);
             }
         };
 
@@ -117,13 +116,6 @@ export const Settings = ({ onClose }: SettingsProps) => {
 
         await storage.set('activeSections', newActiveState);
         setActiveSections(newActiveState);
-        window.dispatchEvent(new Event('settingsChange'));
-    };
-
-    const handleSubInfoToggle = async () => {
-        const newState = !isSubInfoVisible;
-        await storage.set('isSubInfoVisible', newState);
-        setIsSubInfoVisible(newState);
         window.dispatchEvent(new Event('settingsChange'));
     };
 
@@ -184,8 +176,8 @@ export const Settings = ({ onClose }: SettingsProps) => {
                         title="Details"
                         value={`${TRANSLATIONS[language].detailsValue.line1}\n${TRANSLATIONS[language].detailsValue.line2}`}
                         isToggle={true}
-                        isActive={isSubInfoVisible}
-                        onToggle={handleSubInfoToggle}
+                        isActive={isDetailsVisible}
+                        onToggle={toggleDetails}
                         language={language}
                     />
                     <SettingSection

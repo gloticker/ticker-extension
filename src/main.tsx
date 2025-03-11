@@ -4,6 +4,7 @@ import "./index.css";
 import { ThemeProvider } from "./contexts/ThemeProvider";
 import "./styles/globals.css";
 import { I18nProvider } from "./contexts/I18nProvider";
+import { DetailsProvider } from "./contexts/DetailsProvider";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error('Failed to find the root element');
@@ -22,7 +23,9 @@ window.onunhandledrejection = (event) => {
 ReactDOM.createRoot(rootElement).render(
   <I18nProvider>
     <ThemeProvider>
-      <App />
+      <DetailsProvider>
+        <App />
+      </DetailsProvider>
     </ThemeProvider>
   </I18nProvider>
 );

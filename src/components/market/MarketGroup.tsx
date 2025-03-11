@@ -1,9 +1,8 @@
-// import React, { useState } from 'react';
-// import { useTheme } from '../../contexts/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MarketGroupHeader } from './MarketGroupHeader';
 import { MarketItem } from './MarketItem';
 import { MarketType, MarketData } from '../../types/market';
+import { useDetails } from '../../hooks/useDetails';
 
 interface MarketGroupProps {
     type: MarketType;
@@ -15,7 +14,7 @@ interface MarketGroupProps {
 }
 
 export const MarketGroup = ({ type, data, chartData, isExpanded, onToggle, isInitialLoad }: MarketGroupProps) => {
-    // const { theme } = useTheme();
+    const { isDetailsVisible } = useDetails();
 
     return (
         <div>
@@ -35,6 +34,7 @@ export const MarketGroup = ({ type, data, chartData, isExpanded, onToggle, isIni
                                 symbol={symbol}
                                 marketData={marketData}
                                 chartData={chartData[symbol] || {}}
+                                isDetailsVisible={isDetailsVisible}
                             />
                         ))}
                     </motion.div>

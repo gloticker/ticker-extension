@@ -3,7 +3,6 @@ import { COLORS } from '../../constants/theme';
 import { getSymbolImage } from '../../utils/symbolUtils';
 import { TRANSLATIONS } from '../../constants/i18n';
 import { useState, useEffect } from 'react';
-import { storage } from '../../utils/storage';
 
 interface SettingSectionProps {
     title: string;
@@ -62,10 +61,6 @@ export const SettingSection = ({
     const handleToggle = () => {
         if (onToggle) {
             onToggle();
-            if (title === 'Details') {
-                storage.set('isSubInfoVisible', !isActive);
-                window.dispatchEvent(new Event('settingsChange'));
-            }
         }
     };
 

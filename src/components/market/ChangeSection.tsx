@@ -1,12 +1,11 @@
 import { useTheme } from '../../hooks/useTheme';
 import { COLORS } from '../../constants/theme';
 import { MarketData } from '../../types/market';
-import { useState, useEffect } from 'react';
-import { storage } from '../../utils/storage';
 
 interface ChangeSectionProps {
     symbol: string;
     marketData: MarketData;
+    isDetailsVisible: boolean;
 }
 
 const formatter = new Intl.NumberFormat('en-US', {
@@ -14,31 +13,8 @@ const formatter = new Intl.NumberFormat('en-US', {
     maximumFractionDigits: 2
 });
 
-export const ChangeSection = ({ symbol, marketData }: ChangeSectionProps) => {
+export const ChangeSection = ({ symbol, marketData, isDetailsVisible }: ChangeSectionProps) => {
     const { theme } = useTheme();
-    const [isSubInfoVisible, setIsSubInfoVisible] = useState(true);
-
-    useEffect(() => {
-        const loadSubInfoVisible = async () => {
-            const saved = await storage.get<boolean>('isSubInfoVisible');
-            if (saved !== null) {
-                setIsSubInfoVisible(saved);
-            }
-        };
-        loadSubInfoVisible();
-    }, []);
-
-    useEffect(() => {
-        const handleSettingsChange = async () => {
-            const saved = await storage.get<boolean>('isSubInfoVisible');
-            if (saved !== null) {
-                setIsSubInfoVisible(saved);
-            }
-        };
-
-        window.addEventListener('settingsChange', handleSettingsChange);
-        return () => window.removeEventListener('settingsChange', handleSettingsChange);
-    }, []);
 
     const formatChange = (value: string) => {
         const numValue = Number(value);
@@ -70,7 +46,7 @@ export const ChangeSection = ({ symbol, marketData }: ChangeSectionProps) => {
                 </span>
 
                 {/* 가격 변동 */}
-                {!marketData.rating && isSubInfoVisible && (
+                {!marketData.rating && isDetailsVisible && (
                     <span
                         className="absolute bottom-0 text-[10px]"
                         style={{
