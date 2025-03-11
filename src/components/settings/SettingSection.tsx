@@ -3,6 +3,7 @@ import { COLORS } from '../../constants/theme';
 import { getSymbolImage } from '../../utils/symbolUtils';
 import { TRANSLATIONS } from '../../constants/i18n';
 import { useState, useEffect } from 'react';
+import { storage } from '../../utils/storage';
 
 interface SettingSectionProps {
     title: string;
@@ -58,6 +59,16 @@ export const SettingSection = ({
         return () => clearTimeout(timer);
     }, [translatedTitle]);
 
+    const handleToggle = () => {
+        if (onToggle) {
+            onToggle();
+            if (title === 'Details') {
+                storage.set('isSubInfoVisible', !isActive);
+                window.dispatchEvent(new Event('settingsChange'));
+            }
+        }
+    };
+
     return (
         <div className="mb-2.5">
             <div
@@ -111,7 +122,7 @@ export const SettingSection = ({
                 {isToggle && (
                     <div
                         className="w-10 h-5 rounded-full relative flex-shrink-0 cursor-pointer"
-                        onClick={isToggle ? onToggle : undefined}
+                        onClick={handleToggle}
                         style={{ backgroundColor: COLORS[theme].surface }}
                     >
                         <div
