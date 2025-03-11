@@ -67,18 +67,34 @@ export const SettingSection = ({
                 className="w-[288px] h-10 px-4 mx-auto flex items-center justify-between"
                 style={{ color: COLORS[theme].text.primary }}
             >
-                <span
-                    className="transition-opacity duration-150"
-                    style={{
-                        fontSize: titleSize || 20,
-                        flex: '0 0 auto',
-                        opacity: isTitleFading ? 0 : 1,
-                        fontWeight: 400,
-                        letterSpacing: '2px'
-                    }}
-                >
-                    {displayTitle || translatedTitle}
-                </span>
+                <div className="flex items-baseline">
+                    <span
+                        className="transition-opacity duration-150"
+                        style={{
+                            fontSize: titleSize || 20,
+                            flex: '0 0 auto',
+                            opacity: isTitleFading ? 0 : 1,
+                            fontWeight: 400,
+                            letterSpacing: '2px'
+                        }}
+                    >
+                        {displayTitle || translatedTitle}
+                    </span>
+                    {title === 'Forex' && (
+                        <span
+                            style={{
+                                fontSize: '10px',
+                                color: COLORS[theme].text.secondary,
+                                marginLeft: '8px',
+                                opacity: isTitleFading ? 0 : 1,
+                                fontWeight: 400,
+                                letterSpacing: '1px'
+                            }}
+                        >
+                            ({TRANSLATIONS[language as keyof typeof TRANSLATIONS].forexSubtitle})
+                        </span>
+                    )}
+                </div>
                 {value ? (
                     <span
                         className={`flex-1 text-right ${valueAlign === 'right' ? 'mr-2' : ''} transition-opacity duration-150`}

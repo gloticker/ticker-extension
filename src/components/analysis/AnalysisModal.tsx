@@ -172,7 +172,8 @@ export const AnalysisModal = ({ isOpen, onClose }: AnalysisModalProps) => {
                                     className="text-xl"
                                     style={{
                                         color: COLORS[theme].text.primary,
-                                        fontWeight: 400
+                                        fontWeight: 400,
+                                        letterSpacing: '1px'
                                     }}
                                 >
                                     {TRANSLATIONS[language].modals.AIAnalysis}
