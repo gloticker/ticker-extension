@@ -14,7 +14,6 @@ interface SettingSectionProps {
     titleSize?: string;
     onToggle?: () => void;
     onSymbolToggle?: (symbol: string) => void;
-    valueAlign?: string;
     language: string;
 }
 
@@ -27,7 +26,6 @@ export const SettingSection = ({
     isActive = true,
     onToggle,
     onSymbolToggle,
-    valueAlign,
     language
 }: SettingSectionProps) => {
     const { theme } = useTheme();
@@ -68,8 +66,7 @@ export const SettingSection = ({
             >
                 <div className="flex items-baseline">
                     <span
-                        className={`transition-opacity duration-150 inline-block ${title === 'Price Change' ? 'w-[200px]' : 'w-[85px]'
-                            } text-[20px]`}
+                        className={`transition-opacity duration-150 inline-block w-[80px] text-[20px]`}
                         style={{
                             opacity: isTitleFading ? 0 : 1,
                             fontWeight: 400,
@@ -98,12 +95,14 @@ export const SettingSection = ({
                 </div>
                 {value ? (
                     <span
-                        className={`flex-1 text-right ${valueAlign === 'right' ? 'mr-2' : ''} transition-opacity duration-150 text-[10px]`}
+                        className={`transition-opacity duration-150 text-[10px] whitespace-pre-line leading-[1.5] flex-1 text-right ${(title === 'Details' || title === 'Theme' || title === 'Language') ? 'ml-[30px]' : ''
+                            }`}
                         style={{
                             color: COLORS[theme].text.secondary,
                             opacity: isValueFading ? 0 : 1,
                             fontWeight: 400,
-                            letterSpacing: '1px'
+                            letterSpacing: '1px',
+                            marginRight: '8px'
                         }}
                     >
                         {displayValue}

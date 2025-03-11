@@ -41,7 +41,7 @@ export const Settings = ({ onClose }: SettingsProps) => {
         Forex: ORDER_MAP.Forex
     });
 
-    const [isPriceChangeVisible, setIsPriceChangeVisible] = useState(true);
+    const [isSubInfoVisible, setIsSubInfoVisible] = useState(true);
 
     useEffect(() => {
         const loadInitialState = async () => {
@@ -60,9 +60,9 @@ export const Settings = ({ onClose }: SettingsProps) => {
                 setLastSelectedState(savedLastState);
             }
 
-            const savedPriceChange = await storage.get<boolean>('isPriceChangeVisible');
-            if (savedPriceChange !== null) {
-                setIsPriceChangeVisible(savedPriceChange);
+            const savedSubInfo = await storage.get<boolean>('isSubInfoVisible');
+            if (savedSubInfo !== null) {
+                setIsSubInfoVisible(savedSubInfo);
             }
         };
 
@@ -120,10 +120,10 @@ export const Settings = ({ onClose }: SettingsProps) => {
         window.dispatchEvent(new Event('settingsChange'));
     };
 
-    const handlePriceChangeToggle = async () => {
-        const newState = !isPriceChangeVisible;
-        await storage.set('isPriceChangeVisible', newState);
-        setIsPriceChangeVisible(newState);
+    const handleSubInfoToggle = async () => {
+        const newState = !isSubInfoVisible;
+        await storage.set('isSubInfoVisible', newState);
+        setIsSubInfoVisible(newState);
         window.dispatchEvent(new Event('settingsChange'));
     };
 
@@ -181,16 +181,16 @@ export const Settings = ({ onClose }: SettingsProps) => {
                         language={language}
                     />
                     <SettingSection
-                        title="Price Change"
+                        title="Details"
+                        value={`${TRANSLATIONS[language].detailsValue.line1}\n${TRANSLATIONS[language].detailsValue.line2}`}
                         isToggle={true}
-                        isActive={isPriceChangeVisible}
-                        onToggle={handlePriceChangeToggle}
+                        isActive={isSubInfoVisible}
+                        onToggle={handleSubInfoToggle}
                         language={language}
                     />
                     <SettingSection
                         title="Theme"
                         value={themeValue}
-                        valueAlign="right"
                         isToggle={true}
                         isActive={theme === 'dark'}
                         onToggle={toggleTheme}
@@ -199,7 +199,6 @@ export const Settings = ({ onClose }: SettingsProps) => {
                     <SettingSection
                         title="Language"
                         value={languageValue}
-                        valueAlign="right"
                         isToggle={true}
                         isActive={language === 'en'}
                         onToggle={toggleLanguage}

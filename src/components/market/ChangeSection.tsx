@@ -16,23 +16,23 @@ const formatter = new Intl.NumberFormat('en-US', {
 
 export const ChangeSection = ({ symbol, marketData }: ChangeSectionProps) => {
     const { theme } = useTheme();
-    const [isPriceChangeVisible, setIsPriceChangeVisible] = useState(true);
+    const [isSubInfoVisible, setIsSubInfoVisible] = useState(true);
 
     useEffect(() => {
-        const loadPriceChangeVisible = async () => {
-            const saved = await storage.get<boolean>('isPriceChangeVisible');
+        const loadSubInfoVisible = async () => {
+            const saved = await storage.get<boolean>('isSubInfoVisible');
             if (saved !== null) {
-                setIsPriceChangeVisible(saved);
+                setIsSubInfoVisible(saved);
             }
         };
-        loadPriceChangeVisible();
+        loadSubInfoVisible();
     }, []);
 
     useEffect(() => {
         const handleSettingsChange = async () => {
-            const saved = await storage.get<boolean>('isPriceChangeVisible');
+            const saved = await storage.get<boolean>('isSubInfoVisible');
             if (saved !== null) {
-                setIsPriceChangeVisible(saved);
+                setIsSubInfoVisible(saved);
             }
         };
 
@@ -51,21 +51,26 @@ export const ChangeSection = ({ symbol, marketData }: ChangeSectionProps) => {
         return null;
     }
 
+    const color = marketData.rating ? COLORS[theme].primary :
+        Number(marketData.change_percent) > 0 ? COLORS[theme].primary :
+            COLORS[theme].danger;
+
     return (
         <div className="absolute w-[40%] left-[60%] h-full">
             <div className="relative h-full">
+                {/* 변동률(%) */}
                 <span
                     className="absolute top-1/2 -translate-y-1/2 text-xs font-medium"
                     style={{
-                        color: marketData.rating ? COLORS[theme].primary :
-                            Number(marketData.change_percent) > 0 ? COLORS[theme].primary :
-                                COLORS[theme].danger,
+                        color,
                         fontWeight: 200
                     }}
                 >
                     {marketData.rating ? marketData.rating : formatChange(marketData.change_percent) + '%'}
                 </span>
-                {!marketData.rating && isPriceChangeVisible && (
+
+                {/* 가격 변동 */}
+                {!marketData.rating && isSubInfoVisible && (
                     <span
                         className="absolute bottom-0 text-[10px]"
                         style={{
