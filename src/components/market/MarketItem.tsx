@@ -37,7 +37,7 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
     const symbolInfo = getSymbolInfo(symbol, language);
     const textSizeClass = symbolInfo.displayName.length > 5 ? 'text-[9px]' : 'text-xs';
 
-    const isDelayedData = symbol === '^GSPC' || symbol === '^RUT';
+    const isDelayedData = symbol === '^RUT' || symbol === '^VIX';
 
     return (
         <div
