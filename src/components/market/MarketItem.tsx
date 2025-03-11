@@ -132,7 +132,7 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
                             symbol={symbol}
                             marketData={marketData}
                         />
-                        {isStockOrCrypto && marketData.market_cap && isSubInfoVisible && (
+                        {isStockOrCrypto && isSubInfoVisible && marketData.market_cap && (
                             <span
                                 className="absolute text-[10px] -bottom-[10px]"
                                 style={{
