@@ -5,9 +5,10 @@ import { useTheme } from '../../hooks/useTheme';
 import { useI18n } from '../../hooks/useI18n';
 import { TRANSLATIONS } from '../../constants/i18n';
 import { storage } from "../../utils/storage";
+import { useDetails } from "../../hooks/useDetails";
 
 const ORDER_MAP = {
-    Index: ['^IXIC', '^GSPC', '^RUT', '^TLT', '^VIX', 'Fear&Greed'],
+    Index: ['^IXIC', '^GSPC', '^DJI', '^RUT', '^TLT', '^VIX', 'Fear&Greed'],
     Stock: ['AAPL', 'NVDA', 'MSFT', 'AMZN', 'GOOGL', 'META', 'TSLA'],
     Crypto: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BTC.D'],
     Forex: ['KRW=X', 'EURKRW=X', 'CNYKRW=X', 'JPYKRW=X']
@@ -20,6 +21,7 @@ interface SettingsProps {
 export const Settings = ({ onClose }: SettingsProps) => {
     const { theme, toggleTheme } = useTheme();
     const { language, toggleLanguage } = useI18n();
+    const { isDetailsVisible, toggleDetails } = useDetails();
     const [selectedSymbols, setSelectedSymbols] = useState<Record<string, string[]>>({
         Index: ORDER_MAP.Index,
         Stock: ORDER_MAP.Stock,
@@ -41,28 +43,25 @@ export const Settings = ({ onClose }: SettingsProps) => {
         Forex: ORDER_MAP.Forex
     });
 
-    const [isPriceChangeVisible, setIsPriceChangeVisible] = useState(true);
-
     useEffect(() => {
         const loadInitialState = async () => {
-            const savedSymbols = await storage.get<Record<string, string[]>>('selectedSymbols');
-            if (savedSymbols) {
-                setSelectedSymbols(savedSymbols);
-            }
+            try {
+                const savedSymbols = await storage.get<Record<string, string[]>>('selectedSymbols');
+                if (savedSymbols) {
+                    setSelectedSymbols(savedSymbols);
+                }
 
-            const savedSections = await storage.get<Record<string, boolean>>('activeSections');
-            if (savedSections) {
-                setActiveSections(savedSections);
-            }
+                const savedSections = await storage.get<Record<string, boolean>>('activeSections');
+                if (savedSections) {
+                    setActiveSections(savedSections);
+                }
 
-            const savedLastState = await storage.get<Record<string, string[]>>('lastSelectedState');
-            if (savedLastState) {
-                setLastSelectedState(savedLastState);
-            }
-
-            const savedPriceChange = await storage.get<boolean>('isPriceChangeVisible');
-            if (savedPriceChange !== null) {
-                setIsPriceChangeVisible(savedPriceChange);
+                const savedLastState = await storage.get<Record<string, string[]>>('lastSelectedState');
+                if (savedLastState) {
+                    setLastSelectedState(savedLastState);
+                }
+            } catch (error) {
+                console.error('Failed to load initial state:', error);
             }
         };
 
@@ -120,13 +119,6 @@ export const Settings = ({ onClose }: SettingsProps) => {
         window.dispatchEvent(new Event('settingsChange'));
     };
 
-    const handlePriceChangeToggle = async () => {
-        const newState = !isPriceChangeVisible;
-        await storage.set('isPriceChangeVisible', newState);
-        setIsPriceChangeVisible(newState);
-        window.dispatchEvent(new Event('settingsChange'));
-    };
-
     const languageValue = language === 'ko'
         ? `${TRANSLATIONS.ko.settings.Korean} | ${TRANSLATIONS.ko.settings.English}`
         : `${TRANSLATIONS.en.settings.Korean} | ${TRANSLATIONS.en.settings.English}`;
@@ -181,16 +173,16 @@ export const Settings = ({ onClose }: SettingsProps) => {
                         language={language}
                     />
                     <SettingSection
-                        title="Price Change"
+                        title="Details"
+                        value={`${TRANSLATIONS[language].detailsValue.line1}\n${TRANSLATIONS[language].detailsValue.line2}`}
                         isToggle={true}
-                        isActive={isPriceChangeVisible}
-                        onToggle={handlePriceChangeToggle}
+                        isActive={isDetailsVisible}
+                        onToggle={toggleDetails}
                         language={language}
                     />
                     <SettingSection
                         title="Theme"
                         value={themeValue}
-                        valueAlign="right"
                         isToggle={true}
                         isActive={theme === 'dark'}
                         onToggle={toggleTheme}
@@ -199,7 +191,6 @@ export const Settings = ({ onClose }: SettingsProps) => {
                     <SettingSection
                         title="Language"
                         value={languageValue}
-                        valueAlign="right"
                         isToggle={true}
                         isActive={language === 'en'}
                         onToggle={toggleLanguage}

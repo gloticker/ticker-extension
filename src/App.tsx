@@ -16,15 +16,20 @@ function App() {
       className="w-[300px] h-[600px] overflow-hidden relative"
       style={{
         backgroundColor: COLORS[theme].background,
-        transition: 'all 0.3s ease'
+        border: 'none',
+        outline: 'none'
       }}
     >
       <div className="relative w-full h-full">
-        <div className={`absolute w-full h-full transition-transform duration-300 ease-in-out ${showSettings ? 'translate-x-[-100%]' : 'translate-x-0'}`}>
+        <div
+          className={`absolute w-full h-full transition-transform duration-300 ease-in-out ${showSettings ? 'translate-x-[-100%]' : 'translate-x-0'
+            }`}
+          style={{ backgroundColor: COLORS[theme].background }}
+        >
           <div className="h-full flex flex-col">
             <div className="flex items-center">
               <Header
-                isSettings={showSettings}
+                isSettings={false}
                 onSettingsClick={() => setShowSettings(true)}
                 onAnalysisClick={() => setIsAnalysisOpen(true)}
               />
@@ -42,7 +47,11 @@ function App() {
           </div>
         </div>
 
-        <div className={`absolute w-full h-full transition-transform duration-300 ease-in-out ${showSettings ? 'translate-x-0' : 'translate-x-[100%]'}`}>
+        <div
+          className={`absolute w-full h-full transition-transform duration-300 ease-in-out ${showSettings ? 'translate-x-0' : 'translate-x-[100%]'
+            }`}
+          style={{ backgroundColor: COLORS[theme].background }}
+        >
           <Settings onClose={() => setShowSettings(false)} />
         </div>
       </div>

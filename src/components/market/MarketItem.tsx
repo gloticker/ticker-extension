@@ -1,6 +1,6 @@
 import { useTheme } from '../../hooks/useTheme';
 import { COLORS } from '../../constants/theme';
-import { SparklineChart } from '../SparklineChart';
+import { SparklineChart } from './SparklineChart';
 import type { MarketData } from '../../types/market';
 import { getSymbolImage, getSymbolInfo } from '../../utils/symbolUtils';
 import { PriceSection } from './PriceSection';
@@ -13,9 +13,10 @@ interface MarketItemProps {
     symbol: string;
     marketData: MarketData;
     chartData: Record<string, { close: string }>;
+    isDetailsVisible: boolean;
 }
 
-export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) => {
+export const MarketItem = ({ symbol, marketData, chartData, isDetailsVisible }: MarketItemProps) => {
     const { theme } = useTheme();
     const { language } = useI18n();
     const [isFlashing, setIsFlashing] = useState(false);
@@ -36,8 +37,8 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
 
     const symbolInfo = getSymbolInfo(symbol, language);
     const textSizeClass = symbolInfo.displayName.length > 5 ? 'text-[9px]' : 'text-xs';
-
-    const isDelayedData = symbol === '^GSPC' || symbol === '^RUT';
+    const isDelayedData = symbol === '^RUT' || symbol === '^VIX';
+    const isStockOrCrypto = symbol !== 'Fear&Greed' && symbol !== 'BTC.D';
 
     return (
         <div
@@ -60,7 +61,8 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
                     className={`${textSizeClass} ml-1.5`}
                     style={{
                         color: COLORS[theme].text.primary,
-                        fontWeight: 400
+                        fontWeight: 400,
+                        letterSpacing: symbolInfo.displayName.length > 5 ? '0px' : '1px'
                     }}
                 >
                     {symbolInfo.displayName}
@@ -83,7 +85,7 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
                 >
                     D
                     <span
-                        className="invisible group-hover:visible absolute left-1/2 -translate-x-1/2 bottom-[50%] px-2 py-1 text-[10px] whitespace-nowrap"
+                        className="invisible group-hover:visible absolute left-1/2 -translate-x-1/2 bottom-[60%] px-2 py-1 text-[10px] whitespace-nowrap"
                         style={{ color: COLORS[theme].text.secondary }}
                     >
                         {TRANSLATIONS[language].delayed}
@@ -92,17 +94,34 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
             )}
 
             {symbol !== 'BTC.D' && (
-                <ChangeSection symbol={symbol} marketData={marketData} />
+                <ChangeSection
+                    symbol={symbol}
+                    marketData={marketData}
+                    isDetailsVisible={isDetailsVisible}
+                />
             )}
 
             {symbol !== 'Fear&Greed' && symbol !== 'BTC.D' && (
-                <div className="absolute right-3">
-                    <SparklineChart
-                        data={chartData}
-                        color={COLORS[theme].primary}
-                        symbol={symbol}
-                        marketData={marketData}
-                    />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="relative">
+                        <SparklineChart
+                            data={chartData}
+                            color={COLORS[theme].primary}
+                            symbol={symbol}
+                            marketData={marketData}
+                        />
+                        {isStockOrCrypto && isDetailsVisible && marketData.market_cap && (
+                            <span
+                                className="absolute text-[10px] -bottom-[10px]"
+                                style={{
+                                    color: COLORS[theme].text.primary,
+                                    fontWeight: 200
+                                }}
+                            >
+                                {marketData.market_cap}
+                            </span>
+                        )}
+                    </div>
                 </div>
             )}
         </div>

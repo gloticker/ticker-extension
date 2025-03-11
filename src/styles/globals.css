@@ -26,11 +26,22 @@
   font-style: normal;
 }
 
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: "Pretendard" !important;
+  font-weight: 200;
+}
+
 *,
 *::before,
 *::after {
   font-family: "Pretendard" !important;
   font-weight: 200;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none !important;
 }
 
 [style],
@@ -42,10 +53,7 @@ div[style] {
   font-weight: 200;
 }
 
-/* 폰트 페일백 방지 */
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-family: "Pretendard" !important;
-  font-weight: 200;
+img {
+  -webkit-user-drag: none;
+  outline: none !important;
 }

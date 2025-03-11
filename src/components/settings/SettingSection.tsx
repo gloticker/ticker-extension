@@ -14,7 +14,6 @@ interface SettingSectionProps {
     titleSize?: string;
     onToggle?: () => void;
     onSymbolToggle?: (symbol: string) => void;
-    valueAlign?: string;
     language: string;
 }
 
@@ -25,10 +24,8 @@ export const SettingSection = ({
     value,
     isToggle = false,
     isActive = true,
-    titleSize,
     onToggle,
     onSymbolToggle,
-    valueAlign,
     language
 }: SettingSectionProps) => {
     const { theme } = useTheme();
@@ -61,31 +58,57 @@ export const SettingSection = ({
         return () => clearTimeout(timer);
     }, [translatedTitle]);
 
+    const handleToggle = () => {
+        if (onToggle) {
+            onToggle();
+        }
+    };
+
     return (
         <div className="mb-2.5">
             <div
                 className="w-[288px] h-10 px-4 mx-auto flex items-center justify-between"
                 style={{ color: COLORS[theme].text.primary }}
             >
-                <span
-                    className="transition-opacity duration-150"
-                    style={{
-                        fontSize: titleSize || 20,
-                        flex: '0 0 auto',
-                        opacity: isTitleFading ? 0 : 1,
-                        fontWeight: 400
-                    }}
-                >
-                    {displayTitle || translatedTitle}
-                </span>
+                <div className="flex items-baseline">
+                    <span
+                        className={`transition-opacity duration-150 inline-block w-[80px] text-[20px]`}
+                        style={{
+                            opacity: isTitleFading ? 0 : 1,
+                            fontWeight: 400,
+                            letterSpacing: '2px'
+                        }}
+                    >
+                        {displayTitle || translatedTitle}
+                    </span>
+                    {(title === 'Forex' || title === 'Stock' || title === 'Crypto') && (
+                        <span
+                            className="text-[10px]"
+                            style={{
+                                color: COLORS[theme].text.secondary,
+                                opacity: isTitleFading ? 0 : 1,
+                                fontWeight: 400,
+                                letterSpacing: '1px'
+                            }}
+                        >
+                            ({title === 'Forex'
+                                ? TRANSLATIONS[language as keyof typeof TRANSLATIONS].forexSubtitle
+                                : title === 'Stock'
+                                    ? TRANSLATIONS[language as keyof typeof TRANSLATIONS].stockSubtitle
+                                    : TRANSLATIONS[language as keyof typeof TRANSLATIONS].cryptoSubtitle})
+                        </span>
+                    )}
+                </div>
                 {value ? (
                     <span
-                        className={`flex-1 text-right ${valueAlign === 'right' ? 'mr-2' : ''} transition-opacity duration-150`}
+                        className={`transition-opacity duration-150 text-[10px] whitespace-pre-line leading-[1.5] flex-1 text-right ${(title === 'Details' || title === 'Theme' || title === 'Language') ? 'ml-[30px]' : ''
+                            }`}
                         style={{
                             color: COLORS[theme].text.secondary,
-                            fontSize: '10px',
+                            opacity: isValueFading ? 0 : 1,
                             fontWeight: 400,
-                            opacity: isValueFading ? 0 : 1
+                            letterSpacing: '1px',
+                            marginRight: '8px'
                         }}
                     >
                         {displayValue}
@@ -93,12 +116,13 @@ export const SettingSection = ({
                 ) : null}
                 {isToggle && (
                     <div
-                        className="w-[40px] h-[20px] rounded-full relative flex-shrink-0 cursor-pointer"
-                        onClick={isToggle ? onToggle : undefined}
+                        className="w-10 h-5 rounded-full relative flex-shrink-0 cursor-pointer"
+                        onClick={handleToggle}
                         style={{ backgroundColor: COLORS[theme].surface }}
                     >
                         <div
-                            className={`w-[16px] h-[16px] rounded-full absolute top-[2px] transition-transform duration-200 ease-in-out ${isActive ? 'translate-x-[22px]' : 'translate-x-[2px]'}`}
+                            className={`w-4 h-4 rounded-full absolute top-0.5 transition-transform duration-200 ease-in-out ${isActive ? 'translate-x-[22px]' : 'translate-x-0.5'
+                                }`}
                             style={{
                                 backgroundColor: isActive ? COLORS[theme].primary : COLORS[theme].text.secondary
                             }}

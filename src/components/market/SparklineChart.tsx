@@ -1,4 +1,4 @@
-import { MarketData } from "../types/market";
+import { MarketData } from "../../types/market";
 
 interface SparklineChartProps {
     data: Record<string, { close: string }>;
@@ -97,7 +97,7 @@ export const SparklineChart = ({ data, width = 40, height = 20, color, symbol, m
                 <defs>
                     <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
                         <stop offset="0%" stopColor={color} stopOpacity="0.1" />
-                        <stop offset="100%" stopColor={color} stopOpacity="0.02" />
+                        <stop offset="100%" stopColor={color} stopOpacity="0.01" />
                     </linearGradient>
                 </defs>
 

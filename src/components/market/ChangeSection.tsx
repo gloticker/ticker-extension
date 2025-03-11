@@ -1,12 +1,11 @@
 import { useTheme } from '../../hooks/useTheme';
 import { COLORS } from '../../constants/theme';
 import { MarketData } from '../../types/market';
-import { useState, useEffect } from 'react';
-import { storage } from '../../utils/storage';
 
 interface ChangeSectionProps {
     symbol: string;
     marketData: MarketData;
+    isDetailsVisible: boolean;
 }
 
 const formatter = new Intl.NumberFormat('en-US', {
@@ -14,31 +13,8 @@ const formatter = new Intl.NumberFormat('en-US', {
     maximumFractionDigits: 2
 });
 
-export const ChangeSection = ({ symbol, marketData }: ChangeSectionProps) => {
+export const ChangeSection = ({ symbol, marketData, isDetailsVisible }: ChangeSectionProps) => {
     const { theme } = useTheme();
-    const [isPriceChangeVisible, setIsPriceChangeVisible] = useState(true);
-
-    useEffect(() => {
-        const loadPriceChangeVisible = async () => {
-            const saved = await storage.get<boolean>('isPriceChangeVisible');
-            if (saved !== null) {
-                setIsPriceChangeVisible(saved);
-            }
-        };
-        loadPriceChangeVisible();
-    }, []);
-
-    useEffect(() => {
-        const handleSettingsChange = async () => {
-            const saved = await storage.get<boolean>('isPriceChangeVisible');
-            if (saved !== null) {
-                setIsPriceChangeVisible(saved);
-            }
-        };
-
-        window.addEventListener('settingsChange', handleSettingsChange);
-        return () => window.removeEventListener('settingsChange', handleSettingsChange);
-    }, []);
 
     const formatChange = (value: string) => {
         const numValue = Number(value);
@@ -51,23 +27,32 @@ export const ChangeSection = ({ symbol, marketData }: ChangeSectionProps) => {
         return null;
     }
 
+    const color = marketData.rating ? COLORS[theme].primary :
+        Number(marketData.change_percent) > 0 ? COLORS[theme].primary :
+            COLORS[theme].danger;
+
     return (
         <div className="absolute w-[40%] left-[60%] h-full">
             <div className="relative h-full">
+                {/* 변동률(%) */}
                 <span
                     className="absolute top-1/2 -translate-y-1/2 text-xs font-medium"
                     style={{
-                        color: marketData.rating ? COLORS[theme].primary :
-                            Number(marketData.change_percent) > 0 ? COLORS[theme].primary :
-                                COLORS[theme].danger
+                        color,
+                        fontWeight: 200
                     }}
                 >
                     {marketData.rating ? marketData.rating : formatChange(marketData.change_percent) + '%'}
                 </span>
-                {!marketData.rating && isPriceChangeVisible && (
+
+                {/* 가격 변동 */}
+                {!marketData.rating && isDetailsVisible && (
                     <span
                         className="absolute bottom-0 text-[10px]"
-                        style={{ color: COLORS[theme].text.secondary }}
+                        style={{
+                            color: COLORS[theme].text.primary,
+                            fontWeight: 200
+                        }}
                     >
                         {formatChange(String(marketData.change))}
                     </span>

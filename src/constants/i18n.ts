@@ -8,9 +8,17 @@ export const TRANSLATIONS = {
       Crypto: "암호화폐",
       Forex: "환율",
     },
+    stockSubtitle: "달러",
+    cryptoSubtitle: "달러",
+    forexSubtitle: "원화",
+    detailsValue: {
+      line1: "가격 변동",
+      line2: "시가 총액",
+    },
     symbols: {
       IXIC: "나스닥",
       GSPC: "S&P",
+      DJI: "다우존스",
       RUT: "러셀",
       TLT: "국채",
       VIX: "변동성",
@@ -36,7 +44,7 @@ export const TRANSLATIONS = {
     },
     settings: {
       Theme: "테마",
-      "Price Change": "가격 변동",
+      Details: "상세",
       Language: "언어",
       Light: "라이트",
       Dark: "다크",
@@ -58,9 +66,17 @@ export const TRANSLATIONS = {
       Crypto: "Crypto",
       Forex: "Forex",
     },
+    stockSubtitle: "USD",
+    cryptoSubtitle: "USD",
+    forexSubtitle: "KRW",
+    detailsValue: {
+      line1: "Price Change",
+      line2: "Market Capital",
+    },
     symbols: {
       IXIC: "IXIC",
       GSPC: "GSPC",
+      DJI: "DJI",
       RUT: "RUT",
       TLT: "TLT",
       VIX: "VIX",
@@ -86,7 +102,7 @@ export const TRANSLATIONS = {
     },
     settings: {
       Theme: "Theme",
-      "Price Change": "Price Change",
+      Details: "Details",
       Language: "Language",
       Light: "Light",
       Dark: "Dark",

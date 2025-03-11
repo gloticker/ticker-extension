@@ -15,6 +15,7 @@ export interface MarketData {
   current_value?: string;
   current_price?: string;
   otc_price?: string;
+  market_cap?: string;
 }
 
 export interface MarketConfig {

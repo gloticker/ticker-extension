@@ -9,7 +9,7 @@ type MarketSnapshot = Record<string, MarketData>;
 type MarketType = 'Index' | 'Stock' | 'Crypto' | 'Forex';
 
 const ORDER_MAP = {
-    Index: ['^IXIC', '^GSPC', '^RUT', '^TLT', '^VIX', 'Fear&Greed'],
+    Index: ['^IXIC', '^GSPC', '^DJI', '^RUT', '^TLT', '^VIX', 'Fear&Greed'],
     Stock: ['AAPL', 'NVDA', 'MSFT', 'AMZN', 'GOOGL', 'META', 'TSLA'],
     Crypto: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BTC.D'],
     Forex: ['KRW=X', 'EURKRW=X', 'CNYKRW=X', 'JPYKRW=X']
@@ -119,7 +119,8 @@ export const MarketSection = () => {
                     current_price: data.current_price,
                     otc_price: data.otc_price,
                     change: data.change,
-                    change_percent: data.change_percent
+                    change_percent: data.change_percent,
+                    market_cap: data.market_cap || lastSnapshot[symbol]?.market_cap
                 };
             });
 
