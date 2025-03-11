@@ -29,7 +29,7 @@ function App() {
           <div className="h-full flex flex-col">
             <div className="flex items-center">
               <Header
-                isSettings={showSettings}
+                isSettings={false}
                 onSettingsClick={() => setShowSettings(true)}
                 onAnalysisClick={() => setIsAnalysisOpen(true)}
               />
