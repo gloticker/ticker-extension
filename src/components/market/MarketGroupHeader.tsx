@@ -22,7 +22,10 @@ export const MarketGroupHeader = ({ type, isExpanded, onToggle }: MarketGroupHea
             onClick={onToggle}
             style={{ color: COLORS[theme].text.primary }}
         >
-            <span style={{ fontWeight: 400 }}>
+            <span style={{
+                fontWeight: 400,
+                letterSpacing: '2px'
+            }}>
                 {translatedTitle}
             </span>
             <img

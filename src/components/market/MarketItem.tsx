@@ -60,7 +60,8 @@ export const MarketItem = ({ symbol, marketData, chartData }: MarketItemProps) =
                     className={`${textSizeClass} ml-1.5`}
                     style={{
                         color: COLORS[theme].text.primary,
-                        fontWeight: 400
+                        fontWeight: 400,
+                        letterSpacing: symbolInfo.displayName.length > 5 ? '0px' : '1px'
                     }}
                 >
                     {symbolInfo.displayName}

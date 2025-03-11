@@ -59,7 +59,8 @@ export const ChangeSection = ({ symbol, marketData }: ChangeSectionProps) => {
                     style={{
                         color: marketData.rating ? COLORS[theme].primary :
                             Number(marketData.change_percent) > 0 ? COLORS[theme].primary :
-                                COLORS[theme].danger
+                                COLORS[theme].danger,
+                        fontWeight: 200
                     }}
                 >
                     {marketData.rating ? marketData.rating : formatChange(marketData.change_percent) + '%'}
@@ -67,7 +68,10 @@ export const ChangeSection = ({ symbol, marketData }: ChangeSectionProps) => {
                 {!marketData.rating && isPriceChangeVisible && (
                     <span
                         className="absolute bottom-0 text-[10px]"
-                        style={{ color: COLORS[theme].text.secondary }}
+                        style={{
+                            color: COLORS[theme].text.primary,
+                            fontWeight: 200
+                        }}
                     >
                         {formatChange(String(marketData.change))}
                     </span>

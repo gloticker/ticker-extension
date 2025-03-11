@@ -73,7 +73,8 @@ export const SettingSection = ({
                         fontSize: titleSize || 20,
                         flex: '0 0 auto',
                         opacity: isTitleFading ? 0 : 1,
-                        fontWeight: 400
+                        fontWeight: 400,
+                        letterSpacing: '2px'
                     }}
                 >
                     {displayTitle || translatedTitle}
@@ -85,7 +86,8 @@ export const SettingSection = ({
                             color: COLORS[theme].text.secondary,
                             fontSize: '10px',
                             fontWeight: 400,
-                            opacity: isValueFading ? 0 : 1
+                            opacity: isValueFading ? 0 : 1,
+                            letterSpacing: '1px'
                         }}
                     >
                         {displayValue}
