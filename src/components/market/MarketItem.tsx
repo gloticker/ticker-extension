@@ -107,10 +107,10 @@ export const MarketItem = ({ symbol, marketData, chartData, isDetailsVisible }: 
                             <div style={{ width: '40px', height: '20px', position: 'relative' }}>
                                 {isDetailsVisible && (
                                     <span
+                                        className="text-[10px]"
                                         style={{
                                             color: COLORS[theme].text.primary,
                                             fontWeight: 200,
-                                            fontSize: '10px',
                                             whiteSpace: 'nowrap',
                                             position: 'absolute',
                                             top: '50%',
