@@ -31,15 +31,17 @@ export const ChangeSection = ({ symbol, marketData, isDetailsVisible }: ChangeSe
         return (
             <div className="absolute w-[40%] left-[60%] h-full">
                 <div className="relative h-full">
-                    <span
-                        className="absolute top-1/2 -translate-y-1/2 text-xs font-medium"
-                        style={{
-                            color: Number(marketData.change_percent) > 0 ? COLORS[theme].primary : COLORS[theme].danger,
-                            fontWeight: 200
-                        }}
-                    >
-                        {Number(marketData.change_percent) > 0 ? '+' : ''}{marketData.change_percent}%
-                    </span>
+                    {isDetailsVisible && (
+                        <span
+                            className="absolute top-1/2 -translate-y-1/2 text-xs font-medium"
+                            style={{
+                                color: Number(marketData.change_percent) > 0 ? COLORS[theme].primary : COLORS[theme].danger,
+                                fontWeight: 200
+                            }}
+                        >
+                            {Number(marketData.change_percent) > 0 ? '+' : ''}{marketData.change_percent}%
+                        </span>
+                    )}
                     {isDetailsVisible && (
                         <span
                             className="absolute bottom-0 text-[10px]"
