@@ -1,15 +1,11 @@
-// 기준 크기 설정
-const BASE_WIDTH = 300; // 기본 팝업 너비
-const BASE_HEIGHT = 600; // 기본 팝업 높이
-
-// viewport width 기준 반응형 크기
-export const vw = (px: number) => `${(px / BASE_WIDTH) * 100}vw`;
+// viewport width 기준 반응형 크기 (높이의 50% 비율)
+export const vw = (px: number) => `${(px / 300) * 50}vh`;
 
 // viewport height 기준 반응형 크기
-export const vh = (px: number) => `${(px / BASE_HEIGHT) * 100}vh`;
+export const vh = (px: number) => `${(px / 600) * 100}vh`;
 
 // viewport의 작은 쪽 기준 반응형 크기
-export const vmin = (px: number) => `${(px / BASE_WIDTH) * 100}vmin`;
+export const vmin = (px: number) => `${(px / 300) * 50}vh`;
 
 // rem 변환 (기본 16px 기준)
 export const rem = (px: number) => `${px / 16}rem`;

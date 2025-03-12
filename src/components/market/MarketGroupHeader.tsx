@@ -39,7 +39,6 @@ export const MarketGroupHeader = ({ type, isExpanded, onToggle }: MarketGroupHea
                 width: '100%',
                 maxWidth: vmin(266),
                 height: vmin(40),
-                padding: `0 ${vmin(12)}px`,
                 marginLeft: 'auto',
                 marginRight: 'auto',
                 marginBottom: vmin(10),

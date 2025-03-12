@@ -5,7 +5,6 @@ import { Settings } from './components/settings/Settings';
 import { useTheme } from './hooks/useTheme';
 import { COLORS } from './constants/theme';
 import { AnalysisModal } from './components/analysis/AnalysisModal';
-import { vmin } from './utils/responsive';
 
 // 전역 스타일 적용
 const style = document.createElement('style');
@@ -31,8 +30,8 @@ function App() {
   return (
     <div
       style={{
-        width: vmin(300),
-        height: vmin(600),
+        width: '50vh',
+        height: '100vh',
         overflow: 'hidden',
         position: 'relative',
         border: 'none',
