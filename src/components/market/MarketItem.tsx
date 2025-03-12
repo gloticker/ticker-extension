@@ -22,9 +22,11 @@ export const MarketItem = ({ symbol, marketData, chartData, isDetailsVisible }: 
     const [isFlashing, setIsFlashing] = useState(false);
     const [latestValue, setLatestValue] = useState('');
 
-    const newValue = symbol === 'BTC.D'
-        ? marketData.value
-        : (marketData.otc_price || marketData.current_price || marketData.current_value || marketData.rate || marketData.score || marketData.value);
+    const newValue = symbol === 'TOTAL3'
+        ? marketData.market_cap
+        : symbol === 'BTC.D'
+            ? marketData.value + ' %'
+            : (marketData.otc_price || marketData.current_price || marketData.current_value || marketData.rate || marketData.score || marketData.value);
 
     useEffect(() => {
         if (latestValue && latestValue !== newValue) {
@@ -36,9 +38,8 @@ export const MarketItem = ({ symbol, marketData, chartData, isDetailsVisible }: 
     }, [newValue, latestValue]);
 
     const symbolInfo = getSymbolInfo(symbol, language);
-    const textSizeClass = symbolInfo.displayName.length > 5 ? 'text-[9px]' : 'text-xs';
+    const textSizeClass = symbolInfo.displayName.length > 6 ? 'text-[9px]' : 'text-xs';
     const isDelayedData = symbol === '^RUT' || symbol === '^VIX';
-    const isStockOrCrypto = symbol !== 'Fear&Greed' && symbol !== 'BTC.D';
 
     return (
         <div
@@ -62,7 +63,7 @@ export const MarketItem = ({ symbol, marketData, chartData, isDetailsVisible }: 
                     style={{
                         color: COLORS[theme].text.primary,
                         fontWeight: 400,
-                        letterSpacing: symbolInfo.displayName.length > 5 ? '0px' : '1px'
+                        letterSpacing: symbolInfo.displayName.length > 6 ? '0px' : '1px'
                     }}
                 >
                     {symbolInfo.displayName}
@@ -93,33 +94,55 @@ export const MarketItem = ({ symbol, marketData, chartData, isDetailsVisible }: 
                 </span>
             )}
 
-            {symbol !== 'BTC.D' && (
-                <ChangeSection
-                    symbol={symbol}
-                    marketData={marketData}
-                    isDetailsVisible={isDetailsVisible}
-                />
-            )}
+            <ChangeSection
+                symbol={symbol}
+                marketData={marketData}
+                isDetailsVisible={isDetailsVisible}
+            />
 
             {symbol !== 'Fear&Greed' && symbol !== 'BTC.D' && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <div className="relative">
-                        <SparklineChart
-                            data={chartData}
-                            color={COLORS[theme].primary}
-                            symbol={symbol}
-                            marketData={marketData}
-                        />
-                        {isStockOrCrypto && isDetailsVisible && marketData.market_cap && (
-                            <span
-                                className="absolute text-[10px] -bottom-[10px]"
-                                style={{
-                                    color: COLORS[theme].text.primary,
-                                    fontWeight: 200
-                                }}
-                            >
-                                {marketData.market_cap}
-                            </span>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 font-medium" style={{ overflow: 'visible' }}>
+                    <div className="relative" style={{ overflow: 'visible' }}>
+                        {symbol === 'TOTAL3' ? (
+                            <div style={{ width: '40px', height: '20px', position: 'relative' }}>
+                                {isDetailsVisible && (
+                                    <span
+                                        style={{
+                                            color: COLORS[theme].text.primary,
+                                            fontWeight: 200,
+                                            fontSize: '10px',
+                                            whiteSpace: 'nowrap',
+                                            position: 'absolute',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)'
+                                        }}
+                                    >
+                                        {marketData.market_cap}
+                                    </span>
+                                )}
+                            </div>
+                        ) : (
+                            <>
+                                <SparklineChart
+                                    data={chartData}
+                                    color={COLORS[theme].primary}
+                                    symbol={symbol}
+                                    marketData={marketData}
+                                />
+                                {isDetailsVisible && marketData.market_cap && (
+                                    <span
+                                        className="absolute text-[10px] -bottom-[10px]"
+                                        style={{
+                                            color: COLORS[theme].text.primary,
+                                            fontWeight: 200,
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'visible'
+                                        }}
+                                    >
+                                        {marketData.market_cap}
+                                    </span>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>

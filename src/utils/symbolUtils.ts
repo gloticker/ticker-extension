@@ -24,6 +24,7 @@ export const getSymbolInfo = (symbol: string, language: Language = "en"): Symbol
     "EURKRW=X": "EUR",
     "CNYKRW=X": "CNY",
     "JPYKRW=X": "JPY",
+    TOTAL3: "ALT.D",
   };
 
   const convertedSymbol = symbolMap[symbol] || symbol;
@@ -37,6 +38,8 @@ export const getSymbolInfo = (symbol: string, language: Language = "en"): Symbol
     link = "https://coinmarketcap.com/charts/bitcoin-dominance/";
   } else if (convertedSymbol === "F&G") {
     link = "https://edition.cnn.com/markets/fear-and-greed";
+  } else if (convertedSymbol === "TOTAL3") {
+    link = "https://kr.tradingview.com/symbols/TOTAL3/?exchange=CRYPTOCAP";
   }
 
   return {
