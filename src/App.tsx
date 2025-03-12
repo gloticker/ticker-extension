@@ -15,6 +15,14 @@ style.textContent = `
     width: 100%;
     height: 100%;
   }
+  ${import.meta.env.PROD ? `
+  html, body, #root {
+    min-width: 300px;
+    min-height: 600px;
+    max-width: 300px;
+    max-height: 600px;
+  }
+  ` : ''}
 `;
 document.head.appendChild(style);
 
