@@ -29,7 +29,6 @@ export const getSymbolInfo = (symbol: string, language: Language = "en"): Symbol
 
   const convertedSymbol = symbolMap[symbol] || symbol;
 
-  // 특수 케이스 링크 처리
   let link = `https://finance.yahoo.com/quote/${symbol}`;
 
   if (["BTC", "ETH", "SOL"].includes(convertedSymbol)) {
@@ -38,7 +37,7 @@ export const getSymbolInfo = (symbol: string, language: Language = "en"): Symbol
     link = "https://coinmarketcap.com/charts/bitcoin-dominance/";
   } else if (convertedSymbol === "F&G") {
     link = "https://edition.cnn.com/markets/fear-and-greed";
-  } else if (convertedSymbol === "TOTAL3") {
+  } else if (convertedSymbol === "ALT.D") {
     link = "https://kr.tradingview.com/symbols/TOTAL3/?exchange=CRYPTOCAP";
   }
 
