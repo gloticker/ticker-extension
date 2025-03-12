@@ -38,7 +38,7 @@ export const getSymbolInfo = (symbol: string, language: Language = "en"): Symbol
   } else if (convertedSymbol === "F&G") {
     link = "https://edition.cnn.com/markets/fear-and-greed";
   } else if (convertedSymbol === "ALT.D") {
-    link = "https://kr.tradingview.com/symbols/TOTAL3/?exchange=CRYPTOCAP";
+    link = "https://tradingview.com/symbols/TOTAL3/?exchange=CRYPTOCAP";
   }
 
   return {
