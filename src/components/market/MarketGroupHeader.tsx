@@ -2,6 +2,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { COLORS } from '../../constants/theme';
 import { useI18n } from '../../hooks/useI18n';
 import { TRANSLATIONS } from '../../constants/i18n';
+import { vmin, fontSize } from '../../utils/responsive';
 
 interface MarketGroupHeaderProps {
     type: string;
@@ -18,23 +19,46 @@ export const MarketGroupHeader = ({ type, isExpanded, onToggle }: MarketGroupHea
 
     return (
         <div
-            className="w-[288px] h-10 px-4 mx-auto flex items-center justify-between text-xl mb-2.5 cursor-pointer"
             onClick={onToggle}
-            style={{ color: COLORS[theme].text.primary }}
+            style={{
+                width: '100%',
+                maxWidth: vmin(266),
+                height: vmin(40),
+                padding: `0 ${vmin(12)}px`,
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                marginBottom: vmin(10),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                cursor: 'pointer',
+                color: COLORS[theme].text.primary
+            }}
         >
             <span style={{
                 fontWeight: 400,
-                letterSpacing: '2px'
+                letterSpacing: '2px',
+                fontSize: fontSize(20)
             }}>
                 {translatedTitle}
             </span>
-            <img
-                src={`/images/icon/${isExpanded ? 'close' : 'open'}.svg`}
-                alt={isExpanded ? 'close' : 'open'}
-                style={{
-                    filter: `brightness(${brightness})`
-                }}
-            />
+            <div style={{
+                width: vmin(20),
+                height: vmin(20),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+                <img
+                    src={`/images/icon/${isExpanded ? 'close' : 'open'}.svg`}
+                    alt={isExpanded ? 'close' : 'open'}
+                    style={{
+                        width: vmin(18),
+                        height: vmin(18),
+                        filter: `brightness(${brightness})`
+                    }}
+                />
+            </div>
         </div>
     );
 };

@@ -1,6 +1,7 @@
 import { useTheme } from '../../hooks/useTheme';
 import { COLORS } from '../../constants/theme';
 import { MarketData } from '../../types/market';
+import { fontSize } from '../../utils/responsive';
 
 interface PriceSectionProps {
     symbol: string;
@@ -27,8 +28,12 @@ export const PriceSection = ({ symbol, marketData }: PriceSectionProps) => {
         : displayValue ? formatter.format(parseFloat(displayValue)) : '0.00';
 
     return (
-        <div className="absolute left-[35%] w-[30%] text-xs font-medium"
+        <div
             style={{
+                position: 'absolute',
+                left: '35%',
+                width: '30%',
+                fontSize: fontSize(12),
                 color: COLORS[theme].text.primary,
                 fontWeight: 200
             }}

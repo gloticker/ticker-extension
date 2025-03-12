@@ -7,6 +7,7 @@ import { TRANSLATIONS } from '../constants/i18n';
 import { isMarketHoliday } from '../constants/marketHolidays';
 import { MARKET_TIMES } from '../constants/marketTimes';
 import { storage } from "../utils/storage";
+import { vmin, fontSize } from '../utils/responsive';
 
 interface HeaderProps {
     isSettings?: boolean;
@@ -108,15 +109,36 @@ export const Header = ({ isSettings, onSettingsClick, onAnalysisClick }: HeaderP
 
     return (
         <div
-            className="h-[50px] w-full flex items-center justify-between"
-            style={{ backgroundColor: COLORS[theme].background }}
+            style={{
+                height: vmin(50),
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                backgroundColor: COLORS[theme].background
+            }}
         >
-            <div className="w-full max-w-[288px] px-4 mx-auto flex items-center justify-between">
+            <div style={{
+                width: '100%',
+                maxWidth: vmin(266),
+                padding: `0 ${vmin(12)}px`,
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+            }}>
                 {!isSettings && (
                     <>
-                        <div className="flex items-center relative">
+                        <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
                             <button
-                                className="w-[18px] h-[18px]"
+                                style={{
+                                    width: vmin(20),
+                                    height: vmin(20),
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
                                 onClick={() => {
                                     setShowStatus((prev: boolean) => !prev);
                                 }}
@@ -124,33 +146,74 @@ export const Header = ({ isSettings, onSettingsClick, onAnalysisClick }: HeaderP
                                 <img
                                     src={getMarketIcon()}
                                     alt="market status"
-                                    style={{ filter: `brightness(${brightness})` }}
+                                    style={{
+                                        width: vmin(18),
+                                        height: vmin(18),
+                                        filter: `brightness(${brightness})`
+                                    }}
                                 />
                             </button>
-                            <div className="absolute left-5 whitespace-nowrap transition-opacity duration-300 pointer-events-none h-[50px]"
-                                style={{
-                                    color: COLORS[theme].text.primary,
-                                    opacity: showStatus ? 1 : 0,
-                                }}
-                            >
-                                <div className="absolute -translate-y-1/2 top-1/2 flex flex-col items-end">
-                                    <span className="flex items-center text-xs">
-                                        <span className="inline-block w-[52px] tabular-nums text-right">{nyDateTime.time}</span>
-                                        <span className="ml-1">{nyDateTime.period}</span>
+                            <div style={{
+                                position: 'absolute',
+                                left: vmin(24),
+                                whiteSpace: 'nowrap',
+                                transition: 'opacity 300ms',
+                                pointerEvents: 'none',
+                                height: vmin(50),
+                                color: COLORS[theme].text.primary,
+                                opacity: showStatus ? 1 : 0,
+                            }}>
+                                <div style={{
+                                    position: 'absolute',
+                                    transform: 'translateY(-50%)',
+                                    top: '50%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'flex-end'
+                                }}>
+                                    <span style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        fontSize: fontSize(12)
+                                    }}>
+                                        <span style={{
+                                            display: 'inline-block',
+                                            width: vmin(52),
+                                            fontVariantNumeric: 'tabular-nums',
+                                            textAlign: 'right'
+                                        }}>
+                                            {nyDateTime.time}
+                                        </span>
+                                        <span style={{ marginLeft: vmin(4) }}>
+                                            {nyDateTime.period}
+                                        </span>
                                     </span>
-                                    <span className="text-[10px] mt-1">{TRANSLATIONS[language].marketStatus[marketStatus]}</span>
+                                    <span style={{
+                                        fontSize: fontSize(10),
+                                        marginTop: vmin(4)
+                                    }}>
+                                        {TRANSLATIONS[language].marketStatus[marketStatus]}
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
                         <button
-                            className="w-[18px] h-[18px]"
+                            style={{
+                                width: vmin(20),
+                                height: vmin(20),
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
                             onClick={onAnalysisClick}
                         >
                             <img
                                 src="/images/icon/ai.svg"
                                 alt="ai"
                                 style={{
+                                    width: vmin(18),
+                                    height: vmin(18),
                                     filter: `brightness(${brightness})`
                                 }}
                             />
@@ -159,13 +222,22 @@ export const Header = ({ isSettings, onSettingsClick, onAnalysisClick }: HeaderP
                 )}
 
                 <button
-                    className={isSettings ? "w-[20px] h-[10px] ml-auto" : "w-[18px] h-[18px]"}
+                    style={{
+                        width: isSettings ? vmin(20) : vmin(20),
+                        height: isSettings ? vmin(20) : vmin(20),
+                        marginLeft: isSettings ? 'auto' : undefined,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
                     onClick={onSettingsClick}
                 >
                     <img
                         src={isSettings ? "/images/icon/back.svg" : "/images/icon/setting.svg"}
                         alt={isSettings ? "back" : "settings"}
                         style={{
+                            width: isSettings ? vmin(14) : vmin(18),
+                            height: isSettings ? vmin(14) : vmin(18),
                             filter: `brightness(${brightness})`
                         }}
                     />

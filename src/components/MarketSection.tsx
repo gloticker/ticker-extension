@@ -4,6 +4,7 @@ import { MarketGroup } from './market/MarketGroup';
 import { useMarketStream } from '../hooks/useMarketStream';
 import { MarketData } from '../types/market';
 import { storage } from "../utils/storage";
+import { vmin } from "../utils/responsive";
 
 type MarketSnapshot = Record<string, MarketData>;
 type MarketType = 'Index' | 'Stock' | 'Crypto' | 'Forex';
@@ -198,7 +199,15 @@ export const MarketSection = () => {
     };
 
     return (
-        <div className="flex flex-col w-full">
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            maxWidth: vmin(288),
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            padding: `0 ${vmin(16)}px`
+        }}>
             {marketTypes.map((type) => (
                 // 활성화된 섹션만 렌더링
                 activeSections[type] && (

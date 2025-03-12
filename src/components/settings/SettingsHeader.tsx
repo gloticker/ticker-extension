@@ -1,5 +1,6 @@
 import { useTheme } from '../../hooks/useTheme';
 import { COLORS } from '../../constants/theme';
+import { vmin } from '../../utils/responsive';
 
 interface SettingsHeaderProps {
     onBackClick: () => void;
@@ -13,18 +14,42 @@ export const SettingsHeader = ({ onBackClick }: SettingsHeaderProps) => {
 
     return (
         <div
-            className="h-[50px] w-full flex items-center justify-between"
-            style={{ backgroundColor: COLORS[theme].background }}
+            style={{
+                height: vmin(50),
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                backgroundColor: COLORS[theme].background
+            }}
         >
-            <div className="w-full max-w-[288px] px-4 mx-auto flex items-center justify-between">
+            <div style={{
+                width: '100%',
+                maxWidth: vmin(266),
+                padding: `0 ${vmin(12)}px`,
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+            }}>
                 <button
-                    className="w-[20px] h-[10px] ml-auto"
+                    style={{
+                        width: vmin(20),
+                        height: vmin(20),
+                        marginLeft: 'auto',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
                     onClick={onBackClick}
                 >
                     <img
                         src="/images/icon/back.svg"
                         alt="back"
                         style={{
+                            width: vmin(18),
+                            height: vmin(18),
                             filter: `brightness(${brightness})`
                         }}
                     />

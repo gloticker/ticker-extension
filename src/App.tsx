@@ -1,43 +1,70 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MarketSection } from './components/MarketSection';
 import { Header } from './components/Header';
 import { Settings } from './components/settings/Settings';
 import { useTheme } from './hooks/useTheme';
 import { COLORS } from './constants/theme';
 import { AnalysisModal } from './components/analysis/AnalysisModal';
+import { vmin } from './utils/responsive';
+
+// 전역 스타일 적용
+const style = document.createElement('style');
+style.textContent = `
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+  }
+`;
+document.head.appendChild(style);
 
 function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
   const { theme } = useTheme();
 
+  useEffect(() => {
+    document.body.style.backgroundColor = COLORS[theme].background;
+  }, [theme]);
+
   return (
     <div
-      className="w-[300px] h-[600px] overflow-hidden relative"
       style={{
-        backgroundColor: COLORS[theme].background,
+        width: vmin(300),
+        height: vmin(600),
+        overflow: 'hidden',
+        position: 'relative',
         border: 'none',
-        outline: 'none'
+        outline: 'none',
+        margin: '0 auto'
       }}
     >
-      <div className="relative w-full h-full">
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%'
+      }}>
         <div
-          className={`absolute w-full h-full transition-transform duration-300 ease-in-out ${showSettings ? 'translate-x-[-100%]' : 'translate-x-0'
-            }`}
-          style={{ backgroundColor: COLORS[theme].background }}
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            transition: 'transform 300ms ease-in-out',
+            transform: showSettings ? 'translateX(-100%)' : 'translateX(0)'
+          }}
         >
-          <div className="h-full flex flex-col">
-            <div className="flex items-center">
-              <Header
-                isSettings={false}
-                onSettingsClick={() => setShowSettings(true)}
-                onAnalysisClick={() => setIsAnalysisOpen(true)}
-              />
-            </div>
-            <div className="flex-1 overflow-y-auto scrollbar-hide">
-              <div className="space-y-2">
-                <MarketSection />
-              </div>
+          <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Header
+              isSettings={false}
+              onSettingsClick={() => setShowSettings(true)}
+              onAnalysisClick={() => setIsAnalysisOpen(true)}
+            />
+            <div style={{
+              flex: 1,
+              overflowY: 'auto'
+            }} className="scrollbar-hide">
+              <MarketSection />
             </div>
 
             <AnalysisModal
@@ -48,9 +75,13 @@ function App() {
         </div>
 
         <div
-          className={`absolute w-full h-full transition-transform duration-300 ease-in-out ${showSettings ? 'translate-x-0' : 'translate-x-[100%]'
-            }`}
-          style={{ backgroundColor: COLORS[theme].background }}
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            transition: 'transform 300ms ease-in-out',
+            transform: showSettings ? 'translateX(0)' : 'translateX(100%)'
+          }}
         >
           <Settings onClose={() => setShowSettings(false)} />
         </div>

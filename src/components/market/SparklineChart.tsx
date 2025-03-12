@@ -1,4 +1,5 @@
 import { MarketData } from "../../types/market";
+import { vmin } from '../../utils/responsive';
 
 interface SparklineChartProps {
     data: Record<string, { close: string }>;
@@ -10,7 +11,17 @@ interface SparklineChartProps {
     marketData: MarketData;
 }
 
-export const SparklineChart = ({ data, width = 40, height = 20, color, symbol, marketData }: SparklineChartProps) => {
+export const SparklineChart = ({
+    data,
+    width = 40,
+    height = 20,
+    color,
+    symbol,
+    marketData
+}: SparklineChartProps) => {
+    const chartWidth = vmin(width);
+    const chartHeight = vmin(height);
+
     // otc_price 우선 적용
     const latestPrice = symbol === 'BTC.D'
         ? marketData.value
@@ -28,8 +39,8 @@ export const SparklineChart = ({ data, width = 40, height = 20, color, symbol, m
     if (!data || Object.keys(data).length < 2) {
         return (
             <svg
-                width={width}
-                height={height}
+                width={chartWidth}
+                height={chartHeight}
                 viewBox={`0 0 ${width} ${height}`}
                 preserveAspectRatio="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -53,8 +64,8 @@ export const SparklineChart = ({ data, width = 40, height = 20, color, symbol, m
         if (!isFinite(min) || !isFinite(max) || min === max) {
             return (
                 <svg
-                    width={width}
-                    height={height}
+                    width={chartWidth}
+                    height={chartHeight}
                     viewBox={`0 0 ${width} ${height}`}
                     preserveAspectRatio="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -88,8 +99,8 @@ export const SparklineChart = ({ data, width = 40, height = 20, color, symbol, m
 
         return (
             <svg
-                width={width}
-                height={height}
+                width={chartWidth}
+                height={chartHeight}
                 viewBox={`0 0 ${width} ${height}`}
                 preserveAspectRatio="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -118,8 +129,8 @@ export const SparklineChart = ({ data, width = 40, height = 20, color, symbol, m
         console.error('Error rendering chart:', error);
         return (
             <svg
-                width={width}
-                height={height}
+                width={chartWidth}
+                height={chartHeight}
                 viewBox={`0 0 ${width} ${height}`}
                 preserveAspectRatio="none"
                 xmlns="http://www.w3.org/2000/svg"
