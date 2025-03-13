@@ -69,8 +69,11 @@ export const ChangeSection = ({ symbol, marketData, isDetailsVisible }: ChangeSe
         );
     }
 
+    const changePercent = marketData.otc_price && marketData.otc_change_percent ? marketData.otc_change_percent : marketData.change_percent;
+    const changeValue = marketData.otc_price && marketData.otc_change ? marketData.otc_change : String(marketData.change);
+
     const color = marketData.rating ? COLORS[theme].primary :
-        Number(marketData.change_percent) > 0 ? COLORS[theme].primary :
+        Number(changePercent) > 0 ? COLORS[theme].primary :
             COLORS[theme].danger;
 
     return (
@@ -92,7 +95,7 @@ export const ChangeSection = ({ symbol, marketData, isDetailsVisible }: ChangeSe
                         fontWeight: 200
                     }}
                 >
-                    {marketData.rating ? marketData.rating : formatChange(marketData.change_percent) + '%'}
+                    {marketData.rating ? marketData.rating : formatChange(changePercent) + '%'}
                 </span>
 
                 {/* 가격 변동 */}
@@ -106,7 +109,7 @@ export const ChangeSection = ({ symbol, marketData, isDetailsVisible }: ChangeSe
                             fontWeight: 200
                         }}
                     >
-                        {formatChange(String(marketData.change))}
+                        {formatChange(changeValue)}
                     </span>
                 )}
             </div>
