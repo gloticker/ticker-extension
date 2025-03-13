@@ -13,7 +13,7 @@ const ORDER_MAP = {
     Index: ['^IXIC', '^GSPC', '^DJI', '^RUT', '^TLT', '^VIX', 'Fear&Greed'],
     Stock: ['AAPL', 'NVDA', 'MSFT', 'AMZN', 'GOOGL', 'META', 'TSLA'],
     Crypto: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BTC.D', 'TOTAL3'],
-    Forex: ['KRW=X', 'EURKRW=X', 'CNYKRW=X', 'JPYKRW=X']
+    Forex: ['DX-Y.NYB', 'KRW=X', 'EURKRW=X', 'CNYKRW=X', 'JPYKRW=X']
 };
 
 const marketTypes: MarketType[] = ['Index', 'Stock', 'Crypto', 'Forex'];

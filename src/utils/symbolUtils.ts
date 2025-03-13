@@ -24,6 +24,7 @@ export const getSymbolInfo = (symbol: string, language: Language = "en"): Symbol
     "EURKRW=X": "EUR",
     "CNYKRW=X": "CNY",
     "JPYKRW=X": "JPY",
+    "DX-Y.NYB": "DXY",
     TOTAL3: "ALT.D",
   };
 
@@ -62,6 +63,7 @@ export const getSymbolImage = (symbol: string): string => {
     .replace("CNYKRW", "CNY") // CNYKRW -> CNY
     .replace("JPYKRW", "JPY") // JPYKRW -> JPY
     .replace("KRW", "USD") // KRW=X -> USD
+    .replace("DX-Y.NYB", "DXY") // DX-Y.NYB -> DXY
     .replace("images/symbol/", "")
     .replace(".svg", "")
     .toUpperCase();
