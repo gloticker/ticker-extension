@@ -22,6 +22,20 @@ style.textContent = `
     max-width: 300px;
     max-height: 600px;
   }
+  html, body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  html::-webkit-scrollbar, body::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
   ` : ''}
 `;
 document.head.appendChild(style);
@@ -38,8 +52,8 @@ function App() {
   return (
     <div
       style={{
-        width: '50vh',
-        height: '100vh',
+        width: import.meta.env.PROD ? '300px' : '50vh',
+        height: import.meta.env.PROD ? '600px' : '100vh',
         overflow: 'hidden',
         position: 'relative',
         border: 'none',
