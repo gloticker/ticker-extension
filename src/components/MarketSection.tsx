@@ -119,6 +119,8 @@ export const MarketSection = () => {
                     current_value: data.current_value,
                     current_price: data.current_price,
                     otc_price: data.otc_price,
+                    otc_change: data.otc_change,
+                    otc_change_percent: data.otc_change_percent,
                     change: data.change,
                     change_percent: data.change_percent,
                     market_cap: data.market_cap || lastSnapshot[symbol]?.market_cap
