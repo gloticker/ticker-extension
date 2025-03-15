@@ -2,6 +2,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { COLORS } from '../../constants/theme';
 import { useI18n } from '../../hooks/useI18n';
 import { getSymbolImage, getDisplaySymbol } from '../../utils/symbolUtils';
+import { vmin, fontSize } from '../../utils/responsive';
 
 interface SymbolSectionProps {
     symbol: string;
@@ -14,17 +15,28 @@ export const SymbolSection = ({ symbol }: SymbolSectionProps) => {
     const translatedSymbol = getDisplaySymbol(symbol, language);
 
     return (
-        <div className="flex items-center w-[35%]">
+        <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            width: '35%',
+            paddingLeft: vmin(12)
+        }}>
             <div>
                 <img
                     src={getSymbolImage(symbol)}
                     alt={symbol}
-                    className="w-4 h-4"
+                    style={{
+                        width: vmin(16),
+                        height: vmin(16)
+                    }}
                 />
             </div>
             <span
-                className="text-sm ml-[6px]"
-                style={{ color: COLORS[theme].text.primary }}
+                style={{
+                    marginLeft: vmin(6),
+                    fontSize: fontSize(14),
+                    color: COLORS[theme].text.primary
+                }}
             >
                 {translatedSymbol}
             </span>

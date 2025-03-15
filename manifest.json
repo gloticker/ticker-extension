@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "gloticker",
+  "name": "__MSG_appName__",
   "version": "1.0.0",
-  "description": "실시간 글로벌 경제 지표를 한눈에 보는 익스텐션",
+  "description": "__MSG_appDesc__",
+  "default_locale": "ko",
   "icons": {
     "16": "logo/icon16.png",
     "32": "logo/icon32.png",

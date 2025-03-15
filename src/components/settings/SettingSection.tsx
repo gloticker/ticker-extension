@@ -3,6 +3,7 @@ import { COLORS } from '../../constants/theme';
 import { getSymbolImage } from '../../utils/symbolUtils';
 import { TRANSLATIONS } from '../../constants/i18n';
 import { useState, useEffect } from 'react';
+import { vmin, fontSize } from '../../utils/responsive';
 
 interface SettingSectionProps {
     title: string;
@@ -65,15 +66,28 @@ export const SettingSection = ({
     };
 
     return (
-        <div className="mb-2.5">
+        <div style={{ marginBottom: vmin(10) }}>
             <div
-                className="w-[288px] h-10 px-4 mx-auto flex items-center justify-between"
-                style={{ color: COLORS[theme].text.primary }}
+                style={{
+                    width: '100%',
+                    maxWidth: vmin(266),
+                    height: vmin(40),
+                    padding: `0 ${vmin(12)}px`,
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    color: COLORS[theme].text.primary
+                }}
             >
-                <div className="flex items-baseline">
+                <div style={{ display: 'flex', alignItems: 'baseline' }}>
                     <span
-                        className={`transition-opacity duration-150 inline-block w-[80px] text-[20px]`}
                         style={{
+                            transition: 'opacity 150ms',
+                            display: 'inline-block',
+                            width: vmin(80),
+                            fontSize: fontSize(20),
                             opacity: isTitleFading ? 0 : 1,
                             fontWeight: 400,
                             letterSpacing: '2px'
@@ -83,8 +97,8 @@ export const SettingSection = ({
                     </span>
                     {(title === 'Forex' || title === 'Stock' || title === 'Crypto') && (
                         <span
-                            className="text-[10px]"
                             style={{
+                                fontSize: fontSize(10),
                                 color: COLORS[theme].text.secondary,
                                 opacity: isTitleFading ? 0 : 1,
                                 fontWeight: 400,
@@ -101,14 +115,19 @@ export const SettingSection = ({
                 </div>
                 {value ? (
                     <span
-                        className={`transition-opacity duration-150 text-[10px] whitespace-pre-line leading-[1.5] flex-1 text-right ${(title === 'Details' || title === 'Theme' || title === 'Language') ? 'ml-[30px]' : ''
-                            }`}
                         style={{
+                            transition: 'opacity 150ms',
+                            fontSize: fontSize(10),
+                            whiteSpace: 'pre-line',
+                            lineHeight: 1.5,
+                            flex: 1,
+                            textAlign: 'right',
                             color: COLORS[theme].text.secondary,
                             opacity: isValueFading ? 0 : 1,
                             fontWeight: 400,
                             letterSpacing: '1px',
-                            marginRight: '8px'
+                            marginRight: vmin(8),
+                            marginLeft: (title === 'Details' || title === 'Theme' || title === 'Language') ? vmin(30) : undefined
                         }}
                     >
                         {displayValue}
@@ -116,14 +135,26 @@ export const SettingSection = ({
                 ) : null}
                 {isToggle && (
                     <div
-                        className="w-10 h-5 rounded-full relative flex-shrink-0 cursor-pointer"
+                        style={{
+                            width: vmin(40),
+                            height: vmin(20),
+                            borderRadius: '9999px',
+                            position: 'relative',
+                            flexShrink: 0,
+                            cursor: 'pointer',
+                            backgroundColor: COLORS[theme].surface
+                        }}
                         onClick={handleToggle}
-                        style={{ backgroundColor: COLORS[theme].surface }}
                     >
                         <div
-                            className={`w-4 h-4 rounded-full absolute top-0.5 transition-transform duration-200 ease-in-out ${isActive ? 'translate-x-[22px]' : 'translate-x-0.5'
-                                }`}
                             style={{
+                                width: vmin(16),
+                                height: vmin(16),
+                                borderRadius: '9999px',
+                                position: 'absolute',
+                                top: vmin(2),
+                                transition: 'transform 200ms ease-in-out',
+                                transform: `translateX(${isActive ? vmin(22) : vmin(2)})`,
                                 backgroundColor: isActive ? COLORS[theme].primary : COLORS[theme].text.secondary
                             }}
                         />
@@ -132,10 +163,19 @@ export const SettingSection = ({
             </div>
 
             {symbols.length > 0 && (
-                <div className="mt-2">
+                <div style={{ marginTop: vmin(8) }}>
                     <div
-                        className="w-full max-w-[266px] h-10 mx-auto flex items-center gap-4 rounded-[10px] px-3"
                         style={{
+                            width: '100%',
+                            maxWidth: vmin(266),
+                            height: vmin(40),
+                            marginLeft: 'auto',
+                            marginRight: 'auto',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: vmin(16),
+                            padding: `0 ${vmin(12)}`,
+                            borderRadius: vmin(10),
                             backgroundColor: COLORS[theme].surface,
                             opacity: isActive ? 1 : 0.5
                         }}
@@ -144,19 +184,26 @@ export const SettingSection = ({
                             <button
                                 key={symbol}
                                 onClick={() => onSymbolToggle?.(symbol)}
-                                className={`w-[21px] h-[21px] rounded-full flex items-center justify-center transition-all duration-200 ${selectedSymbols.includes(symbol)
-                                    ? `border opacity-100`
-                                    : 'opacity-30 border border-transparent'
-                                    }`}
                                 style={{
-                                    borderColor: selectedSymbols.includes(symbol) ? COLORS[theme].primary : 'transparent'
+                                    width: vmin(21),
+                                    height: vmin(21),
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    transition: 'all 200ms',
+                                    opacity: selectedSymbols.includes(symbol) ? 1 : 0.3,
+                                    border: `${vmin(1)} solid ${selectedSymbols.includes(symbol) ? COLORS[theme].primary : 'transparent'}`
                                 }}
                                 disabled={!isActive}
                             >
                                 <img
                                     src={getSymbolImage(symbol)}
                                     alt={symbol}
-                                    className="w-[21px] h-[21px]"
+                                    style={{
+                                        width: vmin(21),
+                                        height: vmin(21)
+                                    }}
                                 />
                             </button>
                         ))}

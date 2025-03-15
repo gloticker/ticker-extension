@@ -24,11 +24,12 @@ export const getSymbolInfo = (symbol: string, language: Language = "en"): Symbol
     "EURKRW=X": "EUR",
     "CNYKRW=X": "CNY",
     "JPYKRW=X": "JPY",
+    "DX-Y.NYB": "DXY",
+    TOTAL3: "ALT.D",
   };
 
   const convertedSymbol = symbolMap[symbol] || symbol;
 
-  // 특수 케이스 링크 처리
   let link = `https://finance.yahoo.com/quote/${symbol}`;
 
   if (["BTC", "ETH", "SOL"].includes(convertedSymbol)) {
@@ -37,6 +38,8 @@ export const getSymbolInfo = (symbol: string, language: Language = "en"): Symbol
     link = "https://coinmarketcap.com/charts/bitcoin-dominance/";
   } else if (convertedSymbol === "F&G") {
     link = "https://edition.cnn.com/markets/fear-and-greed";
+  } else if (convertedSymbol === "ALT.D") {
+    link = "https://tradingview.com/symbols/TOTAL3/?exchange=CRYPTOCAP";
   }
 
   return {
@@ -60,6 +63,7 @@ export const getSymbolImage = (symbol: string): string => {
     .replace("CNYKRW", "CNY") // CNYKRW -> CNY
     .replace("JPYKRW", "JPY") // JPYKRW -> JPY
     .replace("KRW", "USD") // KRW=X -> USD
+    .replace("DX-Y.NYB", "DXY") // DX-Y.NYB -> DXY
     .replace("images/symbol/", "")
     .replace(".svg", "")
     .toUpperCase();

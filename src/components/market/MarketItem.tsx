@@ -8,6 +8,7 @@ import { ChangeSection } from './ChangeSection';
 import { useState, useEffect } from 'react';
 import { useI18n } from '../../hooks/useI18n';
 import { TRANSLATIONS } from '../../constants/i18n';
+import { vmin, fontSize } from '../../utils/responsive';
 
 interface MarketItemProps {
     symbol: string;
@@ -22,9 +23,11 @@ export const MarketItem = ({ symbol, marketData, chartData, isDetailsVisible }: 
     const [isFlashing, setIsFlashing] = useState(false);
     const [latestValue, setLatestValue] = useState('');
 
-    const newValue = symbol === 'BTC.D'
-        ? marketData.value
-        : (marketData.otc_price || marketData.current_price || marketData.current_value || marketData.rate || marketData.score || marketData.value);
+    const newValue = symbol === 'TOTAL3'
+        ? marketData.market_cap
+        : symbol === 'BTC.D'
+            ? marketData.value + ' %'
+            : (marketData.otc_price || marketData.current_price || marketData.current_value || marketData.rate || marketData.score || marketData.value);
 
     useEffect(() => {
         if (latestValue && latestValue !== newValue) {
@@ -36,33 +39,50 @@ export const MarketItem = ({ symbol, marketData, chartData, isDetailsVisible }: 
     }, [newValue, latestValue]);
 
     const symbolInfo = getSymbolInfo(symbol, language);
-    const textSizeClass = symbolInfo.displayName.length > 5 ? 'text-[9px]' : 'text-xs';
     const isDelayedData = symbol === '^RUT' || symbol === '^VIX';
-    const isStockOrCrypto = symbol !== 'Fear&Greed' && symbol !== 'BTC.D';
 
     return (
         <div
-            className="w-full max-w-[266px] h-10 mx-auto flex items-center mb-2.5 relative rounded-[10px] transition-colors duration-300"
-            onClick={() => window.open(symbolInfo.link, '_blank')}
             style={{
+                width: '100%',
+                maxWidth: vmin(266),
+                height: vmin(40),
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: vmin(10),
+                position: 'relative',
+                borderRadius: vmin(10),
+                transition: 'colors 300ms',
                 backgroundColor: isFlashing
                     ? `${COLORS[theme].primary}10`
                     : COLORS[theme].surface,
                 cursor: 'pointer'
             }}
+            onClick={() => window.open(symbolInfo.link, '_blank')}
         >
-            <div className="flex items-center pl-3 w-[35%]">
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                paddingLeft: vmin(12),
+                width: '35%'
+            }}>
                 <img
                     src={getSymbolImage(symbol)}
                     alt={symbol}
-                    className="w-4 h-4"
+                    style={{
+                        width: vmin(16),
+                        height: vmin(16)
+                    }}
                 />
                 <span
-                    className={`${textSizeClass} ml-1.5`}
                     style={{
+                        marginLeft: vmin(6),
+                        fontSize: symbolInfo.displayName.length > 6 ? fontSize(9) : fontSize(12),
                         color: COLORS[theme].text.primary,
                         fontWeight: 400,
-                        letterSpacing: symbolInfo.displayName.length > 5 ? '0px' : '1px'
+                        letterSpacing: symbolInfo.displayName.length > 6 ? '0px' : '1px'
                     }}
                 >
                     {symbolInfo.displayName}
@@ -73,53 +93,106 @@ export const MarketItem = ({ symbol, marketData, chartData, isDetailsVisible }: 
                 symbol={symbol}
                 marketData={marketData}
             />
+
             {isDelayedData && (
                 <span
-                    className="absolute text-[9px] left-[73px] top-1/2 -translate-y-1/2 z-10 group"
+                    className="group"
                     style={{
+                        position: 'absolute',
+                        left: vmin(73),
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        zIndex: 10,
+                        fontSize: fontSize(9),
                         color: COLORS[theme].text.secondary,
                         backgroundColor: COLORS[theme].surface,
-                        padding: '0 2px',
+                        padding: `0 ${vmin(2)}px`,
                         fontWeight: 400
                     }}
                 >
                     D
                     <span
-                        className="invisible group-hover:visible absolute left-1/2 -translate-x-1/2 bottom-[60%] px-2 py-1 text-[10px] whitespace-nowrap"
-                        style={{ color: COLORS[theme].text.secondary }}
+                        className="invisible group-hover:visible"
+                        style={{
+                            position: 'absolute',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            bottom: '100%',
+                            padding: `${vmin(4)}px ${vmin(8)}px`,
+                            fontSize: fontSize(10),
+                            whiteSpace: 'nowrap',
+                            color: COLORS[theme].text.secondary
+                        }}
                     >
                         {TRANSLATIONS[language].delayed}
                     </span>
                 </span>
             )}
 
-            {symbol !== 'BTC.D' && (
-                <ChangeSection
-                    symbol={symbol}
-                    marketData={marketData}
-                    isDetailsVisible={isDetailsVisible}
-                />
-            )}
+            <ChangeSection
+                symbol={symbol}
+                marketData={marketData}
+                isDetailsVisible={isDetailsVisible}
+            />
 
             {symbol !== 'Fear&Greed' && symbol !== 'BTC.D' && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <div className="relative">
-                        <SparklineChart
-                            data={chartData}
-                            color={COLORS[theme].primary}
-                            symbol={symbol}
-                            marketData={marketData}
-                        />
-                        {isStockOrCrypto && isDetailsVisible && marketData.market_cap && (
-                            <span
-                                className="absolute text-[10px] -bottom-[10px]"
-                                style={{
-                                    color: COLORS[theme].text.primary,
-                                    fontWeight: 200
-                                }}
-                            >
-                                {marketData.market_cap}
-                            </span>
+                <div style={{
+                    position: 'absolute',
+                    right: vmin(12),
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    fontWeight: 500,
+                    overflow: 'visible'
+                }}>
+                    <div style={{ position: 'relative', overflow: 'visible' }}>
+                        {symbol === 'TOTAL3' ? (
+                            <div style={{
+                                width: vmin(40),
+                                height: vmin(20),
+                                position: 'relative'
+                            }}>
+                                {isDetailsVisible && (
+                                    <span
+                                        style={{
+                                            fontSize: fontSize(10),
+                                            color: COLORS[theme].text.primary,
+                                            fontWeight: 200,
+                                            whiteSpace: 'nowrap',
+                                            position: 'absolute',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)'
+                                        }}
+                                    >
+                                        {marketData.market_cap}
+                                    </span>
+                                )}
+                            </div>
+                        ) : (
+                            <>
+                                <SparklineChart
+                                    data={chartData}
+                                    color={COLORS[theme].primary}
+                                    symbol={symbol}
+                                    marketData={marketData}
+                                    width={40}
+                                    height={20}
+                                />
+                                {isDetailsVisible && marketData.market_cap && (
+                                    <span
+                                        style={{
+                                            position: 'absolute',
+                                            fontSize: fontSize(10),
+                                            bottom: vmin(-10),
+                                            color: COLORS[theme].text.primary,
+                                            fontWeight: 200,
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'visible'
+                                        }}
+                                    >
+                                        {marketData.market_cap}
+                                    </span>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>

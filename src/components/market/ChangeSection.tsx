@@ -1,6 +1,7 @@
 import { useTheme } from '../../hooks/useTheme';
 import { COLORS } from '../../constants/theme';
 import { MarketData } from '../../types/market';
+import { fontSize } from '../../utils/responsive';
 
 interface ChangeSectionProps {
     symbol: string;
@@ -27,34 +28,88 @@ export const ChangeSection = ({ symbol, marketData, isDetailsVisible }: ChangeSe
         return null;
     }
 
+    if (symbol === 'TOTAL3') {
+        return (
+            <div style={{
+                position: 'absolute',
+                width: '40%',
+                left: '60%',
+                height: '100%'
+            }}>
+                <div style={{ position: 'relative', height: '100%' }}>
+                    {isDetailsVisible && (
+                        <span
+                            style={{
+                                position: 'absolute',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                fontSize: fontSize(12),
+                                color: Number(marketData.change_percent) > 0 ? COLORS[theme].primary : COLORS[theme].danger,
+                                fontWeight: 200
+                            }}
+                        >
+                            {Number(marketData.change_percent) > 0 ? '+' : ''}{marketData.change_percent}%
+                        </span>
+                    )}
+                    {isDetailsVisible && (
+                        <span
+                            style={{
+                                position: 'absolute',
+                                bottom: 0,
+                                fontSize: fontSize(10),
+                                color: COLORS[theme].text.primary,
+                                fontWeight: 200
+                            }}
+                        >
+                            {!marketData.change.toString().startsWith('-') ? '+' : ''}{marketData.change}
+                        </span>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    const changePercent = marketData.otc_price && marketData.otc_change_percent ? marketData.otc_change_percent : marketData.change_percent;
+    const changeValue = marketData.otc_price && marketData.otc_change ? marketData.otc_change : String(marketData.change);
+
     const color = marketData.rating ? COLORS[theme].primary :
-        Number(marketData.change_percent) > 0 ? COLORS[theme].primary :
+        Number(changePercent) > 0 ? COLORS[theme].primary :
             COLORS[theme].danger;
 
     return (
-        <div className="absolute w-[40%] left-[60%] h-full">
-            <div className="relative h-full">
+        <div style={{
+            position: 'absolute',
+            width: '40%',
+            left: '60%',
+            height: '100%'
+        }}>
+            <div style={{ position: 'relative', height: '100%' }}>
                 {/* 변동률(%) */}
                 <span
-                    className="absolute top-1/2 -translate-y-1/2 text-xs font-medium"
                     style={{
+                        position: 'absolute',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        fontSize: fontSize(12),
                         color,
                         fontWeight: 200
                     }}
                 >
-                    {marketData.rating ? marketData.rating : formatChange(marketData.change_percent) + '%'}
+                    {marketData.rating ? marketData.rating : formatChange(changePercent) + '%'}
                 </span>
 
                 {/* 가격 변동 */}
                 {!marketData.rating && isDetailsVisible && (
                     <span
-                        className="absolute bottom-0 text-[10px]"
                         style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            fontSize: fontSize(10),
                             color: COLORS[theme].text.primary,
                             fontWeight: 200
                         }}
                     >
-                        {formatChange(String(marketData.change))}
+                        {formatChange(changeValue)}
                     </span>
                 )}
             </div>

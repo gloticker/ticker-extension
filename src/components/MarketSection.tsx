@@ -4,6 +4,7 @@ import { MarketGroup } from './market/MarketGroup';
 import { useMarketStream } from '../hooks/useMarketStream';
 import { MarketData } from '../types/market';
 import { storage } from "../utils/storage";
+import { vmin } from "../utils/responsive";
 
 type MarketSnapshot = Record<string, MarketData>;
 type MarketType = 'Index' | 'Stock' | 'Crypto' | 'Forex';
@@ -11,8 +12,8 @@ type MarketType = 'Index' | 'Stock' | 'Crypto' | 'Forex';
 const ORDER_MAP = {
     Index: ['^IXIC', '^GSPC', '^DJI', '^RUT', '^TLT', '^VIX', 'Fear&Greed'],
     Stock: ['AAPL', 'NVDA', 'MSFT', 'AMZN', 'GOOGL', 'META', 'TSLA'],
-    Crypto: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BTC.D'],
-    Forex: ['KRW=X', 'EURKRW=X', 'CNYKRW=X', 'JPYKRW=X']
+    Crypto: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BTC.D', 'TOTAL3'],
+    Forex: ['DX-Y.NYB', 'KRW=X', 'EURKRW=X', 'CNYKRW=X', 'JPYKRW=X']
 };
 
 const marketTypes: MarketType[] = ['Index', 'Stock', 'Crypto', 'Forex'];
@@ -118,6 +119,8 @@ export const MarketSection = () => {
                     current_value: data.current_value,
                     current_price: data.current_price,
                     otc_price: data.otc_price,
+                    otc_change: data.otc_change,
+                    otc_change_percent: data.otc_change_percent,
                     change: data.change,
                     change_percent: data.change_percent,
                     market_cap: data.market_cap || lastSnapshot[symbol]?.market_cap
@@ -198,7 +201,15 @@ export const MarketSection = () => {
     };
 
     return (
-        <div className="flex flex-col w-full">
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            maxWidth: vmin(288),
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            padding: `0 ${vmin(16)}px`
+        }}>
             {marketTypes.map((type) => (
                 // 활성화된 섹션만 렌더링
                 activeSections[type] && (

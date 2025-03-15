@@ -6,6 +6,8 @@ import { useState, useEffect } from 'react';
 import { useI18n } from '../../hooks/useI18n';
 import { TRANSLATIONS } from '../../constants/i18n';
 import { storage } from "../../utils/storage";
+import { vmin, fontSize } from '../../utils/responsive';
+import { vh } from '../../utils/responsive';
 
 interface AnalysisModalProps {
     isOpen: boolean;
@@ -159,18 +161,33 @@ export const AnalysisModal = ({ isOpen, onClose }: AnalysisModalProps) => {
                             duration: 0.15,
                             ease: "easeInOut"
                         }}
-                        className="absolute top-[60px] w-full max-w-[266px] h-[230px] mx-auto left-0 right-0 rounded-lg shadow-lg"
                         style={{
+                            position: 'absolute',
+                            top: vmin(60),
+                            width: '100%',
+                            maxWidth: vmin(266),
+                            height: vh(230),
+                            marginLeft: 'auto',
+                            marginRight: 'auto',
+                            left: 0,
+                            right: 0,
+                            borderRadius: vmin(10),
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                             zIndex: 50,
                             backgroundColor: COLORS[theme].surface,
                         }}
                     >
                         {/* 헤더 영역 */}
-                        <div className="flex justify-between items-center px-4 py-3">
-                            <div className="flex items-center">
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: `${vmin(12)} ${vmin(16)}`
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <h2
-                                    className="text-xl"
                                     style={{
+                                        fontSize: fontSize(20),
                                         color: COLORS[theme].text.primary,
                                         fontWeight: 400,
                                         letterSpacing: '1px'
@@ -178,10 +195,14 @@ export const AnalysisModal = ({ isOpen, onClose }: AnalysisModalProps) => {
                                 >
                                     {TRANSLATIONS[language].modals.AIAnalysis}
                                 </h2>
-                                <div className="flex gap-1 ml-3 items-center">
+                                <div style={{ display: 'flex', gap: vmin(4), marginLeft: vmin(12), alignItems: 'center' }}>
                                     <motion.div
-                                        className="w-1 h-1 rounded-full"
-                                        style={{ backgroundColor: COLORS[theme].primary }}
+                                        style={{
+                                            width: vmin(4),
+                                            height: vmin(4),
+                                            borderRadius: '50%',
+                                            backgroundColor: COLORS[theme].primary
+                                        }}
                                         animate={{
                                             opacity: [0.3, 1, 0.3],
                                             scale: [0.8, 1, 0.8],
@@ -193,8 +214,12 @@ export const AnalysisModal = ({ isOpen, onClose }: AnalysisModalProps) => {
                                         }}
                                     />
                                     <motion.div
-                                        className="w-1 h-1 rounded-full"
-                                        style={{ backgroundColor: COLORS[theme].primary }}
+                                        style={{
+                                            width: vmin(4),
+                                            height: vmin(4),
+                                            borderRadius: '50%',
+                                            backgroundColor: COLORS[theme].primary
+                                        }}
                                         animate={{
                                             opacity: [0.3, 1, 0.3],
                                             scale: [0.8, 1, 0.8],
@@ -206,8 +231,12 @@ export const AnalysisModal = ({ isOpen, onClose }: AnalysisModalProps) => {
                                         }}
                                     />
                                     <motion.div
-                                        className="w-1 h-1 rounded-full"
-                                        style={{ backgroundColor: COLORS[theme].primary }}
+                                        style={{
+                                            width: vmin(4),
+                                            height: vmin(4),
+                                            borderRadius: '50%',
+                                            backgroundColor: COLORS[theme].primary
+                                        }}
                                         animate={{
                                             opacity: [0.3, 1, 0.3],
                                             scale: [0.8, 1, 0.8],
@@ -222,13 +251,20 @@ export const AnalysisModal = ({ isOpen, onClose }: AnalysisModalProps) => {
                             </div>
                             <button
                                 onClick={onClose}
-                                className="w-5 h-5 flex items-center justify-center"
+                                style={{
+                                    width: vmin(20),
+                                    height: vmin(20),
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
                             >
                                 <img
                                     src={exitIcon}
                                     alt="close"
-                                    className="w-3.5 h-3.5"
                                     style={{
+                                        width: vmin(14),
+                                        height: vmin(14),
                                         filter: `brightness(${theme === 'dark' ? 1 : 0})`
                                     }}
                                 />
@@ -236,36 +272,81 @@ export const AnalysisModal = ({ isOpen, onClose }: AnalysisModalProps) => {
                         </div>
 
                         {/* 컨텐츠 영역 */}
-                        <div className="h-[calc(100%-3rem)]">
+                        <div style={{ height: `calc(100% - ${vmin(48)})` }}>
                             {isLoading ? (
-                                <div className="flex items-center justify-center h-full">
-                                    <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent" />
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    height: '100%'
+                                }}>
+                                    <div style={{
+                                        animation: 'spin 1s linear infinite',
+                                        borderRadius: '50%',
+                                        height: vmin(24),
+                                        width: vmin(24),
+                                        border: `${vmin(2)} solid transparent`,
+                                        borderTopColor: COLORS[theme].primary,
+                                        borderRightColor: COLORS[theme].primary
+                                    }} />
                                 </div>
                             ) : error ? (
                                 <div
-                                    className="flex items-center justify-center h-full"
-                                    style={{ color: COLORS[theme].text.secondary }}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        height: '100%',
+                                        color: COLORS[theme].text.secondary
+                                    }}
                                 >
                                     {error}
                                 </div>
                             ) : analysis ? (
-                                <div className="h-full flex flex-col px-4">
-                                    <div className="flex-1 min-h-0 overflow-y-auto">
-                                        <div className="space-y-3 text-sm leading-relaxed"
-                                            style={{ color: COLORS[theme].text.primary }}
-                                        >
+                                <div style={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    padding: `0 ${vmin(16)}`
+                                }}>
+                                    <div style={{
+                                        flex: 1,
+                                        minHeight: 0,
+                                        overflowY: 'auto'
+                                    }}>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: vmin(12)
+                                        }}>
                                             {analysis.content.split('. ').map((sentence, index, array) => (
-                                                <p key={index}>
+                                                <p
+                                                    key={index}
+                                                    style={{
+                                                        fontSize: fontSize(14),
+                                                        lineHeight: 1.5,
+                                                        color: COLORS[theme].text.primary,
+                                                        margin: 0
+                                                    }}
+                                                >
                                                     {sentence}
                                                     {index < array.length - 1 && '.'}
                                                 </p>
                                             ))}
                                         </div>
                                     </div>
-                                    <div className="h-10 flex justify-end items-center pb-4">
+                                    <div style={{
+                                        height: vmin(40),
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        alignItems: 'center',
+                                        paddingBottom: vmin(16)
+                                    }}>
                                         <span
-                                            className="text-xs"
-                                            style={{ color: COLORS[theme].text.secondary }}
+                                            style={{
+                                                fontSize: fontSize(12),
+                                                color: COLORS[theme].text.secondary
+                                            }}
                                         >
                                             {formatUpdateTime(analysis.timestamp)}
                                         </span>

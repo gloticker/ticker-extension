@@ -10,8 +10,8 @@ import { useDetails } from "../../hooks/useDetails";
 const ORDER_MAP = {
     Index: ['^IXIC', '^GSPC', '^DJI', '^RUT', '^TLT', '^VIX', 'Fear&Greed'],
     Stock: ['AAPL', 'NVDA', 'MSFT', 'AMZN', 'GOOGL', 'META', 'TSLA'],
-    Crypto: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BTC.D'],
-    Forex: ['KRW=X', 'EURKRW=X', 'CNYKRW=X', 'JPYKRW=X']
+    Crypto: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BTC.D', 'TOTAL3'],
+    Forex: ['DX-Y.NYB', 'KRW=X', 'EURKRW=X', 'CNYKRW=X', 'JPYKRW=X']
 };
 
 interface SettingsProps {
